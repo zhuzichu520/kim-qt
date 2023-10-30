@@ -19,8 +19,8 @@ private slots:
     void onSocketMessage(const QString &message);
 private:
     QWebSocket _socket;
-    QString _host = "124.222.224.186";
-    QString _port = "8800";
+    QString _host = "localhost";
+    QString _port = "34567";
 };
 
 #endif // IMMANAGER_H
