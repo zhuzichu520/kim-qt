@@ -22,6 +22,9 @@ int main(int argc, char *argv[])
     QGuiApplication::setApplicationName("KIM");
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
+    IMManager* immanager = IMManager::getInstance();
+    engine.rootContext()->setContextProperty("IMManager",immanager);
+    qmlRegisterType<IMCallback>("IM", 1, 0, "IMCallback");
     const QUrl url(QStringLiteral("qrc:/App.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app, [url](QObject *obj, const QUrl &objUrl) {
@@ -29,8 +32,6 @@ int main(int argc, char *argv[])
                 QCoreApplication::exit(-1);
         }, Qt::QueuedConnection);
     engine.load(url);
-
-    IMManager::getInstance()->wsConnect();
     const int exec = QGuiApplication::exec();
     return exec;
 }

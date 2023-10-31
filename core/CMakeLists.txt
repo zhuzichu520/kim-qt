@@ -15,6 +15,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick WebSockets)
 set(PROJECT_SOURCES
     singleton.h
     IMManager.h IMManager.cpp
+
 )
 
 add_library(imcore STATIC

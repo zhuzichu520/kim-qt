@@ -6,6 +6,7 @@ Item {
 
     Component.onCompleted: {
         FluApp.init(app)
+        FluApp.vsync = true
         FluApp.routes = {
             "/login":"qrc:/LoginWindow.qml",
             "/":"qrc:/MainWindow.qml",
