@@ -4,7 +4,7 @@
 #include <QDir>
 #include <QQuickWindow>
 #include <QNetworkProxy>
-#include <IMManager.h>
+#include "IMManager.h"
 
 int main(int argc, char *argv[])
 {

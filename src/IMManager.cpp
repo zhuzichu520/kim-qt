@@ -1,5 +1,4 @@
 #include "IMManager.h"
-
 #include <QUrl>
 #include <QMetaEnum>
 #include <QThreadPool>
@@ -9,7 +8,22 @@
 #include <QNetworkAccessManager>
 #include <QEventLoop>
 #include <QJsonDocument>
+#include <QLocale>
+#include <QSysInfo>
 #include <QJsonObject>
+#include "proto/SentBody.pb.h"
+#include "proto/Message.pb.h"
+
+const QString APP_VERSION = "1.0.0";
+const QString APP_CHANNEL = "pc";
+const QString APP_PACKAGE = "com.chuzi.kim";
+const QString ACTION_999 = "999";
+const int DATA_HEADER_LENGTH = 1;
+const int MESSAGE = 2;
+const int REPLY_BODY = 4;
+const int SENT_BODY = 3;
+const int PING = 1;
+const int PONG = 0;
 
 IMManager::IMManager(QObject *parent)
     : QObject{parent}
@@ -24,18 +38,33 @@ IMManager::~IMManager(){
     }
 }
 
-void IMManager::wsConnect(const QString& token){
+void IMManager::bind(const QString& account){
+    com::chuzi::imsdk::server::model::proto::SentBody body;
+    body.set_key("client_bind");
+    body.set_timestamp(QDateTime::currentMSecsSinceEpoch());
+    body.mutable_data()->insert({"uid",account.toStdString()});
+    body.mutable_data()->insert({"channel",APP_CHANNEL.toStdString()});
+    body.mutable_data()->insert({"appVersion",APP_VERSION.toStdString()});
+    body.mutable_data()->insert({"osVersion",QSysInfo::productVersion().toStdString()});
+    body.mutable_data()->insert({"packageName",APP_PACKAGE.toStdString()});
+    body.mutable_data()->insert({"deviceId",QSysInfo::machineUniqueId().toStdString()});
+    body.mutable_data()->insert({"deviceName",QSysInfo::prettyProductName().toStdString()});
+    body.mutable_data()->insert({"language",QLocale::system().name().toStdString()});
+    sendRequest(&body);
+}
+
+void IMManager::wsConnect(const QString& account,const QString& token){
     if(_socket!=nullptr){
         delete _socket;
         _socket = nullptr;
     }
     _socket = new QWebSocket();
-    connect(_socket, &QWebSocket::textMessageReceived, this, &IMManager::onSocketMessage);
+    connect(_socket, &QWebSocket::binaryMessageReceived, this, &IMManager::onSocketMessage);
     connect(_socket, &QWebSocket::stateChanged, this,
             [=](QAbstractSocket::SocketState state) {
                 qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketState>().valueToKey(state);
                 if(state == QAbstractSocket::ConnectedState){
-
+                    bind(account);
                 }
             });
     connect(_socket, &QWebSocket::connected, this,
@@ -68,7 +97,7 @@ void IMManager::userLogin(const QString& account,const QString& password,IMCallb
     });
     connect(loginCallback,&IMCallback::success,this,[=](QJsonObject result){
         QString token = result.value("token").toString();
-        wsConnect(token);
+        wsConnect(account,token);
         callback->success(result);
     });
     connect(loginCallback,&IMCallback::finish,this,[=](){
@@ -76,6 +105,15 @@ void IMManager::userLogin(const QString& account,const QString& password,IMCallb
         callback->finish();
     });
     post("/user/login",params,loginCallback);
+}
+
+void IMManager::sendRequest(google::protobuf::Message* message){
+    QByteArray data = QByteArray::fromStdString(message->SerializeAsString());
+    QByteArray protobuf;
+    protobuf.resize(data.length() + 1);
+    protobuf[0] = SENT_BODY;
+    std::memcpy(protobuf.data() + 1, data.constData(), data.length());
+    _socket->sendBinaryMessage(protobuf);
 }
 
 
@@ -154,8 +192,16 @@ QString IMManager::apiUri(){
     return "http://" + _host + ":" + _apiport;
 }
 
-void  IMManager::onSocketMessage(const QString &message)
+void  IMManager::onSocketMessage(const QByteArray &message)
 {
+    int type = message[0];
+    QByteArray body = message.mid(1);
+    if(type == MESSAGE){
+        com::chuzi::imsdk::server::model::proto::Message message;
+        message.ParseFromArray(body.data(),body.size());
+        qDebug()<<QString::fromStdString(message.content());
+        return;
+    }
     qDebug()<<"-------------------------------------------->onSocketMessage";
     qDebug() << message;
 

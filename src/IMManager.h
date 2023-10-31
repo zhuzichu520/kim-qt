@@ -5,6 +5,7 @@
 #include <QWebSocket>
 #include <qDebug>
 #include <QJsonObject>
+#include <google/protobuf/message.h>
 #include "singleton.h"
 
 class IMCallback: public QObject{
@@ -28,18 +29,20 @@ private:
     ~IMManager();
 public:
     SINGLETONG(IMManager)
-    void wsConnect(const QString& token);
+    void wsConnect(const QString& account,const QString& token);
     Q_INVOKABLE void userRegister(const QString& account,const QString& password,IMCallback* callback = nullptr);
     Q_INVOKABLE void userLogin(const QString& account,const QString& password,IMCallback* callback = nullptr);
 private:
     QString wsUri();
     QString apiUri();
+    void bind(const QString& account);
     void post(const QString& path, QMap<QString, QVariant> params,IMCallback* callback);
+    void sendRequest(google::protobuf::Message* message);
 private slots:
-    void onSocketMessage(const QString &message);
+    void onSocketMessage(const QByteArray &message);
 private:
     QWebSocket* _socket = nullptr;
-    QString _host = "192.168.0.109";
+    QString _host = "localhost";
     QString _wsport = "34567";
     QString _apiport = "8080";
 };

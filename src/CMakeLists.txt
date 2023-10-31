@@ -13,8 +13,13 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick WebSockets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick WebSockets)
 
 set(PROJECT_SOURCES
-    main.cpp
     qml.qrc
+    main.cpp
+    singleton.h
+    IMManager.h IMManager.cpp
+    proto/Message.pb.h proto/Message.pb.cc
+    proto/ReplyBody.pb.h proto/ReplyBody.pb.cc
+    proto/SentBody.pb.h proto/SentBody.pb.cc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -44,13 +49,8 @@ target_link_libraries(kim PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Quick
     Qt${QT_VERSION_MAJOR}::WebSockets
+    protobuf::libprotobuf
     fluentuiplugin
-    imcore
-)
-
-target_include_directories(kim
-    PRIVATE
-    ${CMAKE_SOURCE_DIR}/core
 )
 
 set_target_properties(kim PROPERTIES
