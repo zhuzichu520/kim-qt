@@ -17,6 +17,7 @@ set(PROJECT_SOURCES
     main.cpp
     singleton.h
     IMManager.h IMManager.cpp
+    helper/SettingsHelper.h helper/SettingsHelper.cpp
     proto/Message.pb.h proto/Message.pb.cc
     proto/ReplyBody.pb.h proto/ReplyBody.pb.cc
     proto/SentBody.pb.h proto/SentBody.pb.cc
@@ -59,6 +60,10 @@ set_target_properties(kim PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+)
+
+target_include_directories(kim PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 install(TARGETS kim

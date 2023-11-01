@@ -9,9 +9,15 @@ Item {
         FluApp.vsync = true
         FluApp.routes = {
             "/login":"qrc:/LoginWindow.qml",
+            "/setting":"qrc:/SettingWindow.qml",
             "/":"qrc:/MainWindow.qml",
         }
-        FluApp.initialRoute = "/login"
+        var token = SettingsHelper.getToken()
+        if(token && token!==""){
+            FluApp.initialRoute = "/"
+        }else{
+            FluApp.initialRoute = "/login"
+        }
         FluApp.run()
     }
 }

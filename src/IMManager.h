@@ -12,9 +12,7 @@ class IMCallback: public QObject{
     Q_OBJECT
 public:
     explicit IMCallback(QObject *parent = nullptr){};
-    ~IMCallback(){
-        qDebug()<<"-----~IMCallback------";
-    };
+    ~IMCallback(){};
     Q_SIGNAL void start();
     Q_SIGNAL void finish();
     Q_SIGNAL void success(QJsonObject result);
@@ -29,20 +27,21 @@ private:
     ~IMManager();
 public:
     SINGLETONG(IMManager)
-    void wsConnect(const QString& account,const QString& token);
+    Q_INVOKABLE void wsConnect(const QString& token);
     Q_INVOKABLE void userRegister(const QString& account,const QString& password,IMCallback* callback = nullptr);
     Q_INVOKABLE void userLogin(const QString& account,const QString& password,IMCallback* callback = nullptr);
 private:
     QString wsUri();
     QString apiUri();
-    void bind(const QString& account);
+    void bind(const QString& token);
+    void pong();
     void post(const QString& path, QMap<QString, QVariant> params,IMCallback* callback);
     void sendRequest(google::protobuf::Message* message);
 private slots:
     void onSocketMessage(const QByteArray &message);
 private:
     QWebSocket* _socket = nullptr;
-    QString _host = "localhost";
+    QString _host = "192.168.0.109";
     QString _wsport = "34567";
     QString _apiport = "8080";
 };

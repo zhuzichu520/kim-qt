@@ -3,5 +3,8 @@
         <file>App.qml</file>
         <file>LoginWindow.qml</file>
         <file>MainWindow.qml</file>
+        <file>SettingWindow.qml</file>
+        <file>SessionPage.qml</file>
+        <file>ContactsPage.qml</file>
     </qresource>
 </RCC>

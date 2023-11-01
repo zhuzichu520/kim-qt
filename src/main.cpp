@@ -4,7 +4,9 @@
 #include <QDir>
 #include <QQuickWindow>
 #include <QNetworkProxy>
+#include <QProcess>
 #include "IMManager.h"
+#include "helper/SettingsHelper.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,10 +22,11 @@ int main(int argc, char *argv[])
     QGuiApplication::setOrganizationName("ZhuZiChu");
     QGuiApplication::setOrganizationDomain("https://zhuzichu520.github.io");
     QGuiApplication::setApplicationName("KIM");
+    SettingsHelper::getInstance()->init(argv);
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
-    IMManager* immanager = IMManager::getInstance();
-    engine.rootContext()->setContextProperty("IMManager",immanager);
+    engine.rootContext()->setContextProperty("IMManager",IMManager::getInstance());
+    engine.rootContext()->setContextProperty("SettingsHelper",SettingsHelper::getInstance());
     qmlRegisterType<IMCallback>("IM", 1, 0, "IMCallback");
     const QUrl url(QStringLiteral("qrc:/App.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
@@ -33,5 +36,8 @@ int main(int argc, char *argv[])
         }, Qt::QueuedConnection);
     engine.load(url);
     const int exec = QGuiApplication::exec();
+    if (exec == 931) {
+        QProcess::startDetached(qApp->applicationFilePath(), QStringList());
+    }
     return exec;
 }

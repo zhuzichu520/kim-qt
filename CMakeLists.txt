@@ -6,7 +6,9 @@ set(FLUENTUI_BUILD_EXAMPLES OFF)
 set(protobuf_BUILD_TESTS OFF)
 set(protobuf_BUILD_PROTOC_BINARIES OFF)
 set(protobuf_WITH_ZLIB OFF)
-set(protobuf_BUILD_SHARED_LIBS ON)
+
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick)
 
 if(MSVC)
     add_compile_options(
@@ -15,10 +17,6 @@ if(MSVC)
         $<$<CONFIG:Release>:/MT>
     )
 endif()
-
-
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick)
 
 add_subdirectory(src)
 add_subdirectory(protobuf/cmake)

@@ -25,11 +25,13 @@ FluWindow {
 
             FluTextBox{
                 id:textbox_login_account
+                text:"zhuzichu"
                 placeholderText: "请输入账号"
             }
 
             FluPasswordBox{
                 id:textbox_login_password
+                text:"123456"
                 placeholderText: "请输入密码"
             }
 
@@ -160,7 +162,9 @@ FluWindow {
         onSuccess:
             (reslut)=>{
                 console.debug(JSON.stringify(reslut))
-                showSuccess("登录成功")
+                SettingsHelper.saveToken(reslut.token)
+                FluApp.navigate("/")
+                window.close()
             }
     }
 
@@ -176,12 +180,5 @@ FluWindow {
 
         }
     }
-
-
-
-
-
-
-
 
 }
