@@ -41,6 +41,7 @@ IMManager::~IMManager(){
 }
 
 void IMManager::bind(const QString& token){
+    _token = token;
     com::chuzi::imsdk::server::model::proto::SentBody body;
     body.set_key("client_bind");
     body.set_timestamp(QDateTime::currentMSecsSinceEpoch());
@@ -75,6 +76,7 @@ void IMManager::wsConnect(const QString& token){
                 qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketState>().valueToKey(state);
                 if(state == QAbstractSocket::ConnectedState){
                     bind(token);
+                    Q_EMIT wsConnected();
                 }
             });
     connect(_socket, &QWebSocket::connected, this,
@@ -104,6 +106,12 @@ void IMManager::userLogin(const QString& account,const QString& password,IMCallb
     post("/user/login",params,callback);
 }
 
+void IMManager::userProfile(IMCallback* callback){
+    callback->start();
+    QMap<QString, QVariant> params;
+    post("/user/profile",params,callback);
+}
+
 void IMManager::sendRequest(google::protobuf::Message* message){
     QByteArray data = QByteArray::fromStdString(message->SerializeAsString());
     QByteArray protobuf;
@@ -120,6 +128,9 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
             Q_EMIT callback->start();
         }
         QNetworkRequest req(apiUri()+path);
+        if(!_token.isEmpty()){
+            req.setRawHeader("access-token",_token.toUtf8());
+        }
         QHttpMultiPart multiPart(QHttpMultiPart::FormDataType);
         for (const auto& each : params.toStdMap())
         {

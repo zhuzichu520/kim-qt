@@ -18,6 +18,7 @@ Page{
             name:"孙悟空"
         }
     }
+
     component ContactItem:Rectangle{
         property bool selected: false
         signal clicked
@@ -26,11 +27,19 @@ Page{
         width: 250
         color:{
             if(control_contact.selected){
-                return Qt.rgba(0,0,0,0.09)
+                return FluTheme.itemCheckColor
             }
-            if(hover_handler_contact.hovered)
-                return Qt.rgba(0,0,0,0.06)
-            return Qt.rgba(0,0,0,0)
+            if(mouse_area_contract.containsMouse)
+                return FluTheme.itemPressColor
+            return FluTheme.itemNormalColor
+        }
+        MouseArea{
+            id:mouse_area_contract
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: {
+                control_contact.clicked()
+            }
         }
         Rectangle{
             id:item_avatar
@@ -48,14 +57,6 @@ Page{
                 verticalCenter: parent.verticalCenter
                 left: item_avatar.right
                 leftMargin: 10
-            }
-        }
-        HoverHandler{
-            id:hover_handler_contact
-        }
-        TapHandler{
-            onTapped: {
-                control_contact.clicked()
             }
         }
     }
@@ -93,6 +94,9 @@ Page{
                     right: parent.right
                     rightMargin: 14
                 }
+                onClicked: {
+                    contract_find_page.visible = true
+                }
             }
         }
         ListView{
@@ -119,6 +123,69 @@ Page{
                 onClicked: {
                     control.currentIndex = index
                 }
+            }
+        }
+        Rectangle{
+            color: Qt.rgba(214/255,214/255,214/255,1)
+            height: 1
+            width: parent.width
+            anchors.top: layout_contact_top_bar.bottom
+        }
+        Page{
+            id:contract_find_page
+            anchors.fill: parent
+            visible: false
+            background: Rectangle{
+                color: Qt.rgba(230/255,230/255,230/255,1)
+            }
+
+            Rectangle{
+                id:layout_contract_find_top_bar
+                color: Qt.rgba(247/255,247/255,247/255,1)
+                width: parent.width
+                height: 60
+                FluTextBox{
+                    id:textbox_find_contract
+                    width: 190
+                    iconSource: FluentIcons.Search
+                    placeholderText: "姓名/手机号"
+                    anchors{
+                        bottom: parent.bottom
+                        bottomMargin: 8
+                        left: parent.left
+                        leftMargin: 8
+                    }
+                }
+                FluTextButton{
+                    anchors{
+                        bottom: parent.bottom
+                        bottomMargin: 8
+                        right: parent.right
+                        rightMargin: 6
+                    }
+                    text:"取消"
+                    onClicked: {
+                        textbox_find_contract.clear()
+                        contract_find_page.visible = false
+                    }
+                }
+            }
+
+            Rectangle{
+                width: parent.width
+                height: 60
+                color: Qt.rgba(247/255,247/255,247/255,1)
+                anchors{
+                    top: layout_contract_find_top_bar.bottom
+                }
+                visible: textbox_find_contract.text !== ""
+            }
+
+            Rectangle{
+                color: Qt.rgba(214/255,214/255,214/255,1)
+                height: 1
+                width: parent.width
+                anchors.top: layout_contract_find_top_bar.bottom
             }
         }
     }

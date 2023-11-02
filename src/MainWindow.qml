@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 import FluentUI 1.0
+import IM 1.0
 
 FluWindow {
     id:window
@@ -19,6 +20,34 @@ FluWindow {
 
     Component.onCompleted: {
         IMManager.wsConnect(SettingsHelper.getToken())
+    }
+
+    UserViewModel{
+        id:user_viewmodel
+    }
+
+    IMCallback{
+        id:callback_userprofile
+        onStart: {
+        }
+        onFinish: {
+        }
+        onError:
+            (code,message)=>{
+                showError(message)
+            }
+        onSuccess:
+            (result)=>{
+                console.debug(JSON.stringify(result.data))
+                user_viewmodel.profile = result.data
+            }
+    }
+
+    Connections{
+        target: IMManager
+        function onWsConnected(){
+            IMManager.userProfile(callback_userprofile)
+        }
     }
 
     FluAppBar {
@@ -65,7 +94,7 @@ FluWindow {
         Rectangle{
             width: 2
             height: parent.height
-            color: FluTheme.primaryColor.light
+            color: FluTheme.primaryColor
             visible: control_tab.selected
         }
 
@@ -105,9 +134,10 @@ FluWindow {
         width: 55
         height: parent.height
         color:Qt.rgba(64/255,64/255,64/255,1)
-        Rectangle{
+        AvatarView{
             width: 38
             height: 38
+            profile: user_viewmodel.profile
             anchors{
                 horizontalCenter: parent.horizontalCenter
                 top: parent.top

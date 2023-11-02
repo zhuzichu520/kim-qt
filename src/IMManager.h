@@ -30,6 +30,11 @@ public:
     Q_INVOKABLE void wsConnect(const QString& token);
     Q_INVOKABLE void userRegister(const QString& account,const QString& password,IMCallback* callback = nullptr);
     Q_INVOKABLE void userLogin(const QString& account,const QString& password,IMCallback* callback = nullptr);
+    Q_INVOKABLE void userProfile(IMCallback* callback = nullptr);
+
+    Q_SIGNAL void wsConnected();
+
+    Q_SLOT void onSocketMessage(const QByteArray &message);
 private:
     QString wsUri();
     QString apiUri();
@@ -37,11 +42,10 @@ private:
     void pong();
     void post(const QString& path, QMap<QString, QVariant> params,IMCallback* callback);
     void sendRequest(google::protobuf::Message* message);
-private slots:
-    void onSocketMessage(const QByteArray &message);
 private:
+    QString _token = "";
     QWebSocket* _socket = nullptr;
-    QString _host = "localhost";
+    QString _host = "192.168.0.109";
     QString _wsport = "34567";
     QString _apiport = "8080";
 };

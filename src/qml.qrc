@@ -6,5 +6,7 @@
         <file>SettingWindow.qml</file>
         <file>SessionPage.qml</file>
         <file>ContactsPage.qml</file>
+        <file>UserViewModel.qml</file>
+        <file>AvatarView.qml</file>
     </qresource>
 </RCC>

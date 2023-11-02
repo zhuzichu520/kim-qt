@@ -142,7 +142,7 @@ FluWindow {
                 showError(message)
             }
         onSuccess:
-            (reslut)=>{
+            (result)=>{
                 showSuccess("注册成功")
             }
     }
@@ -160,9 +160,9 @@ FluWindow {
                 showError(message)
             }
         onSuccess:
-            (reslut)=>{
-                console.debug(JSON.stringify(reslut))
-                SettingsHelper.saveToken(reslut.token)
+            (result)=>{
+                console.debug(JSON.stringify(result))
+                SettingsHelper.saveToken(result.token)
                 FluApp.navigate("/")
                 window.close()
             }
