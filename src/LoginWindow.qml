@@ -39,6 +39,7 @@ FluWindow {
                 text: "登录"
                 Layout.topMargin: 10
                 Layout.preferredWidth: 240
+                Layout.preferredHeight: 34
                 onClicked: {
                     var account = textbox_login_account.text
                     var password = textbox_login_password.text
@@ -93,6 +94,7 @@ FluWindow {
 
             FluFilledButton{
                 text: "注册"
+                Layout.preferredHeight: 34
                 Layout.topMargin: 10
                 Layout.preferredWidth: 240
                 onClicked: {
