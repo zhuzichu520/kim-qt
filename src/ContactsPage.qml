@@ -200,7 +200,7 @@ Page{
         }
     }
 
-    Loader{
+    FluLoader{
         anchors{
             left: layout_contact.right
             top: parent.top

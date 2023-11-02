@@ -117,13 +117,12 @@ FluWindow {
                 }
             }
 
-            Loader{
+            FluLoader{
                 property var user: user_viewmodel.profile
                 height: 140
                 width: parent.width
                 sourceComponent: !user_viewmodel.profile ? undefined : com_profile_panne
             }
-
 
 
             FluFilledButton{
@@ -150,8 +149,7 @@ FluWindow {
         }
     }
 
-
-    Loader{
+    FluLoader{
         sourceComponent: listmodel_tab.get(listview_tab.currentIndex).comId()
         anchors{
             left: listview_tab.right
@@ -163,7 +161,6 @@ FluWindow {
             bottomMargin: 40
         }
     }
-
 
     FluContentDialog{
         id:dialog_logout

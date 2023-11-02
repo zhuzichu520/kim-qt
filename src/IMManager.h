@@ -45,7 +45,7 @@ private:
 private:
     QString _token = "";
     QWebSocket* _socket = nullptr;
-    QString _host = "192.168.0.109";
+    QString _host = "localhost";
     QString _wsport = "34567";
     QString _apiport = "8080";
 };

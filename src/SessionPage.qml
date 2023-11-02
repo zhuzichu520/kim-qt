@@ -302,22 +302,25 @@ Page{
         }
     }
 
-    component TextMessageItem:
+    Component{
+        id:com_text_message
         Rectangle{
-        width: Math.min(item_message_content.implicitWidth,listview_message.width/2+30)
-        height: Math.max(item_message_content.implicitHeight,36)
-        radius: 4
-        color: model.isIsent ? Qt.rgba(149/255,231/255,105/255,1)  : Qt.rgba(255/255,255/255,255/255,1)
-        Text{
-            id:item_message_content
-            text:model.content
-            width: parent.width
-            topPadding: 8
-            leftPadding: 8
-            bottomPadding: 8
-            rightPadding: 8
-            wrapMode: Text.WrapAnywhere
-            anchors.centerIn: parent
+            width: Math.min(item_message_content.implicitWidth,listviewMessage.width/2+30)
+            height: Math.max(item_message_content.implicitHeight,36)
+            radius: 4
+            color: modelData.isIsent ? Qt.rgba(149/255,231/255,105/255,1)  : Qt.rgba(255/255,255/255,255/255,1)
+            FluCopyableText{
+                id:item_message_content
+                text:modelData.content
+                width: parent.width
+                topPadding: 8
+                leftPadding: 8
+                bottomPadding: 8
+                rightPadding: 8
+                wrapMode: Text.WrapAnywhere
+                anchors.centerIn: parent
+                readOnly: true
+            }
         }
     }
 
@@ -1126,6 +1129,7 @@ Page{
                     right: parent.right
                     bottom: rect_divider_bottom.top
                 }
+                reuseItems: true
                 delegate: Column{
                     Item{
                         width: 1
@@ -1163,8 +1167,10 @@ Page{
                             width: 10
                             height: 1
                         }
-                        TextMessageItem{
-
+                        FluLoader{
+                            property var modelData: model
+                            property var listviewMessage: listview_message
+                            sourceComponent: com_text_message
                         }
                     }
                     Item{
@@ -1263,11 +1269,10 @@ Page{
                     textbox_message_input.clear()
                 }
             }
-
         }
     }
 
-    Loader{
+    FluLoader{
         id:loader_session
         anchors{
             left: layout_session.right
