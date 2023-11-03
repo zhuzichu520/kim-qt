@@ -123,6 +123,17 @@ void IMManager::friendAdd(const QString& friendId,IMCallback* callback){
     post("/friend/addFriend",params,callback);
 }
 
+void IMManager::friendRemove(const QString& friendId,IMCallback* callback){
+    QMap<QString, QVariant> params;
+    params.insert("friendId",friendId);
+    post("/friend/removeFriend",params,callback);
+}
+
+void IMManager::friends(IMCallback* callback){
+    QMap<QString, QVariant> params;
+    post("/friend/getFriends",params,callback);
+}
+
 void IMManager::sendRequest(google::protobuf::Message* message){
     QByteArray data = QByteArray::fromStdString(message->SerializeAsString());
     QByteArray protobuf;

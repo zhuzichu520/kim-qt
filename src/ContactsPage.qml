@@ -8,16 +8,18 @@ import IM 1.0
 Page{
 
     id:control
-    property int currentIndex : -1
+    property var currentContact
+    signal refreshFriends
+
+    Connections{
+        target: IMManager
+        function onWsConnected(){
+            control.refreshFriends()
+        }
+    }
 
     ListModel{
         id:model_contact
-        ListElement{
-            name:"朱子楚"
-        }
-        ListElement{
-            name:"孙悟空"
-        }
     }
 
     IMCallback{
@@ -37,17 +39,73 @@ Page{
             (result)=>{
                 console.debug(JSON.stringify(result))
                 if(result.data){
-                    popup_user.user = result.data
-                    popup_user.open()
+                    loader_popup_user.userData = result.data
+                    loader_popup_user.sourceComponent = com_popup_user
                 }else{
                     layout_contact_find_empty.visible = true
                 }
             }
     }
 
+    IMCallback{
+        id:callback_friends
+        onStart: {
+        }
+        onFinish: {
+        }
+        onError:
+            (code,message)=>{
+                showError(message)
+            }
+        onSuccess:
+            (result)=>{
+                model_contact.clear()
+                model_contact.append(result.data)
+                console.debug(JSON.stringify(result))
+            }
+    }
+
+    IMCallback{
+        id:callback_friend_remove
+        onStart: {
+            showLoading()
+        }
+        onFinish: {
+            hideLoading()
+        }
+        onError:
+            (code,message)=>{
+                showError(message)
+            }
+        onSuccess:
+            (result)=>{
+                control.refreshFriends()
+            }
+    }
+
+    onRefreshFriends: {
+        contact_find_page.visible = false
+        IMManager.friends(callback_friends)
+    }
+
+    FluMenu{
+        property string friendId
+        id:menu_contact_item
+        width: 100
+        FluMenuItem{
+            text:"删除好友"
+            onClicked: {
+                IMManager.friendRemove(menu_contact_item.friendId,callback_friend_remove)
+            }
+        }
+        function showMenu(id){
+            menu_contact_item.friendId = id
+            menu_contact_item.popup()
+        }
+    }
+
     component ContactItem:Rectangle{
-        property bool selected: false
-        signal clicked
+        property bool selected: control.currentContact === model
         id:control_contact
         height: 65
         width: 250
@@ -61,16 +119,23 @@ Page{
         }
         MouseArea{
             id:mouse_area_contact
+            acceptedButtons: Qt.LeftButton|Qt.RightButton
             anchors.fill: parent
             hoverEnabled: true
-            onClicked: {
-                control_contact.clicked()
-            }
+            onClicked:
+                (mouse)=>{
+                    if(mouse.button === Qt.LeftButton){
+                        control.currentContact = model
+                    }else{
+                        menu_contact_item.showMenu(model.uid)
+                    }
+                }
         }
-        Rectangle{
+        AvatarView{
             id:item_avatar
             width: 42
             height: 42
+            userInfo: model
             anchors{
                 verticalCenter: parent.verticalCenter
                 left: parent.left
@@ -121,6 +186,7 @@ Page{
                     rightMargin: 14
                 }
                 onClicked: {
+                    textbox_find_contact.clear()
                     contact_find_page.visible = true
                 }
             }
@@ -144,12 +210,7 @@ Page{
             }
             boundsBehavior: ListView.StopAtBounds
             model: model_contact
-            delegate: ContactItem{
-                selected: control.currentIndex === index
-                onClicked: {
-                    control.currentIndex = index
-                }
-            }
+            delegate: ContactItem{}
         }
         Rectangle{
             color: Qt.rgba(214/255,214/255,214/255,1)
@@ -194,7 +255,6 @@ Page{
                     }
                     text:"取消"
                     onClicked: {
-                        textbox_find_contact.clear()
                         contact_find_page.visible = false
                     }
                 }
@@ -301,112 +361,129 @@ Page{
         }
     }
 
-    FluPopup{
-        id:popup_user
-        property var user
-        width: 230
-        height: 190
-        modal: false
-        anchors.centerIn: undefined
-        x:255
-        y:60
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-        contentItem: Item{
 
-
-            IMCallback{
-                id:callback_friend_add
-                onStart: {
-                    showLoading()
-                }
-                onFinish: {
-                    hideLoading()
-                }
-                onError:
-                    (code,message)=>{
-                        console.debug(message)
-                        popup_user.close()
-                        showError(message)
-                    }
-                onSuccess:
-                    (result)=>{
-                        popup_user.close()
-                        console.debug(JSON.stringify(result))
-                    }
-            }
-
-
-            AvatarView{
-                id:popup_user_avatar
-                width: 60
-                height: 60
-                userInfo: popup_user.user
-                anchors{
-                    top: parent.top
-                    left: parent.left
-                    topMargin: 20
-                    leftMargin: 20
-                }
-            }
-
-            Column{
-                anchors{
-                    left: popup_user_avatar.right
-                    top: popup_user_avatar.top
-                    leftMargin: 20
-                    topMargin: 4
-                }
-                FluText{
-                    id:popup_user_name
-                    text: {
-                        if(popup_user.user){
-                            return popup_user.user.name
-                        }
-                        return ""
-                    }
-                }
-                FluText{
-                    id:popup_user_uid
-                    color : FluTheme.fontTertiaryColor
-                    text: {
-                        if(popup_user.user){
-                            return "账号: " + popup_user.user.uid
-                        }
-                        return ""
-                    }
-                }
-            }
-
-            Rectangle{
-                color: Qt.rgba(214/255,214/255,214/255,1)
-                height: 1
-                anchors{
-                    top:parent.top
-                    topMargin: 100
-                    left: parent.left
-                    right: parent.right
-                    leftMargin: 14
-                    rightMargin: 14
-                }
-            }
-
-            FluFilledButton{
-                text:"添加好友"
-                anchors{
-                    horizontalCenter: parent.horizontalCenter
-                    bottom: parent.bottom
-                    bottomMargin: 26
-                }
-                onClicked:{
-                    IMManager.friendAdd(popup_user.user.uid,callback_friend_add)
-                }
-            }
-
-        }
-
-
-
+    FluLoader{
+        property var userData
+        id:loader_popup_user
+        sourceComponent: userData ? com_popup_user : undefined
     }
+
+    Component{
+        id:com_popup_user
+
+        FluPopup{
+            id:popup_user
+            property var user: userData.userInfo
+            property bool isFriend: userData.isFriend
+            width: 230
+            height: 190
+            modal: false
+            anchors.centerIn: undefined
+            x:255
+            y:60
+            visible: true
+            onVisibleChanged: {
+                if(!visible){
+                    loader_popup_user.sourceComponent = undefined
+                }
+            }
+            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+            contentItem: Item{
+
+                IMCallback{
+                    id:callback_friend_add
+                    onStart: {
+                        showLoading()
+                    }
+                    onFinish: {
+                        hideLoading()
+                    }
+                    onError:
+                        (code,message)=>{
+                            popup_user.close()
+                            showError(message)
+                        }
+                    onSuccess:
+                        (result)=>{
+                            control.refreshFriends()
+                            popup_user.close()
+                        }
+                }
+
+                AvatarView{
+                    id:popup_user_avatar
+                    width: 60
+                    height: 60
+                    userInfo: popup_user.user
+                    anchors{
+                        top: parent.top
+                        left: parent.left
+                        topMargin: 20
+                        leftMargin: 20
+                    }
+                }
+
+                Column{
+                    anchors{
+                        left: popup_user_avatar.right
+                        top: popup_user_avatar.top
+                        leftMargin: 20
+                        topMargin: 4
+                    }
+                    FluText{
+                        id:popup_user_name
+                        text: {
+                            if(popup_user.user){
+                                return popup_user.user.name
+                            }
+                            return ""
+                        }
+                    }
+                    FluText{
+                        id:popup_user_uid
+                        color : FluTheme.fontTertiaryColor
+                        text: {
+                            if(popup_user.user){
+                                return "账号: " + popup_user.user.uid
+                            }
+                            return ""
+                        }
+                    }
+                }
+
+                Rectangle{
+                    color: Qt.rgba(214/255,214/255,214/255,1)
+                    height: 1
+                    anchors{
+                        top:parent.top
+                        topMargin: 100
+                        left: parent.left
+                        right: parent.right
+                        leftMargin: 14
+                        rightMargin: 14
+                    }
+                }
+
+                FluFilledButton{
+                    text: popup_user.isFriend ? "发送聊天" : "添加好友"
+                    anchors{
+                        horizontalCenter: parent.horizontalCenter
+                        bottom: parent.bottom
+                        bottomMargin: 26
+                    }
+                    onClicked:{
+                        if(popup_user.isFriend){
+                            showInfo("待开发")
+                            popup_user.close()
+                        }else{
+                            IMManager.friendAdd(popup_user.user.uid,callback_friend_add)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     Component{
         id:com_contact_info_panne
@@ -424,7 +501,7 @@ Page{
             bottom: parent.bottom
             right: parent.right
         }
-        sourceComponent: control.currentIndex === -1 ? undefined : com_contact_info_panne
+        sourceComponent: control.currentContact ? com_contact_info_panne : undefined
     }
 
     Rectangle{

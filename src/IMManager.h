@@ -33,6 +33,8 @@ public:
     Q_INVOKABLE void userSearch(const QString& keyword,IMCallback* callback = nullptr);
     Q_INVOKABLE void userProfile(IMCallback* callback = nullptr);
     Q_INVOKABLE void friendAdd(const QString& friendId,IMCallback* callback = nullptr);
+    Q_INVOKABLE void friendRemove(const QString& friendId,IMCallback* callback = nullptr);
+    Q_INVOKABLE void friends(IMCallback* callback = nullptr);
 
     Q_SIGNAL void wsConnected();
 
@@ -47,7 +49,7 @@ private:
 private:
     QString _token = "";
     QWebSocket* _socket = nullptr;
-    QString _host = "192.168.0.122";
+    QString _host = "localhost";
     QString _wsport = "34567";
     QString _apiport = "8080";
 };
