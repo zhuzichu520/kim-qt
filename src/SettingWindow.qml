@@ -82,7 +82,7 @@ FluWindow {
                         id: profile_avatar
                         width: 50
                         height: 50
-                        profile: user
+                        userInfo: user
                         anchors{
                             left: parent.left
                             leftMargin: 30

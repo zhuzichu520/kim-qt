@@ -2,11 +2,11 @@ import QtQuick 2.15
 
 Item {
 
-    property var profile
+    property var userInfo
 
-    onProfileChanged: {
-        if(profile){
-            image_source.source = profile.avatar
+    onUserInfoChanged: {
+        if(userInfo){
+            image_source.source = userInfo.avatar
         }
     }
 

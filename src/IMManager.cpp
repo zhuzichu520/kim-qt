@@ -91,25 +91,36 @@ void IMManager::wsConnect(const QString& token){
     _socket->open(request);
 }
 
-void IMManager::userRegister(const QString& account,const QString& password,IMCallback* callback){
+void IMManager::userRegister(const QString& account,const QString& password,const QString& confirmPassword,IMCallback* callback){
     QMap<QString, QVariant> params;
     params.insert("uid",account);
     params.insert("password",password);
+    params.insert("confirmPassword",confirmPassword);
     post("/user/register",params,callback);
 }
 
 void IMManager::userLogin(const QString& account,const QString& password,IMCallback* callback){
-    callback->start();
     QMap<QString, QVariant> params;
     params.insert("uid",account);
     params.insert("password",password);
     post("/user/login",params,callback);
 }
 
+void IMManager::userSearch(const QString& keyword,IMCallback* callback){
+    QMap<QString, QVariant> params;
+    params.insert("keyword",keyword);
+    post("/user/searchUser",params,callback);
+}
+
 void IMManager::userProfile(IMCallback* callback){
-    callback->start();
     QMap<QString, QVariant> params;
     post("/user/profile",params,callback);
+}
+
+void IMManager::friendAdd(const QString& friendId,IMCallback* callback){
+    QMap<QString, QVariant> params;
+    params.insert("friendId",friendId);
+    post("/friend/addFriend",params,callback);
 }
 
 void IMManager::sendRequest(google::protobuf::Message* message){
@@ -148,7 +159,7 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
         connect(&manager,&QNetworkAccessManager::finished,&manager,[&loop](QNetworkReply *reply){loop.quit();});
         connect(qApp,&QCoreApplication::aboutToQuit,&manager, [&loop,reply](){reply->abort(),loop.quit();});
         loop.exec();
-        QString jsonData = QString::fromUtf8(reply->readAll());
+        QString response = QString::fromUtf8(reply->readAll());
         QJsonObject result;
         int code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         QString message = reply->errorString();
@@ -156,7 +167,7 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
         bool isSuccess = false;
         if(error == QNetworkReply::NoError){
             QJsonParseError jsonError;
-            QJsonDocument doucment = QJsonDocument::fromJson(jsonData.toUtf8(), &jsonError);
+            QJsonDocument doucment = QJsonDocument::fromJson(response.toUtf8(), &jsonError);
             if (!doucment.isNull() && (jsonError.error == QJsonParseError::NoError)) {
                 result = doucment.object();
                 int code = result.value("code").toInt();

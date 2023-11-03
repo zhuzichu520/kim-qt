@@ -137,7 +137,7 @@ FluWindow {
         AvatarView{
             width: 38
             height: 38
-            profile: user_viewmodel.profile
+            userInfo: user_viewmodel.profile
             anchors{
                 horizontalCenter: parent.horizontalCenter
                 top: parent.top

@@ -43,14 +43,6 @@ FluWindow {
                 onClicked: {
                     var account = textbox_login_account.text
                     var password = textbox_login_password.text
-                    if(account.length<4 || account.length>30){
-                        showError("用户名只能在4~30位之间")
-                        return
-                    }
-                    if(password.length<4 || password.length>30){
-                        showError("密码只能在4~30位之间")
-                        return
-                    }
                     IMManager.userLogin(account,password,callback_user_login)
                 }
             }
@@ -88,7 +80,7 @@ FluWindow {
             }
 
             FluPasswordBox{
-                id:textbox_register_repassword
+                id:textbox_register_confirm_password
                 placeholderText: "请再次输入密码"
             }
 
@@ -100,20 +92,8 @@ FluWindow {
                 onClicked: {
                     var account = textbox_register_account.text
                     var password = textbox_register_password.text
-                    var repassword = textbox_register_repassword.text
-                    if(account.length<4 || account.length>30){
-                        showError("用户名只能在4~30位之间")
-                        return
-                    }
-                    if(password.length<4 || password.length>30 || repassword.length<4 || repassword.length>30){
-                        showError("密码只能在4~30位之间")
-                        return
-                    }
-                    if(password !== repassword){
-                        showError("两次输入密码不一致")
-                        return
-                    }
-                    IMManager.userRegister(account,password,callback_user_register)
+                    var confirmPassword = textbox_register_confirm_password.text
+                    IMManager.userRegister(account,password,confirmPassword,callback_user_register)
                 }
             }
         }

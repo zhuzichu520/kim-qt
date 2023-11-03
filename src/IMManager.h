@@ -28,9 +28,11 @@ private:
 public:
     SINGLETONG(IMManager)
     Q_INVOKABLE void wsConnect(const QString& token);
-    Q_INVOKABLE void userRegister(const QString& account,const QString& password,IMCallback* callback = nullptr);
+    Q_INVOKABLE void userRegister(const QString& account,const QString& password,const QString& confirmPassword,IMCallback* callback = nullptr);
     Q_INVOKABLE void userLogin(const QString& account,const QString& password,IMCallback* callback = nullptr);
+    Q_INVOKABLE void userSearch(const QString& keyword,IMCallback* callback = nullptr);
     Q_INVOKABLE void userProfile(IMCallback* callback = nullptr);
+    Q_INVOKABLE void friendAdd(const QString& friendId,IMCallback* callback = nullptr);
 
     Q_SIGNAL void wsConnected();
 
@@ -45,7 +47,7 @@ private:
 private:
     QString _token = "";
     QWebSocket* _socket = nullptr;
-    QString _host = "localhost";
+    QString _host = "192.168.0.122";
     QString _wsport = "34567";
     QString _apiport = "8080";
 };
