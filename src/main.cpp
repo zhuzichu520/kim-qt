@@ -5,8 +5,9 @@
 #include <QQuickWindow>
 #include <QNetworkProxy>
 #include <QProcess>
-#include "IMManager.h"
-#include "helper/SettingsHelper.h"
+#include <manager/IMManager.h>
+#include <manager/DBManager.h>
+#include <helper/SettingsHelper.h>
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +27,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("IMManager",IMManager::getInstance());
+    engine.rootContext()->setContextProperty("DBManager",DBManager::getInstance());
     engine.rootContext()->setContextProperty("SettingsHelper",SettingsHelper::getInstance());
     qmlRegisterType<IMCallback>("IM", 1, 0, "IMCallback");
     const QUrl url(QStringLiteral("qrc:/App.qml"));

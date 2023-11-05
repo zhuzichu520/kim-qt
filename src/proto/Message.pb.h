@@ -190,31 +190,30 @@ class Message final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kActionFieldNumber = 2,
-    kContentFieldNumber = 3,
-    kSenderFieldNumber = 4,
-    kReceiverFieldNumber = 5,
-    kExtraFieldNumber = 6,
-    kTitleFieldNumber = 7,
-    kFormatFieldNumber = 8,
     kIdFieldNumber = 1,
-    kTimestampFieldNumber = 9,
+    kContentFieldNumber = 2,
+    kSenderFieldNumber = 3,
+    kReceiverFieldNumber = 4,
+    kExtraFieldNumber = 5,
+    kTitleFieldNumber = 6,
+    kTimestampFieldNumber = 8,
+    kTypeFieldNumber = 7,
   };
-  // string action = 2;
-  void clear_action();
-  const std::string& action() const;
+  // string id = 1;
+  void clear_id();
+  const std::string& id() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_action(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_action();
-  PROTOBUF_NODISCARD std::string* release_action();
-  void set_allocated_action(std::string* action);
+  void set_id(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_id();
+  PROTOBUF_NODISCARD std::string* release_id();
+  void set_allocated_id(std::string* id);
   private:
-  const std::string& _internal_action() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_action(const std::string& value);
-  std::string* _internal_mutable_action();
+  const std::string& _internal_id() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_id(const std::string& value);
+  std::string* _internal_mutable_id();
   public:
 
-  // string content = 3;
+  // string content = 2;
   void clear_content();
   const std::string& content() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -228,7 +227,7 @@ class Message final :
   std::string* _internal_mutable_content();
   public:
 
-  // string sender = 4;
+  // string sender = 3;
   void clear_sender();
   const std::string& sender() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -242,7 +241,7 @@ class Message final :
   std::string* _internal_mutable_sender();
   public:
 
-  // string receiver = 5;
+  // string receiver = 4;
   void clear_receiver();
   const std::string& receiver() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -256,7 +255,7 @@ class Message final :
   std::string* _internal_mutable_receiver();
   public:
 
-  // string extra = 6;
+  // string extra = 5;
   void clear_extra();
   const std::string& extra() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -270,7 +269,7 @@ class Message final :
   std::string* _internal_mutable_extra();
   public:
 
-  // string title = 7;
+  // string title = 6;
   void clear_title();
   const std::string& title() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -284,36 +283,22 @@ class Message final :
   std::string* _internal_mutable_title();
   public:
 
-  // string format = 8;
-  void clear_format();
-  const std::string& format() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_format(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_format();
-  PROTOBUF_NODISCARD std::string* release_format();
-  void set_allocated_format(std::string* format);
-  private:
-  const std::string& _internal_format() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_format(const std::string& value);
-  std::string* _internal_mutable_format();
-  public:
-
-  // int64 id = 1;
-  void clear_id();
-  int64_t id() const;
-  void set_id(int64_t value);
-  private:
-  int64_t _internal_id() const;
-  void _internal_set_id(int64_t value);
-  public:
-
-  // int64 timestamp = 9;
+  // int64 timestamp = 8;
   void clear_timestamp();
   int64_t timestamp() const;
   void set_timestamp(int64_t value);
   private:
   int64_t _internal_timestamp() const;
   void _internal_set_timestamp(int64_t value);
+  public:
+
+  // int32 type = 7;
+  void clear_type();
+  int32_t type() const;
+  void set_type(int32_t value);
+  private:
+  int32_t _internal_type() const;
+  void _internal_set_type(int32_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:com.chuzi.imsdk.server.model.proto.Message)
@@ -323,15 +308,14 @@ class Message final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr action_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr sender_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr receiver_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr extra_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr title_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr format_;
-  int64_t id_;
   int64_t timestamp_;
+  int32_t type_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Message_2eproto;
 };
@@ -346,77 +330,57 @@ class Message final :
 #endif  // __GNUC__
 // Message
 
-// int64 id = 1;
+// string id = 1;
 inline void Message::clear_id() {
-  id_ = int64_t{0};
+  id_.ClearToEmpty();
 }
-inline int64_t Message::_internal_id() const {
-  return id_;
-}
-inline int64_t Message::id() const {
+inline const std::string& Message::id() const {
   // @@protoc_insertion_point(field_get:com.chuzi.imsdk.server.model.proto.Message.id)
   return _internal_id();
 }
-inline void Message::_internal_set_id(int64_t value) {
-  
-  id_ = value;
-}
-inline void Message::set_id(int64_t value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.id)
-}
-
-// string action = 2;
-inline void Message::clear_action() {
-  action_.ClearToEmpty();
-}
-inline const std::string& Message::action() const {
-  // @@protoc_insertion_point(field_get:com.chuzi.imsdk.server.model.proto.Message.action)
-  return _internal_action();
-}
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
-void Message::set_action(ArgT0&& arg0, ArgT... args) {
+void Message::set_id(ArgT0&& arg0, ArgT... args) {
  
- action_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.action)
+ id_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.id)
 }
-inline std::string* Message::mutable_action() {
-  std::string* _s = _internal_mutable_action();
-  // @@protoc_insertion_point(field_mutable:com.chuzi.imsdk.server.model.proto.Message.action)
+inline std::string* Message::mutable_id() {
+  std::string* _s = _internal_mutable_id();
+  // @@protoc_insertion_point(field_mutable:com.chuzi.imsdk.server.model.proto.Message.id)
   return _s;
 }
-inline const std::string& Message::_internal_action() const {
-  return action_.Get();
+inline const std::string& Message::_internal_id() const {
+  return id_.Get();
 }
-inline void Message::_internal_set_action(const std::string& value) {
+inline void Message::_internal_set_id(const std::string& value) {
   
-  action_.Set(value, GetArenaForAllocation());
+  id_.Set(value, GetArenaForAllocation());
 }
-inline std::string* Message::_internal_mutable_action() {
+inline std::string* Message::_internal_mutable_id() {
   
-  return action_.Mutable(GetArenaForAllocation());
+  return id_.Mutable(GetArenaForAllocation());
 }
-inline std::string* Message::release_action() {
-  // @@protoc_insertion_point(field_release:com.chuzi.imsdk.server.model.proto.Message.action)
-  return action_.Release();
+inline std::string* Message::release_id() {
+  // @@protoc_insertion_point(field_release:com.chuzi.imsdk.server.model.proto.Message.id)
+  return id_.Release();
 }
-inline void Message::set_allocated_action(std::string* action) {
-  if (action != nullptr) {
+inline void Message::set_allocated_id(std::string* id) {
+  if (id != nullptr) {
     
   } else {
     
   }
-  action_.SetAllocated(action, GetArenaForAllocation());
+  id_.SetAllocated(id, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (action_.IsDefault()) {
-    action_.Set("", GetArenaForAllocation());
+  if (id_.IsDefault()) {
+    id_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.action)
+  // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.id)
 }
 
-// string content = 3;
+// string content = 2;
 inline void Message::clear_content() {
   content_.ClearToEmpty();
 }
@@ -466,7 +430,7 @@ inline void Message::set_allocated_content(std::string* content) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.content)
 }
 
-// string sender = 4;
+// string sender = 3;
 inline void Message::clear_sender() {
   sender_.ClearToEmpty();
 }
@@ -516,7 +480,7 @@ inline void Message::set_allocated_sender(std::string* sender) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.sender)
 }
 
-// string receiver = 5;
+// string receiver = 4;
 inline void Message::clear_receiver() {
   receiver_.ClearToEmpty();
 }
@@ -566,7 +530,7 @@ inline void Message::set_allocated_receiver(std::string* receiver) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.receiver)
 }
 
-// string extra = 6;
+// string extra = 5;
 inline void Message::clear_extra() {
   extra_.ClearToEmpty();
 }
@@ -616,7 +580,7 @@ inline void Message::set_allocated_extra(std::string* extra) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.extra)
 }
 
-// string title = 7;
+// string title = 6;
 inline void Message::clear_title() {
   title_.ClearToEmpty();
 }
@@ -666,57 +630,27 @@ inline void Message::set_allocated_title(std::string* title) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.title)
 }
 
-// string format = 8;
-inline void Message::clear_format() {
-  format_.ClearToEmpty();
+// int32 type = 7;
+inline void Message::clear_type() {
+  type_ = 0;
 }
-inline const std::string& Message::format() const {
-  // @@protoc_insertion_point(field_get:com.chuzi.imsdk.server.model.proto.Message.format)
-  return _internal_format();
+inline int32_t Message::_internal_type() const {
+  return type_;
 }
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void Message::set_format(ArgT0&& arg0, ArgT... args) {
- 
- format_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.format)
+inline int32_t Message::type() const {
+  // @@protoc_insertion_point(field_get:com.chuzi.imsdk.server.model.proto.Message.type)
+  return _internal_type();
 }
-inline std::string* Message::mutable_format() {
-  std::string* _s = _internal_mutable_format();
-  // @@protoc_insertion_point(field_mutable:com.chuzi.imsdk.server.model.proto.Message.format)
-  return _s;
-}
-inline const std::string& Message::_internal_format() const {
-  return format_.Get();
-}
-inline void Message::_internal_set_format(const std::string& value) {
+inline void Message::_internal_set_type(int32_t value) {
   
-  format_.Set(value, GetArenaForAllocation());
+  type_ = value;
 }
-inline std::string* Message::_internal_mutable_format() {
-  
-  return format_.Mutable(GetArenaForAllocation());
-}
-inline std::string* Message::release_format() {
-  // @@protoc_insertion_point(field_release:com.chuzi.imsdk.server.model.proto.Message.format)
-  return format_.Release();
-}
-inline void Message::set_allocated_format(std::string* format) {
-  if (format != nullptr) {
-    
-  } else {
-    
-  }
-  format_.SetAllocated(format, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (format_.IsDefault()) {
-    format_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.format)
+inline void Message::set_type(int32_t value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.type)
 }
 
-// int64 timestamp = 9;
+// int64 timestamp = 8;
 inline void Message::clear_timestamp() {
   timestamp_ = int64_t{0};
 }

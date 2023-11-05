@@ -144,7 +144,8 @@ FluWindow {
         onSuccess:
             (result)=>{
                 console.debug(JSON.stringify(result))
-                SettingsHelper.saveToken(result.token)
+                SettingsHelper.login(result.data.uid,result.token)
+//                SettingsHelper.saveToken(result.token)
                 FluApp.navigate("/")
                 window.close()
             }

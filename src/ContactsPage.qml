@@ -83,6 +83,24 @@ Page{
             }
     }
 
+    IMCallback{
+        id:callback_message_send
+        onStart: {
+            showLoading()
+        }
+        onFinish: {
+            hideLoading()
+        }
+        onError:
+            (code,message)=>{
+                showError(message)
+            }
+        onSuccess:
+            (result)=>{
+                console.debug(JSON.stringify(result))
+            }
+    }
+
     onRefreshFriends: {
         contact_find_page.visible = false
         IMManager.friends(callback_friends)
@@ -491,6 +509,74 @@ Page{
             id:layout_contact_info_panne
             color: Qt.rgba(245/255,245/255,245/255,1)
 
+            Item{
+                width: 360
+                height: parent.height
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                AvatarView{
+                    id:contact_info_avatar
+                    width: 60
+                    height: 60
+                    radius:[5,5,5,5]
+                    anchors{
+                        top: parent.top
+                        left: parent.left
+                        topMargin: 120
+                    }
+                    userInfo: currentContact
+                }
+
+                ColumnLayout{
+                    spacing: 0
+                    anchors{
+                        top: contact_info_avatar.top
+                        left: contact_info_avatar.right
+                        leftMargin: 16
+                    }
+
+                    FluText{
+                        text:currentContact.name
+
+                    }
+                    FluText{
+                        text: "账号: %1".arg(currentContact.uid)
+                        color: FluTheme.fontTertiaryColor
+                    }
+                }
+
+
+                Rectangle{
+                    id:contact_info_divider_1
+                    color: Qt.rgba(214/255,214/255,214/255,1)
+                    height: 1
+                    width: parent.width
+                    anchors{
+                        top: contact_info_avatar.bottom
+                        topMargin: 20
+                    }
+                }
+
+                RowLayout{
+                    anchors{
+                        top: contact_info_divider_1.bottom
+                        topMargin: 30
+                    }
+
+                    FluIconButton{
+                        iconSource:FluentIcons.Message
+                        text:"发消息"
+                        iconColor: Qt.rgba(123/255,138/255,171/255,1)
+                        textColor: iconColor
+                        display: Button.TextUnderIcon
+                        iconSize: 18
+                        font.pixelSize: 12
+                        onClicked: {
+                            IMManager.sendTextMessage(currentContact.uid,"123456",callback_message_send)
+                        }
+                    }
+                }
+            }
         }
     }
 

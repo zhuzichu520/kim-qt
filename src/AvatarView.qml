@@ -1,8 +1,10 @@
 import QtQuick 2.15
+import FluentUI 1.0
 
-Item {
+FluClip {
 
     property var userInfo
+    radius:[0,0,0,0]
 
     onUserInfoChanged: {
         if(userInfo){
@@ -13,6 +15,7 @@ Item {
     Image {
         id:image_source
         anchors.fill: parent
+        mipmap: true
     }
 
 }

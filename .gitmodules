@@ -5,3 +5,7 @@
 [submodule "protobuf"]
 	path = protobuf
 	url = https://github.com/zhuzichu520/protobuf.git
+	
+[submodule "QxOrm"]
+	path = QxOrm
+	url = https://github.com/zhuzichu520/QxOrm.git	

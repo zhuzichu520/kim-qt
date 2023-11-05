@@ -11,9 +11,10 @@
 #include <QLocale>
 #include <QSysInfo>
 #include <QJsonObject>
-#include "proto/SentBody.pb.h"
-#include "proto/Message.pb.h"
-#include "proto/ReplyBody.pb.h"
+#include <manager/DBManager.h>
+#include <proto/SentBody.pb.h>
+#include <proto/Message.pb.h>
+#include <proto/ReplyBody.pb.h>
 
 const int DATA_HEADER_LENGTH = 1;
 const int MESSAGE = 2;
@@ -75,6 +76,7 @@ void IMManager::wsConnect(const QString& token){
             [=](QAbstractSocket::SocketState state) {
                 qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketState>().valueToKey(state);
                 if(state == QAbstractSocket::ConnectedState){
+                    DBManager::getInstance()->initDb();
                     bind(token);
                     Q_EMIT wsConnected();
                 }
@@ -82,10 +84,10 @@ void IMManager::wsConnect(const QString& token){
     connect(_socket, &QWebSocket::connected, this,
             [=]() {
             });
-    connect(_socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this,
-            [=](QAbstractSocket::SocketError error) {
-                qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketError>().valueToKey(error);
-            });
+    //    connect(_socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this,
+    //            [=](QAbstractSocket::SocketError error) {
+    //                qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketError>().valueToKey(error);
+    //            });
     QNetworkRequest request(wsUri());
     request.setRawHeader("token", token.toUtf8());
     _socket->open(request);
@@ -132,6 +134,20 @@ void IMManager::friendRemove(const QString& friendId,IMCallback* callback){
 void IMManager::friends(IMCallback* callback){
     QMap<QString, QVariant> params;
     post("/friend/getFriends",params,callback);
+}
+
+void IMManager::sendMessage(const QString&receiver,int type,const QJsonObject& content,IMCallback* callback){
+    QMap<QString, QVariant> params;
+    params.insert("receiver",receiver);
+    params.insert("type",type);
+    params.insert("content",QString(QJsonDocument(content).toJson(QJsonDocument::Compact)));
+    post("/message/send",params,callback);
+}
+
+void IMManager::sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback){
+    QJsonObject content;
+    content.insert("msg",text);
+    sendMessage(receiver,0,content,callback);
 }
 
 void IMManager::sendRequest(google::protobuf::Message* message){

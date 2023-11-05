@@ -11,7 +11,7 @@ FluWindow {
     height: 610
     showStayTop: false
     title: "KIM"
-    minimumWidth: 680
+    minimumWidth: 702
     minimumHeight: 500
     appBar:undefined
 

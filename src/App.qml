@@ -12,8 +12,7 @@ Item {
             "/setting":"qrc:/SettingWindow.qml",
             "/":"qrc:/MainWindow.qml",
         }
-        var token = SettingsHelper.getToken()
-        if(token && token!==""){
+        if(SettingsHelper.isLogin()){
             FluApp.initialRoute = "/"
         }else{
             FluApp.initialRoute = "/login"

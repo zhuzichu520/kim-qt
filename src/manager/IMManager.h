@@ -6,7 +6,7 @@
 #include <qDebug>
 #include <QJsonObject>
 #include <google/protobuf/message.h>
-#include "singleton.h"
+#include <singleton.h>
 
 class IMCallback: public QObject{
     Q_OBJECT
@@ -35,7 +35,7 @@ public:
     Q_INVOKABLE void friendAdd(const QString& friendId,IMCallback* callback = nullptr);
     Q_INVOKABLE void friendRemove(const QString& friendId,IMCallback* callback = nullptr);
     Q_INVOKABLE void friends(IMCallback* callback = nullptr);
-
+    Q_INVOKABLE void sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback);
     Q_SIGNAL void wsConnected();
 
     Q_SLOT void onSocketMessage(const QByteArray &message);
@@ -46,6 +46,7 @@ private:
     void pong();
     void post(const QString& path, QMap<QString, QVariant> params,IMCallback* callback);
     void sendRequest(google::protobuf::Message* message);
+    void sendMessage(const QString& receiver,int type,const QJsonObject& content,IMCallback* callback);
 private:
     QString _token = "";
     QWebSocket* _socket = nullptr;

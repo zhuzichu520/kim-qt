@@ -8,7 +8,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QDir>
-#include "singleton.h"
+#include <singleton.h>
 
 class SettingsHelper : public QObject
 {
@@ -19,8 +19,24 @@ public:
     SINGLETONG(SettingsHelper)
     ~SettingsHelper() override;
     void init(char *argv[]);
-    Q_INVOKABLE void saveToken(const QVariant& token){save("token",token);}
+    void saveToken(const QVariant& token){save("token",token);}
     Q_INVOKABLE QVariant getToken(){return get("token");}
+
+    void saveAccount(const QVariant& account){save("account",account);}
+    Q_INVOKABLE QVariant getAccount(){return get("account");}
+
+    Q_INVOKABLE void login(const QString& account,const QString& token){
+        saveAccount(account);
+        saveToken(token);
+    }
+    Q_INVOKABLE void logout(){
+        saveAccount("");
+        saveToken("");
+    }
+    Q_INVOKABLE bool isLogin(){
+        return !getAccount().toString().isEmpty();
+    }
+
 private:
     void save(const QString& key,QVariant val);
     QVariant get(const QString& key,QVariant def={});

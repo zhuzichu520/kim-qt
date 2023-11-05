@@ -9,6 +9,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${KIM_OUTPUT_DIRECTORY})
+else()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${KIM_OUTPUT_DIRECTORY})
+endif()
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick WebSockets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick WebSockets)
 
@@ -16,7 +22,11 @@ set(PROJECT_SOURCES
     qml.qrc
     main.cpp
     singleton.h
-    IMManager.h IMManager.cpp
+    db/export.h
+    db/precompiled.h
+    db/Message.h db/Message.cpp
+    manager/IMManager.h manager/IMManager.cpp
+    manager/DBManager.h manager/DBManager.cpp
     helper/SettingsHelper.h helper/SettingsHelper.cpp
     proto/Message.pb.h proto/Message.pb.cc
     proto/ReplyBody.pb.h proto/ReplyBody.pb.cc
@@ -52,6 +62,11 @@ target_link_libraries(kim PRIVATE
     Qt${QT_VERSION_MAJOR}::WebSockets
     protobuf::libprotobuf
     fluentuiplugin
+    QxOrm
+)
+
+target_compile_definitions(kim PRIVATE
+    -D_BUILDING_QX_KIM
 )
 
 set_target_properties(kim PROPERTIES
@@ -64,6 +79,7 @@ set_target_properties(kim PROPERTIES
 
 target_include_directories(kim PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/QxOrm/include
 )
 
 install(TARGETS kim

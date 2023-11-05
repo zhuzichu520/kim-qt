@@ -28,15 +28,14 @@ namespace model {
 namespace proto {
 PROTOBUF_CONSTEXPR Message::Message(
     ::_pbi::ConstantInitialized)
-  : action_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
+  : id_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
   , content_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
   , sender_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
   , receiver_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
   , extra_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
   , title_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
-  , format_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
-  , id_(int64_t{0})
-  , timestamp_(int64_t{0}){}
+  , timestamp_(int64_t{0})
+  , type_(0){}
 struct MessageDefaultTypeInternal {
   PROTOBUF_CONSTEXPR MessageDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -64,13 +63,12 @@ const uint32_t TableStruct_Message_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, id_),
-  PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, action_),
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, content_),
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, sender_),
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, receiver_),
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, extra_),
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, title_),
-  PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, format_),
+  PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, type_),
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, timestamp_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -83,15 +81,15 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_Message_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\rMessage.proto\022\"com.chuzi.imsdk.server."
-  "model.proto\"\231\001\n\007Message\022\n\n\002id\030\001 \001(\003\022\016\n\006a"
-  "ction\030\002 \001(\t\022\017\n\007content\030\003 \001(\t\022\016\n\006sender\030\004"
-  " \001(\t\022\020\n\010receiver\030\005 \001(\t\022\r\n\005extra\030\006 \001(\t\022\r\n"
-  "\005title\030\007 \001(\t\022\016\n\006format\030\010 \001(\t\022\021\n\ttimestam"
-  "p\030\t \001(\003B\016B\014MessageProtob\006proto3"
+  "model.proto\"\207\001\n\007Message\022\n\n\002id\030\001 \001(\t\022\017\n\007c"
+  "ontent\030\002 \001(\t\022\016\n\006sender\030\003 \001(\t\022\020\n\010receiver"
+  "\030\004 \001(\t\022\r\n\005extra\030\005 \001(\t\022\r\n\005title\030\006 \001(\t\022\014\n\004"
+  "type\030\007 \001(\005\022\021\n\ttimestamp\030\010 \001(\003B\016B\014Message"
+  "Protob\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_Message_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Message_2eproto = {
-    false, false, 231, descriptor_table_protodef_Message_2eproto,
+    false, false, 213, descriptor_table_protodef_Message_2eproto,
     "Message.proto",
     &descriptor_table_Message_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_Message_2eproto::offsets,
@@ -126,12 +124,12 @@ Message::Message(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 Message::Message(const Message& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  action_.InitDefault();
+  id_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    action_.Set("", GetArenaForAllocation());
+    id_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_action().empty()) {
-    action_.Set(from._internal_action(), 
+  if (!from._internal_id().empty()) {
+    id_.Set(from._internal_id(), 
       GetArenaForAllocation());
   }
   content_.InitDefault();
@@ -174,24 +172,16 @@ Message::Message(const Message& from)
     title_.Set(from._internal_title(), 
       GetArenaForAllocation());
   }
-  format_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    format_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_format().empty()) {
-    format_.Set(from._internal_format(), 
-      GetArenaForAllocation());
-  }
-  ::memcpy(&id_, &from.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&timestamp_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(timestamp_));
+  ::memcpy(&timestamp_, &from.timestamp_,
+    static_cast<size_t>(reinterpret_cast<char*>(&type_) -
+    reinterpret_cast<char*>(&timestamp_)) + sizeof(type_));
   // @@protoc_insertion_point(copy_constructor:com.chuzi.imsdk.server.model.proto.Message)
 }
 
 inline void Message::SharedCtor() {
-action_.InitDefault();
+id_.InitDefault();
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  action_.Set("", GetArenaForAllocation());
+  id_.Set("", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 content_.InitDefault();
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -213,14 +203,10 @@ title_.InitDefault();
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   title_.Set("", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-format_.InitDefault();
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  format_.Set("", GetArenaForAllocation());
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&timestamp_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(timestamp_));
+    reinterpret_cast<char*>(&timestamp_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&type_) -
+    reinterpret_cast<char*>(&timestamp_)) + sizeof(type_));
 }
 
 Message::~Message() {
@@ -234,13 +220,12 @@ Message::~Message() {
 
 inline void Message::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  action_.Destroy();
+  id_.Destroy();
   content_.Destroy();
   sender_.Destroy();
   receiver_.Destroy();
   extra_.Destroy();
   title_.Destroy();
-  format_.Destroy();
 }
 
 void Message::SetCachedSize(int size) const {
@@ -253,16 +238,15 @@ void Message::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  action_.ClearToEmpty();
+  id_.ClearToEmpty();
   content_.ClearToEmpty();
   sender_.ClearToEmpty();
   receiver_.ClearToEmpty();
   extra_.ClearToEmpty();
   title_.ClearToEmpty();
-  format_.ClearToEmpty();
-  ::memset(&id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&timestamp_) -
-      reinterpret_cast<char*>(&id_)) + sizeof(timestamp_));
+  ::memset(&timestamp_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&type_) -
+      reinterpret_cast<char*>(&timestamp_)) + sizeof(type_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -272,27 +256,19 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int64 id = 1;
+      // string id = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // string action = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
-          auto str = _internal_mutable_action();
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_id();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "com.chuzi.imsdk.server.model.proto.Message.action"));
+          CHK_(::_pbi::VerifyUTF8(str, "com.chuzi.imsdk.server.model.proto.Message.id"));
         } else
           goto handle_unusual;
         continue;
-      // string content = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+      // string content = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_content();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -300,9 +276,9 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         } else
           goto handle_unusual;
         continue;
-      // string sender = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+      // string sender = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_sender();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -310,9 +286,9 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         } else
           goto handle_unusual;
         continue;
-      // string receiver = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+      // string receiver = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_receiver();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -320,9 +296,9 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         } else
           goto handle_unusual;
         continue;
-      // string extra = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+      // string extra = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           auto str = _internal_mutable_extra();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -330,9 +306,9 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         } else
           goto handle_unusual;
         continue;
-      // string title = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+      // string title = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           auto str = _internal_mutable_title();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -340,19 +316,17 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         } else
           goto handle_unusual;
         continue;
-      // string format = 8;
-      case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
-          auto str = _internal_mutable_format();
-          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+      // int32 type = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+          type_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "com.chuzi.imsdk.server.model.proto.Message.format"));
         } else
           goto handle_unusual;
         continue;
-      // int64 timestamp = 9;
-      case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 72)) {
+      // int64 timestamp = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
           timestamp_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
@@ -387,86 +361,76 @@ uint8_t* Message::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int64 id = 1;
-  if (this->_internal_id() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt64ToArray(1, this->_internal_id(), target);
-  }
-
-  // string action = 2;
-  if (!this->_internal_action().empty()) {
+  // string id = 1;
+  if (!this->_internal_id().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_action().data(), static_cast<int>(this->_internal_action().length()),
+      this->_internal_id().data(), static_cast<int>(this->_internal_id().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "com.chuzi.imsdk.server.model.proto.Message.action");
+      "com.chuzi.imsdk.server.model.proto.Message.id");
     target = stream->WriteStringMaybeAliased(
-        2, this->_internal_action(), target);
+        1, this->_internal_id(), target);
   }
 
-  // string content = 3;
+  // string content = 2;
   if (!this->_internal_content().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_content().data(), static_cast<int>(this->_internal_content().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "com.chuzi.imsdk.server.model.proto.Message.content");
     target = stream->WriteStringMaybeAliased(
-        3, this->_internal_content(), target);
+        2, this->_internal_content(), target);
   }
 
-  // string sender = 4;
+  // string sender = 3;
   if (!this->_internal_sender().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_sender().data(), static_cast<int>(this->_internal_sender().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "com.chuzi.imsdk.server.model.proto.Message.sender");
     target = stream->WriteStringMaybeAliased(
-        4, this->_internal_sender(), target);
+        3, this->_internal_sender(), target);
   }
 
-  // string receiver = 5;
+  // string receiver = 4;
   if (!this->_internal_receiver().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_receiver().data(), static_cast<int>(this->_internal_receiver().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "com.chuzi.imsdk.server.model.proto.Message.receiver");
     target = stream->WriteStringMaybeAliased(
-        5, this->_internal_receiver(), target);
+        4, this->_internal_receiver(), target);
   }
 
-  // string extra = 6;
+  // string extra = 5;
   if (!this->_internal_extra().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_extra().data(), static_cast<int>(this->_internal_extra().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "com.chuzi.imsdk.server.model.proto.Message.extra");
     target = stream->WriteStringMaybeAliased(
-        6, this->_internal_extra(), target);
+        5, this->_internal_extra(), target);
   }
 
-  // string title = 7;
+  // string title = 6;
   if (!this->_internal_title().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_title().data(), static_cast<int>(this->_internal_title().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "com.chuzi.imsdk.server.model.proto.Message.title");
     target = stream->WriteStringMaybeAliased(
-        7, this->_internal_title(), target);
+        6, this->_internal_title(), target);
   }
 
-  // string format = 8;
-  if (!this->_internal_format().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_format().data(), static_cast<int>(this->_internal_format().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "com.chuzi.imsdk.server.model.proto.Message.format");
-    target = stream->WriteStringMaybeAliased(
-        8, this->_internal_format(), target);
+  // int32 type = 7;
+  if (this->_internal_type() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(7, this->_internal_type(), target);
   }
 
-  // int64 timestamp = 9;
+  // int64 timestamp = 8;
   if (this->_internal_timestamp() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt64ToArray(9, this->_internal_timestamp(), target);
+    target = ::_pbi::WireFormatLite::WriteInt64ToArray(8, this->_internal_timestamp(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -485,63 +449,56 @@ size_t Message::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string action = 2;
-  if (!this->_internal_action().empty()) {
+  // string id = 1;
+  if (!this->_internal_id().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_action());
+        this->_internal_id());
   }
 
-  // string content = 3;
+  // string content = 2;
   if (!this->_internal_content().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_content());
   }
 
-  // string sender = 4;
+  // string sender = 3;
   if (!this->_internal_sender().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_sender());
   }
 
-  // string receiver = 5;
+  // string receiver = 4;
   if (!this->_internal_receiver().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_receiver());
   }
 
-  // string extra = 6;
+  // string extra = 5;
   if (!this->_internal_extra().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_extra());
   }
 
-  // string title = 7;
+  // string title = 6;
   if (!this->_internal_title().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_title());
   }
 
-  // string format = 8;
-  if (!this->_internal_format().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_format());
-  }
-
-  // int64 id = 1;
-  if (this->_internal_id() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_id());
-  }
-
-  // int64 timestamp = 9;
+  // int64 timestamp = 8;
   if (this->_internal_timestamp() != 0) {
     total_size += ::_pbi::WireFormatLite::Int64SizePlusOne(this->_internal_timestamp());
+  }
+
+  // int32 type = 7;
+  if (this->_internal_type() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_type());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -566,8 +523,8 @@ void Message::MergeFrom(const Message& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_action().empty()) {
-    _internal_set_action(from._internal_action());
+  if (!from._internal_id().empty()) {
+    _internal_set_id(from._internal_id());
   }
   if (!from._internal_content().empty()) {
     _internal_set_content(from._internal_content());
@@ -584,14 +541,11 @@ void Message::MergeFrom(const Message& from) {
   if (!from._internal_title().empty()) {
     _internal_set_title(from._internal_title());
   }
-  if (!from._internal_format().empty()) {
-    _internal_set_format(from._internal_format());
-  }
-  if (from._internal_id() != 0) {
-    _internal_set_id(from._internal_id());
-  }
   if (from._internal_timestamp() != 0) {
     _internal_set_timestamp(from._internal_timestamp());
+  }
+  if (from._internal_type() != 0) {
+    _internal_set_type(from._internal_type());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -613,8 +567,8 @@ void Message::InternalSwap(Message* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &action_, lhs_arena,
-      &other->action_, rhs_arena
+      &id_, lhs_arena,
+      &other->id_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &content_, lhs_arena,
@@ -636,16 +590,12 @@ void Message::InternalSwap(Message* other) {
       &title_, lhs_arena,
       &other->title_, rhs_arena
   );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &format_, lhs_arena,
-      &other->format_, rhs_arena
-  );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Message, timestamp_)
-      + sizeof(Message::timestamp_)
-      - PROTOBUF_FIELD_OFFSET(Message, id_)>(
-          reinterpret_cast<char*>(&id_),
-          reinterpret_cast<char*>(&other->id_));
+      PROTOBUF_FIELD_OFFSET(Message, type_)
+      + sizeof(Message::type_)
+      - PROTOBUF_FIELD_OFFSET(Message, timestamp_)>(
+          reinterpret_cast<char*>(&timestamp_),
+          reinterpret_cast<char*>(&other->timestamp_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Message::GetMetadata() const {

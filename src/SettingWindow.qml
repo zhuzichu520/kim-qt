@@ -171,7 +171,7 @@ FluWindow {
         positiveText:"确定"
         onPositiveClicked:{
             showLoading()
-            SettingsHelper.saveToken("")
+            SettingsHelper.logout()
             delay_restart.restart()
         }
     }
