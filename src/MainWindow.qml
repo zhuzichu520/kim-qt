@@ -19,7 +19,7 @@ FluWindow {
 
 
     Component.onCompleted: {
-        IMManager.wsConnect(SettingsHelper.getToken())
+        IMManager.wsConnect()
     }
 
     UserViewModel{

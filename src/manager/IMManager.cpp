@@ -11,6 +11,7 @@
 #include <QLocale>
 #include <QSysInfo>
 #include <QJsonObject>
+#include <helper/SettingsHelper.h>
 #include <manager/DBManager.h>
 #include <proto/SentBody.pb.h>
 #include <proto/Message.pb.h>
@@ -31,7 +32,59 @@ QByteArray PONG_BODY= QByteArray::fromRawData(reinterpret_cast<const char*>(std:
 IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
+    _msgResentTimer = new QTimer();
+    connect(_msgResentTimer, &QTimer::timeout, this, &IMManager::handleMsgResent);
+}
 
+void IMManager::handleMsgResent() {
+    if (_msgBuffer.count() == 0) {
+        _msgResentTimer->stop();
+        return;
+    }
+    foreach(const QString id,_msgBuffer.keys())
+    {
+        Message item = _msgBuffer.value(id);
+        if (QDateTime::currentDateTimeUtc().toMSecsSinceEpoch() > item.timestamp + 30000) {
+            item.status = 2;
+            bool success = DBManager::getInstance()->saveOrUpdateMessage(item);
+            if (success) {
+                _msgBuffer.remove(id);
+                Q_EMIT receiveMessage(item);
+                updateSessionByMessage(item);
+            }
+        }
+    }
+}
+
+Session IMManager::message2session(const Message &val){
+    Session session;
+    session.id = val.sessionId;
+    session.content = val.content;
+    session.scene = val.scene;
+    session.status = val.status;
+    session.timestamp = val.timestamp;
+    session.type = val.type;
+    return session;
+}
+
+void IMManager::updateSessionByMessage(const Message &message) {
+    Session session = message2session(message);
+    Session it = DBManager::getInstance()->getSessionById(message.sessionId);
+    if (it.id == message.sessionId) {
+        //db中有该会话
+        session.unreadNumber = it.unreadNumber;
+        session.extra = it.extra;
+    }
+    if (message.sender != _loginAccid) {
+        //我接收到别人发的消息
+        if (!message.readUidList.contains(_loginAccid)) {
+            session.unreadNumber = session.unreadNumber + 1;
+        }
+    }
+    bool success = DBManager::getInstance()->saveOrUpdateSession(session);
+    if (success) {
+        Q_EMIT updateSessionCompleted(session);
+    }
 }
 
 IMManager::~IMManager(){
@@ -41,12 +94,11 @@ IMManager::~IMManager(){
     }
 }
 
-void IMManager::bind(const QString& token){
-    _token = token;
+void IMManager::bind(){
     com::chuzi::imsdk::server::model::proto::SentBody body;
     body.set_key("client_bind");
     body.set_timestamp(QDateTime::currentMSecsSinceEpoch());
-    body.mutable_data()->insert({"token",token.toStdString()});
+    body.mutable_data()->insert({"token",_token.toStdString()});
     body.mutable_data()->insert({"channel",APP_CHANNEL.toStdString()});
     body.mutable_data()->insert({"appVersion",APP_VERSION.toStdString()});
     body.mutable_data()->insert({"osVersion",QSysInfo::productVersion().toStdString()});
@@ -65,11 +117,13 @@ void IMManager::pong(){
     _socket->sendBinaryMessage(pong);
 }
 
-void IMManager::wsConnect(const QString& token){
+void IMManager::wsConnect(){
     if(_socket!=nullptr){
         delete _socket;
         _socket = nullptr;
     }
+    _token = SettingsHelper::getInstance()->getToken().toString();
+    _loginAccid = SettingsHelper::getInstance()->getAccount().toString();
     _socket = new QWebSocket();
     connect(_socket, &QWebSocket::binaryMessageReceived, this, &IMManager::onSocketMessage);
     connect(_socket, &QWebSocket::stateChanged, this,
@@ -77,7 +131,7 @@ void IMManager::wsConnect(const QString& token){
                 qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketState>().valueToKey(state);
                 if(state == QAbstractSocket::ConnectedState){
                     DBManager::getInstance()->initDb();
-                    bind(token);
+                    bind();
                     Q_EMIT wsConnected();
                 }
             });
@@ -89,7 +143,7 @@ void IMManager::wsConnect(const QString& token){
     //                qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketError>().valueToKey(error);
     //            });
     QNetworkRequest request(wsUri());
-    request.setRawHeader("token", token.toUtf8());
+    request.setRawHeader("token", _token.toUtf8());
     _socket->open(request);
 }
 
@@ -136,18 +190,43 @@ void IMManager::friends(IMCallback* callback){
     post("/friend/getFriends",params,callback);
 }
 
-void IMManager::sendMessage(const QString&receiver,int type,const QJsonObject& content,IMCallback* callback){
+void IMManager::sendMessage(Message message,IMCallback* callback){
     QMap<QString, QVariant> params;
-    params.insert("receiver",receiver);
-    params.insert("type",type);
-    params.insert("content",QString(QJsonDocument(content).toJson(QJsonDocument::Compact)));
+    params.insert("id",message.id);
+    params.insert("receiver",message.receiver);
+    params.insert("scene",message.scene);
+    params.insert("type",message.type);
+    params.insert("content",message.content);
     post("/message/send",params,callback);
 }
 
-void IMManager::sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback){
-    QJsonObject content;
-    content.insert("msg",text);
-    sendMessage(receiver,0,content,callback);
+void IMManager::sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback,int scene){
+    QJsonObject object;
+    object.insert("msg",text);
+    auto content = QString(QJsonDocument(object).toJson(QJsonDocument::Compact));
+    auto message = buildMessage(receiver,scene,0,content);
+    sendMessageToLocal(message);
+    sendMessage(message,callback);
+}
+
+Message IMManager::buildMessage(const QString &sessionId, int scene, int type, const QString &content){
+    Message message;
+    message.id = QUuid::createUuid().toString().remove("{").remove("}");
+    message.content = content;
+    message.sender = _loginAccid;
+    message.receiver = sessionId;
+    message.sessionId = sessionId;
+    message.scene = scene;
+    message.type = type;
+    message.timestamp = QDateTime::currentDateTimeUtc().toMSecsSinceEpoch();
+    message.status = 1;
+    return message;
+}
+
+void IMManager::sendMessageToLocal(Message& message){
+    DBManager::getInstance()->saveOrUpdateMessage(message);
+    Q_EMIT receiveMessage(message);
+    updateSessionByMessage(message);
 }
 
 void IMManager::sendRequest(google::protobuf::Message* message){

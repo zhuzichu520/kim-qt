@@ -22,15 +22,19 @@ set(PROJECT_SOURCES
     qml.qrc
     main.cpp
     singleton.h
+    stdafx.h
     db/export.h
     db/precompiled.h
     db/Message.h db/Message.cpp
+    db/Session.h db/Session.cpp
     manager/IMManager.h manager/IMManager.cpp
     manager/DBManager.h manager/DBManager.cpp
     helper/SettingsHelper.h helper/SettingsHelper.cpp
     proto/Message.pb.h proto/Message.pb.cc
     proto/ReplyBody.pb.h proto/ReplyBody.pb.cc
     proto/SentBody.pb.h proto/SentBody.pb.cc
+    controller/ContactController.h controller/ContactController.cpp
+    model/MessageListModel.h model/MessageListModel.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -4,6 +4,8 @@
 #include <QObject>
 #include <singleton.h>
 #include <QStandardPaths>
+#include <db/Message.h>
+#include <db/Session.h>
 
 class DBManager : public QObject
 {
@@ -15,6 +17,9 @@ private:
 public:
     SINGLETONG(DBManager)
     void initDb();
+    bool saveOrUpdateMessage(Message message);
+    Session getSessionById(QString id);
+    bool saveOrUpdateSession(Session session);
 private:
     QString _dbPath = (QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/db");
 

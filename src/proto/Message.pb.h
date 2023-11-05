@@ -191,13 +191,15 @@ class Message final :
 
   enum : int {
     kIdFieldNumber = 1,
-    kContentFieldNumber = 2,
-    kSenderFieldNumber = 3,
-    kReceiverFieldNumber = 4,
-    kExtraFieldNumber = 5,
-    kTitleFieldNumber = 6,
-    kTimestampFieldNumber = 8,
-    kTypeFieldNumber = 7,
+    kContentFieldNumber = 3,
+    kSenderFieldNumber = 4,
+    kReceiverFieldNumber = 5,
+    kExtraFieldNumber = 6,
+    kTitleFieldNumber = 7,
+    kSceneFieldNumber = 2,
+    kTypeFieldNumber = 8,
+    kTimestampFieldNumber = 10,
+    kSubTypeFieldNumber = 9,
   };
   // string id = 1;
   void clear_id();
@@ -213,7 +215,7 @@ class Message final :
   std::string* _internal_mutable_id();
   public:
 
-  // string content = 2;
+  // string content = 3;
   void clear_content();
   const std::string& content() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -227,7 +229,7 @@ class Message final :
   std::string* _internal_mutable_content();
   public:
 
-  // string sender = 3;
+  // string sender = 4;
   void clear_sender();
   const std::string& sender() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -241,7 +243,7 @@ class Message final :
   std::string* _internal_mutable_sender();
   public:
 
-  // string receiver = 4;
+  // string receiver = 5;
   void clear_receiver();
   const std::string& receiver() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -255,7 +257,7 @@ class Message final :
   std::string* _internal_mutable_receiver();
   public:
 
-  // string extra = 5;
+  // string extra = 6;
   void clear_extra();
   const std::string& extra() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -269,7 +271,7 @@ class Message final :
   std::string* _internal_mutable_extra();
   public:
 
-  // string title = 6;
+  // string title = 7;
   void clear_title();
   const std::string& title() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -283,7 +285,25 @@ class Message final :
   std::string* _internal_mutable_title();
   public:
 
-  // int64 timestamp = 8;
+  // int32 scene = 2;
+  void clear_scene();
+  int32_t scene() const;
+  void set_scene(int32_t value);
+  private:
+  int32_t _internal_scene() const;
+  void _internal_set_scene(int32_t value);
+  public:
+
+  // int32 type = 8;
+  void clear_type();
+  int32_t type() const;
+  void set_type(int32_t value);
+  private:
+  int32_t _internal_type() const;
+  void _internal_set_type(int32_t value);
+  public:
+
+  // int64 timestamp = 10;
   void clear_timestamp();
   int64_t timestamp() const;
   void set_timestamp(int64_t value);
@@ -292,13 +312,13 @@ class Message final :
   void _internal_set_timestamp(int64_t value);
   public:
 
-  // int32 type = 7;
-  void clear_type();
-  int32_t type() const;
-  void set_type(int32_t value);
+  // int32 subType = 9;
+  void clear_subtype();
+  int32_t subtype() const;
+  void set_subtype(int32_t value);
   private:
-  int32_t _internal_type() const;
-  void _internal_set_type(int32_t value);
+  int32_t _internal_subtype() const;
+  void _internal_set_subtype(int32_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:com.chuzi.imsdk.server.model.proto.Message)
@@ -314,8 +334,10 @@ class Message final :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr receiver_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr extra_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr title_;
-  int64_t timestamp_;
+  int32_t scene_;
   int32_t type_;
+  int64_t timestamp_;
+  int32_t subtype_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Message_2eproto;
 };
@@ -380,7 +402,27 @@ inline void Message::set_allocated_id(std::string* id) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.id)
 }
 
-// string content = 2;
+// int32 scene = 2;
+inline void Message::clear_scene() {
+  scene_ = 0;
+}
+inline int32_t Message::_internal_scene() const {
+  return scene_;
+}
+inline int32_t Message::scene() const {
+  // @@protoc_insertion_point(field_get:com.chuzi.imsdk.server.model.proto.Message.scene)
+  return _internal_scene();
+}
+inline void Message::_internal_set_scene(int32_t value) {
+  
+  scene_ = value;
+}
+inline void Message::set_scene(int32_t value) {
+  _internal_set_scene(value);
+  // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.scene)
+}
+
+// string content = 3;
 inline void Message::clear_content() {
   content_.ClearToEmpty();
 }
@@ -430,7 +472,7 @@ inline void Message::set_allocated_content(std::string* content) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.content)
 }
 
-// string sender = 3;
+// string sender = 4;
 inline void Message::clear_sender() {
   sender_.ClearToEmpty();
 }
@@ -480,7 +522,7 @@ inline void Message::set_allocated_sender(std::string* sender) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.sender)
 }
 
-// string receiver = 4;
+// string receiver = 5;
 inline void Message::clear_receiver() {
   receiver_.ClearToEmpty();
 }
@@ -530,7 +572,7 @@ inline void Message::set_allocated_receiver(std::string* receiver) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.receiver)
 }
 
-// string extra = 5;
+// string extra = 6;
 inline void Message::clear_extra() {
   extra_.ClearToEmpty();
 }
@@ -580,7 +622,7 @@ inline void Message::set_allocated_extra(std::string* extra) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.extra)
 }
 
-// string title = 6;
+// string title = 7;
 inline void Message::clear_title() {
   title_.ClearToEmpty();
 }
@@ -630,7 +672,7 @@ inline void Message::set_allocated_title(std::string* title) {
   // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.title)
 }
 
-// int32 type = 7;
+// int32 type = 8;
 inline void Message::clear_type() {
   type_ = 0;
 }
@@ -650,7 +692,27 @@ inline void Message::set_type(int32_t value) {
   // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.type)
 }
 
-// int64 timestamp = 8;
+// int32 subType = 9;
+inline void Message::clear_subtype() {
+  subtype_ = 0;
+}
+inline int32_t Message::_internal_subtype() const {
+  return subtype_;
+}
+inline int32_t Message::subtype() const {
+  // @@protoc_insertion_point(field_get:com.chuzi.imsdk.server.model.proto.Message.subType)
+  return _internal_subtype();
+}
+inline void Message::_internal_set_subtype(int32_t value) {
+  
+  subtype_ = value;
+}
+inline void Message::set_subtype(int32_t value) {
+  _internal_set_subtype(value);
+  // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.subType)
+}
+
+// int64 timestamp = 10;
 inline void Message::clear_timestamp() {
   timestamp_ = int64_t{0};
 }
