@@ -69,16 +69,14 @@ Session IMManager::message2session(const Message &val){
 
 void IMManager::updateSessionByMessage(const Message &message) {
     Session session = message2session(message);
-    Session it = DBManager::getInstance()->getSessionById(message.sessionId);
+    Session it = DBManager::getInstance()->findSessionById(message.sessionId);
     if (it.id == message.sessionId) {
-        //db中有该会话
-        session.unreadNumber = it.unreadNumber;
+        session.unreadCount = it.unreadCount;
         session.extra = it.extra;
     }
     if (message.sender != _loginAccid) {
-        //我接收到别人发的消息
         if (!message.readUidList.contains(_loginAccid)) {
-            session.unreadNumber = session.unreadNumber + 1;
+            session.unreadCount = session.unreadCount + 1;
         }
     }
     bool success = DBManager::getInstance()->saveOrUpdateSession(session);
@@ -147,6 +145,10 @@ void IMManager::wsConnect(){
     _socket->open(request);
 }
 
+QList<Session> IMManager::getSessionList(){
+    return DBManager::getInstance()->findSessionAll();
+}
+
 void IMManager::userRegister(const QString& account,const QString& password,const QString& confirmPassword,IMCallback* callback){
     QMap<QString, QVariant> params;
     params.insert("uid",account);
@@ -166,6 +168,12 @@ void IMManager::userSearch(const QString& keyword,IMCallback* callback){
     QMap<QString, QVariant> params;
     params.insert("keyword",keyword);
     post("/user/searchUser",params,callback);
+}
+
+void IMManager::userInfo(const QString& account,IMCallback* callback){
+    QMap<QString, QVariant> params;
+    params.insert("uid",account);
+    post("/user/getUserInfo",params,callback);
 }
 
 void IMManager::userProfile(IMCallback* callback){

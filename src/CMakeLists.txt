@@ -34,7 +34,14 @@ set(PROJECT_SOURCES
     proto/ReplyBody.pb.h proto/ReplyBody.pb.cc
     proto/SentBody.pb.h proto/SentBody.pb.cc
     controller/ContactController.h controller/ContactController.cpp
+    model/UserModel.h model/UserModel.cpp
+    model/BaseListModel.h
+    model/SessionModel.h model/SessionModel.cpp
     model/MessageListModel.h model/MessageListModel.cpp
+    model/SessionListModel.h model/SessionListModel.cpp
+    model/ContactListModel.h model/ContactListModel.cpp
+    provider/UserProvider.h provider/UserProvider.cpp
+    helper/CacheNetworkAccessManagerFactory.h helper/CacheNetworkAccessManagerFactory.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

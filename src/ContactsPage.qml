@@ -9,6 +9,7 @@ Page{
 
     id:control
     property var currentContact
+    signal sendMessageItemClicked(var contact)
     signal refreshFriends
 
     Connections{
@@ -60,8 +61,10 @@ Page{
         onSuccess:
             (result)=>{
                 model_contact.clear()
-                model_contact.append(result.data)
-                console.debug(JSON.stringify(result))
+                if(result.data){
+                    model_contact.append(result.data)
+                    console.debug(JSON.stringify(result))
+                }
             }
     }
 
@@ -572,7 +575,8 @@ Page{
                         iconSize: 18
                         font.pixelSize: 12
                         onClicked: {
-                            IMManager.sendTextMessage(currentContact.uid,"123456",callback_message_send)
+                            control.sendMessageItemClicked(currentContact)
+                            IMManager.sendTextMessage(currentContact.uid,"123213123",callback_message_send)
                         }
                     }
                 }

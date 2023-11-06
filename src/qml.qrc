@@ -8,5 +8,6 @@
         <file>ContactsPage.qml</file>
         <file>UserViewModel.qml</file>
         <file>AvatarView.qml</file>
+        <file>ContactsViewModel.qml</file>
     </qresource>
 </RCC>

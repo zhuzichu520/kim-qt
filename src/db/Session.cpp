@@ -12,7 +12,7 @@ void register_class(QxClass<Session> &t) {
     t.data(&Session::subType, "sub_type");
     t.data(&Session::extra, "extra");
     t.data(&Session::timestamp, "timestamp");
-    t.data(&Session::unreadNumber, "unread_number");
+    t.data(&Session::unreadCount, "unread_count");
     t.data(&Session::status, "status");
     t.data(&Session::stayTop, "stay_top");
 }

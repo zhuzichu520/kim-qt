@@ -196,7 +196,11 @@ FluWindow {
         }
 
         ContactsPage{
-
+            onSendMessageItemClicked:
+                (contact)=>{
+                console.debug(contact)
+                window.pageIndex = 0
+            }
         }
     }
 

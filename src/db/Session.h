@@ -14,7 +14,7 @@ public:
     int subType = 0;
     QString extra;
     qint64 timestamp =0;
-    int unreadNumber = 0;
+    int unreadCount = 0;
     int status = 0;
     bool stayTop = false;
 };

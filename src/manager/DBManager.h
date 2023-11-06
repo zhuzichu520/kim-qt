@@ -18,8 +18,11 @@ public:
     SINGLETONG(DBManager)
     void initDb();
     bool saveOrUpdateMessage(Message message);
-    Session getSessionById(QString id);
+    Session findSessionById(QString id);
     bool saveOrUpdateSession(Session session);
+
+    QList<Session> findSessionAll();
+
 private:
     QString _dbPath = (QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/db");
 

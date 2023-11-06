@@ -3,189 +3,37 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 import FluentUI 1.0
+import IM 1.0
 
 Page{
 
     id:control
-    property int currentIndex : -1
+    property var currentSession
 
-    onCurrentIndexChanged: {
-        if(currentIndex === -1){
-            loader_session.sourceComponent = undefined
-        }else{
+
+    onCurrentSessionChanged: {
+        if(currentSession){
             loader_session.sourceComponent = undefined
             loader_session.sourceComponent = com_message_panne
+        }else{
+            loader_session.sourceComponent = undefined
         }
     }
 
-    ListModel{
-        id:model_session
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"朱子楚"
-//            content:"哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈"
-//            time: "1698824141953"
-//        }
-//        ListElement{
-//            name:"孙悟空"
-//            content:"呵呵呵呵呵"
-//            time: "1698824141953"
-//        }
+    Connections{
+        target: IMManager
+        function onWsConnected(){
+            session_model.resetData()
+        }
     }
 
+    SessionListModel{
+        id:session_model
+    }
 
     component SessionItem:Rectangle{
-        property bool selected: false
-        signal clicked
+        property bool selected: control.currentSession === display
+        property var user: UserProvider.of(display.id)
         id:control_session
         height: 65
         width: 250
@@ -202,13 +50,14 @@ Page{
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {
-                control_session.clicked()
+                control.currentSession = display
             }
         }
-        Rectangle{
+        AvatarView{
             id:item_avatar
             width: 42
             height: 42
+            userInfo: control_session.user
             anchors{
                 verticalCenter: parent.verticalCenter
                 left: parent.left
@@ -216,7 +65,7 @@ Page{
             }
         }
         FluText{
-            text:model.name
+            text: control_session.user.name
             anchors{
                 top: item_avatar.top
                 topMargin: 2
@@ -225,7 +74,7 @@ Page{
             }
         }
         FluText{
-            text:model.content
+            text:display.text
             anchors{
                 bottom: item_avatar.bottom
                 bottomMargin: 2
@@ -273,6 +122,9 @@ Page{
                     right: parent.right
                     rightMargin: 14
                 }
+                onClicked:{
+                    session_model.clear()
+                }
             }
         }
         ListView{
@@ -282,16 +134,11 @@ Page{
                 top: layout_session_top_bar.bottom
                 bottom: parent.bottom
             }
-            currentIndex: control.currentIndex
             boundsBehavior: ListView.StopAtBounds
-            model: model_session
+            model: session_model
             clip: true
             ScrollBar.vertical: FluScrollBar{}
             delegate: SessionItem{
-                selected: control.currentIndex === index
-                onClicked: {
-                    control.currentIndex = index
-                }
             }
         }
         Rectangle{

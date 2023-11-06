@@ -35,6 +35,7 @@ public:
     Q_INVOKABLE void userLogin(const QString& account,const QString& password,IMCallback* callback = nullptr);
     Q_INVOKABLE void userSearch(const QString& keyword,IMCallback* callback = nullptr);
     Q_INVOKABLE void userProfile(IMCallback* callback = nullptr);
+    Q_INVOKABLE void userInfo(const QString& account,IMCallback* callback = nullptr);
     Q_INVOKABLE void friendAdd(const QString& friendId,IMCallback* callback = nullptr);
     Q_INVOKABLE void friendRemove(const QString& friendId,IMCallback* callback = nullptr);
     Q_INVOKABLE void friends(IMCallback* callback = nullptr);
@@ -45,6 +46,9 @@ public:
 
     Q_SLOT void onSocketMessage(const QByteArray &message);
     Q_SLOT void handleMsgResent();
+
+    QList<Session> getSessionList();
+
 private:
     QString wsUri();
     QString apiUri();
@@ -61,7 +65,7 @@ private:
     QString _token = "";
     QString _loginAccid = "";
     QWebSocket* _socket = nullptr;
-    QString _host = "localhost";
+    QString _host = "192.168.0.122";
     QString _wsport = "34567";
     QString _apiport = "8080";
     QMap<QString,Message> _msgBuffer;

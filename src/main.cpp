@@ -7,7 +7,13 @@
 #include <QProcess>
 #include <manager/IMManager.h>
 #include <manager/DBManager.h>
+#include <model/MessageListModel.h>
+#include <model/SessionListModel.h>
+#include <model/SessionModel.h>
+#include <provider/UserProvider.h>
+#include <model/UserModel.h>
 #include <helper/SettingsHelper.h>
+#include <helper/CacheNetworkAccessManagerFactory.h>
 
 int main(int argc, char *argv[])
 {
@@ -26,10 +32,16 @@ int main(int argc, char *argv[])
     SettingsHelper::getInstance()->init(argv);
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
+    engine.setNetworkAccessManagerFactory(new CacheNetworkAccessManagerFactory);
     engine.rootContext()->setContextProperty("IMManager",IMManager::getInstance());
     engine.rootContext()->setContextProperty("DBManager",DBManager::getInstance());
+    engine.rootContext()->setContextProperty("UserProvider",UserProvider::getInstance());
     engine.rootContext()->setContextProperty("SettingsHelper",SettingsHelper::getInstance());
     qmlRegisterType<IMCallback>("IM", 1, 0, "IMCallback");
+    qmlRegisterType<MessageListModel>("IM", 1, 0, "MessageListModel");
+    qmlRegisterType<SessionListModel>("IM", 1, 0, "SessionListModel");
+    qmlRegisterType<SessionModel>("IM", 1, 0, "SessionModel");
+    qmlRegisterType<UserModel>("IM", 1, 0, "UserModel");
     const QUrl url(QStringLiteral("qrc:/App.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app, [url](QObject *obj, const QUrl &objUrl) {
