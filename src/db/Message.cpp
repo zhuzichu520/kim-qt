@@ -1,10 +1,12 @@
 #include "Message.h"
 
+#include <QxOrm_Impl.h>
+
 QX_REGISTER_CPP_QX_KIM(Message)
 
 namespace qx {
-template<>
-void register_class(QxClass<Message> &t) {
+template<> void register_class(QxClass<Message> &t)
+{
     t.id(&Message::id, "id");
     t.data(&Message::content, "content");
     t.data(&Message::sender, "sender");

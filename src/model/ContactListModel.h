@@ -14,7 +14,10 @@ public:
     explicit ContactListModel(QObject *parent = nullptr);
       ~ContactListModel();
 
-
+    Q_INVOKABLE void resetData();
+    Q_INVOKABLE void clear();
+private:
+    QSharedPointer<UserModel> handleFriend(QJsonObject val);
 
 };
 

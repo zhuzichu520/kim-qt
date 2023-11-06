@@ -1138,7 +1138,8 @@ Page{
         }
     }
 
-
-
+    function switchSession(uid){
+        control.currentSession = session_model.getSessionByUid(uid)
+    }
 
 }

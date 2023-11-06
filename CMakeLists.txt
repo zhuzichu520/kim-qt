@@ -31,6 +31,7 @@ add_subdirectory(FluentUI)
 add_subdirectory(QxOrm)
 target_compile_definitions(QxOrm PRIVATE
     -D_QX_NO_TRACE_DLL_ATTACH_DETACH
+    -DQT_NO_STL
 )
 set_target_properties(QxOrm PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${KIM_OUTPUT_DIRECTORY}"

@@ -69,10 +69,13 @@ Session IMManager::message2session(const Message &val){
 
 void IMManager::updateSessionByMessage(const Message &message) {
     Session session = message2session(message);
-    Session it = DBManager::getInstance()->findSessionById(message.sessionId);
-    if (it.id == message.sessionId) {
-        session.unreadCount = it.unreadCount;
-        session.extra = it.extra;
+    auto sessionList = DBManager::getInstance()->findSessionListById(message.sessionId);
+    if (!sessionList.isEmpty()){
+        auto it = sessionList.at(0);
+        if(it.id== message.sessionId){
+            session.unreadCount = it.unreadCount;
+            session.extra = it.extra;
+        }
     }
     if (message.sender != _loginAccid) {
         if (!message.readUidList.contains(_loginAccid)) {
@@ -82,6 +85,23 @@ void IMManager::updateSessionByMessage(const Message &message) {
     bool success = DBManager::getInstance()->saveOrUpdateSession(session);
     if (success) {
         Q_EMIT updateSessionCompleted(session);
+    }
+}
+
+void IMManager::addEmptySession(QString sessionId,int scene){
+    QList<Session> it = DBManager::getInstance()->findSessionListById(sessionId);
+    if(it.isEmpty()){
+        Session it;
+        it.id = sessionId;
+        it.content = "{\"msg\":\"\"}";
+        it.scene = scene;
+        it.status = 0;
+        it.timestamp = QDateTime::currentMSecsSinceEpoch();
+        it.type = 0;
+        bool success = DBManager::getInstance()->saveOrUpdateSession(it);
+        if (success) {
+            Q_EMIT updateSessionCompleted(it);
+        }
     }
 }
 
@@ -96,14 +116,14 @@ void IMManager::bind(){
     com::chuzi::imsdk::server::model::proto::SentBody body;
     body.set_key("client_bind");
     body.set_timestamp(QDateTime::currentMSecsSinceEpoch());
-    body.mutable_data()->insert({"token",_token.toStdString()});
-    body.mutable_data()->insert({"channel",APP_CHANNEL.toStdString()});
-    body.mutable_data()->insert({"appVersion",APP_VERSION.toStdString()});
-    body.mutable_data()->insert({"osVersion",QSysInfo::productVersion().toStdString()});
-    body.mutable_data()->insert({"packageName",APP_PACKAGE.toStdString()});
-    body.mutable_data()->insert({"deviceId",QSysInfo::machineUniqueId().toStdString()});
-    body.mutable_data()->insert({"deviceName",QSysInfo::prettyProductName().toStdString()});
-    body.mutable_data()->insert({"language",QLocale::system().name().toStdString()});
+    body.mutable_data()->insert({"token",_token.toLatin1().constData()});
+    body.mutable_data()->insert({"channel",APP_CHANNEL.toLatin1().constData()});
+    body.mutable_data()->insert({"appVersion",APP_VERSION.toLatin1().constData()});
+    body.mutable_data()->insert({"osVersion",QSysInfo::productVersion().toLatin1().constData()});
+    body.mutable_data()->insert({"packageName",APP_PACKAGE.toLatin1().constData()});
+    body.mutable_data()->insert({"deviceId",QSysInfo::machineUniqueId().constData()});
+    body.mutable_data()->insert({"deviceName",QSysInfo::prettyProductName().toLatin1().constData()});
+    body.mutable_data()->insert({"language",QLocale::system().name().toLatin1().constData()});
     sendRequest(&body);
 }
 

@@ -40,6 +40,7 @@ public:
     Q_INVOKABLE void friendRemove(const QString& friendId,IMCallback* callback = nullptr);
     Q_INVOKABLE void friends(IMCallback* callback = nullptr);
     Q_INVOKABLE void sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback,int scene=0);
+    Q_INVOKABLE void addEmptySession(QString sessionId,int scene);
     Q_SIGNAL void receiveMessage(Message &message);
     Q_SIGNAL void updateSessionCompleted(Session &session);
     Q_SIGNAL void wsConnected();
@@ -65,7 +66,7 @@ private:
     QString _token = "";
     QString _loginAccid = "";
     QWebSocket* _socket = nullptr;
-    QString _host = "192.168.0.122";
+    QString _host = "localhost";
     QString _wsport = "34567";
     QString _apiport = "8080";
     QMap<QString,Message> _msgBuffer;

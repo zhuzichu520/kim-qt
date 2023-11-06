@@ -9,5 +9,5 @@ SessionModel::SessionModel(QObject *parent)
 }
 
 SessionModel::~SessionModel(){
-    qDebug()<<"---------SessionModel 析构了--------->";
+    qDebug()<<"123123123";
 }

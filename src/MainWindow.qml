@@ -192,15 +192,16 @@ FluWindow {
         }
         clip: true
         SessionPage{
-
+            id:session_page
         }
 
         ContactsPage{
             onSendMessageItemClicked:
                 (contact)=>{
-                console.debug(contact)
-                window.pageIndex = 0
-            }
+                    IMManager.addEmptySession(contact.uid,0)
+                    session_page.switchSession(contact.uid)
+                    window.pageIndex = 0
+                }
         }
     }
 

@@ -45,11 +45,11 @@ bool DBManager::saveOrUpdateSession(Session session){
     return qx::dao::save(session).type() == QSqlError::NoError;
 }
 
-Session DBManager::findSessionById(QString id){
-    Session session;
-    session.id = id;
-    qx::dao::fetch_by_id<Session>(session);
-    return session;
+QList<Session> DBManager::findSessionListById(QString id){
+    qx::QxSqlQuery query(QString("WHERE Session.id = '%1'").arg(id));
+    QList<Session> list;
+    qx::dao::fetch_by_query(query, list);
+    return list;
 }
 
 QList<Session> DBManager::findSessionAll(){

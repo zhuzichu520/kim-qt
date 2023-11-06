@@ -18,7 +18,7 @@ public:
     SINGLETONG(DBManager)
     void initDb();
     bool saveOrUpdateMessage(Message message);
-    Session findSessionById(QString id);
+    QList<Session> findSessionListById(QString id);
     bool saveOrUpdateSession(Session session);
 
     QList<Session> findSessionAll();

@@ -16,9 +16,12 @@ public:
     ~SessionListModel();
     Q_INVOKABLE void resetData();
     Q_INVOKABLE void clear();
+    Q_INVOKABLE SessionModel* getSessionByUid(const QString& uid);
 private:
     QSharedPointer<SessionModel> handleSession(Session val);
     QString handleContent(int type,const QString& content);
+    void addOrUpdateData(QSharedPointer<SessionModel> session);
+    void sortDatas();
 };
 
 #endif // SESSIONLISTMODEL_H

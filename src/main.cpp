@@ -9,6 +9,7 @@
 #include <manager/DBManager.h>
 #include <model/MessageListModel.h>
 #include <model/SessionListModel.h>
+#include <model/ContactListModel.h>
 #include <model/SessionModel.h>
 #include <provider/UserProvider.h>
 #include <model/UserModel.h>
@@ -40,6 +41,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<IMCallback>("IM", 1, 0, "IMCallback");
     qmlRegisterType<MessageListModel>("IM", 1, 0, "MessageListModel");
     qmlRegisterType<SessionListModel>("IM", 1, 0, "SessionListModel");
+    qmlRegisterType<ContactListModel>("IM", 1, 0, "ContactListModel");
     qmlRegisterType<SessionModel>("IM", 1, 0, "SessionModel");
     qmlRegisterType<UserModel>("IM", 1, 0, "UserModel");
     const QUrl url(QStringLiteral("qrc:/App.qml"));

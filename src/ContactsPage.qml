@@ -15,12 +15,12 @@ Page{
     Connections{
         target: IMManager
         function onWsConnected(){
-            control.refreshFriends()
+            contact_model.resetData()
         }
     }
 
-    ListModel{
-        id:model_contact
+    ContactListModel{
+        id:contact_model
     }
 
     IMCallback{
@@ -44,26 +44,6 @@ Page{
                     loader_popup_user.sourceComponent = com_popup_user
                 }else{
                     layout_contact_find_empty.visible = true
-                }
-            }
-    }
-
-    IMCallback{
-        id:callback_friends
-        onStart: {
-        }
-        onFinish: {
-        }
-        onError:
-            (code,message)=>{
-                showError(message)
-            }
-        onSuccess:
-            (result)=>{
-                model_contact.clear()
-                if(result.data){
-                    model_contact.append(result.data)
-                    console.debug(JSON.stringify(result))
                 }
             }
     }
@@ -106,7 +86,7 @@ Page{
 
     onRefreshFriends: {
         contact_find_page.visible = false
-        IMManager.friends(callback_friends)
+        //        IMManager.friends(callback_friends)
     }
 
     FluMenu{
@@ -126,7 +106,7 @@ Page{
     }
 
     component ContactItem:Rectangle{
-        property bool selected: control.currentContact === model
+        property bool selected: control.currentContact === display
         id:control_contact
         height: 65
         width: 250
@@ -146,9 +126,9 @@ Page{
             onClicked:
                 (mouse)=>{
                     if(mouse.button === Qt.LeftButton){
-                        control.currentContact = model
+                        control.currentContact = display
                     }else{
-                        menu_contact_item.showMenu(model.uid)
+                        menu_contact_item.showMenu(display.uid)
                     }
                 }
         }
@@ -156,7 +136,7 @@ Page{
             id:item_avatar
             width: 42
             height: 42
-            userInfo: model
+            userInfo: display
             anchors{
                 verticalCenter: parent.verticalCenter
                 left: parent.left
@@ -164,7 +144,7 @@ Page{
             }
         }
         FluText{
-            text:model.name
+            text:display.name
             anchors{
                 verticalCenter: parent.verticalCenter
                 left: item_avatar.right
@@ -230,7 +210,7 @@ Page{
                 }
             }
             boundsBehavior: ListView.StopAtBounds
-            model: model_contact
+            model: contact_model
             delegate: ContactItem{}
         }
         Rectangle{
@@ -576,7 +556,7 @@ Page{
                         font.pixelSize: 12
                         onClicked: {
                             control.sendMessageItemClicked(currentContact)
-                            IMManager.sendTextMessage(currentContact.uid,"123213123",callback_message_send)
+//                            IMManager.sendTextMessage(currentContact.uid,"123213123",callback_message_send)
                         }
                     }
                 }

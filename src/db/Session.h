@@ -7,6 +7,7 @@ class QX_KIM_DLL_EXPORT Session {
 public:
     Session();
     ~Session();
+    QString m_id;
     QString id;
     QString content;
     int scene = 0;

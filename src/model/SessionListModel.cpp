@@ -3,11 +3,47 @@
 #include <manager/IMManager.h>
 
 SessionListModel::SessionListModel(QObject *parent) : BaseListModel(parent) {
-
+    connect(IMManager::getInstance(),&IMManager::updateSessionCompleted,this,[this](Session& session){
+        qDebug()<<"-------------1111---";
+        QSharedPointer<SessionModel> sessionModel =  handleSession(session);
+        addOrUpdateData(sessionModel);
+    });
 }
 
 SessionListModel::~SessionListModel(){
 
+}
+
+void SessionListModel::addOrUpdateData(QSharedPointer<SessionModel> session){
+    int target = -1;
+    for (int i = 0; i < _datas.size(); ++i)
+    {
+        auto item = _datas.at(i);
+        if(item.get()->id() == session.get()->id()){
+            target = i;
+            break;
+        }
+    }
+    beginResetModel();
+    if(target != -1){
+        _datas.replace(target,session);
+    }else{
+        _datas.append(session);
+    }
+    sortDatas();
+    endResetModel();
+}
+
+void SessionListModel::sortDatas(){
+    qSort(_datas.begin(),_datas.end(),[](QSharedPointer<SessionModel> left,QSharedPointer<SessionModel> right){
+        if(left.get()->stayTop() && !right.get()->stayTop()){
+            return true;
+        }else if(!left.get()->stayTop() && right.get()->stayTop()){
+            return false;
+        }else{
+            return left.get()->timestamp()>right.get()->timestamp();
+        }
+    });
 }
 
 void SessionListModel::resetData(){
@@ -18,6 +54,7 @@ void SessionListModel::resetData(){
         data.append(handleSession(item));
     }
     _datas.append(data);
+    sortDatas();
     endResetModel();
 }
 
@@ -44,9 +81,9 @@ QSharedPointer<SessionModel> SessionListModel::handleSession(Session val){
 }
 
 QString SessionListModel::handleContent(int type,const QString& content){
-    QJsonParseError parseError;
-    auto jsonDocument = QJsonDocument::fromJson(content.toUtf8(),&parseError);
-    if(parseError.error != QJsonParseError::NoError){
+    QJsonParseError error;
+    auto jsonDocument = QJsonDocument::fromJson(content.toUtf8(),&error);
+    if(error.error != QJsonParseError::NoError){
         return "[未知消息]";
     }
     auto object = jsonDocument.object();
@@ -60,4 +97,15 @@ QString SessionListModel::handleContent(int type,const QString& content){
     default:
         return "[未知消息]";
     }
+}
+
+SessionModel* SessionListModel::getSessionByUid(const QString& uid){
+    for (int i = 0; i < _datas.size(); ++i)
+    {
+        auto item = _datas.at(i);
+        if(item.get()->id() == uid){
+            return item.get();
+        }
+    }
+    return nullptr;
 }

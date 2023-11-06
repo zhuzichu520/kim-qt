@@ -21,7 +21,7 @@ UserModel* UserProvider::of(const QString& uid){
     UserModel* userModel = new UserModel();
     _datas.append(userModel);
     IMCallback *callback = new IMCallback();
-    connect(callback,&IMCallback::finish,this,[callback]{ delete callback; });
+    connect(callback,&IMCallback::finish,this,[callback]{ callback->deleteLater(); });
     connect(callback,&IMCallback::success,this,[callback,userModel](QJsonObject result){
         auto user = result.value("data").toObject();
         userModel->id(user.value("id").toString());
