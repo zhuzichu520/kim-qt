@@ -66,26 +66,9 @@ Page{
             }
     }
 
-    IMCallback{
-        id:callback_message_send
-        onStart: {
-            showLoading()
-        }
-        onFinish: {
-            hideLoading()
-        }
-        onError:
-            (code,message)=>{
-                showError(message)
-            }
-        onSuccess:
-            (result)=>{
-                console.debug(JSON.stringify(result))
-            }
-    }
-
     onRefreshFriends: {
         contact_find_page.visible = false
+        contact_model.resetData()
         //        IMManager.friends(callback_friends)
     }
 
@@ -556,7 +539,6 @@ Page{
                         font.pixelSize: 12
                         onClicked: {
                             control.sendMessageItemClicked(currentContact)
-//                            IMManager.sendTextMessage(currentContact.uid,"123213123",callback_message_send)
                         }
                     }
                 }

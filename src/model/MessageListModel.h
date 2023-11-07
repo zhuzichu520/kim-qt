@@ -2,12 +2,24 @@
 #define MESSAGELISTMODEL_H
 
 #include <QObject>
+#include <model/BaseListModel.h>
+#include <model/MessageModel.h>
+#include <model/SessionModel.h>
+#include <db/Message.h>
+#include <stdafx.h>
 
-class MessageListModel : public QObject
+class MessageListModel : public BaseListModel<MessageModel>
 {
     Q_OBJECT
+    Q_PROPERTY_AUTO(SessionModel*,session)
 public:
     explicit MessageListModel(QObject *parent = nullptr);
+    Q_SIGNAL void viewToBottom();
+    Q_SIGNAL void viewToPosition(int position);
+    Q_INVOKABLE void resetData();
+private:
+    QSharedPointer<MessageModel> handleMessage(Message val);
+    void addOrUpdateData(QSharedPointer<MessageModel> session);
 };
 
 #endif // MESSAGELISTMODEL_H

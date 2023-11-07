@@ -4,7 +4,6 @@
 
 SessionListModel::SessionListModel(QObject *parent) : BaseListModel(parent) {
     connect(IMManager::getInstance(),&IMManager::updateSessionCompleted,this,[this](Session& session){
-        qDebug()<<"-------------1111---";
         QSharedPointer<SessionModel> sessionModel =  handleSession(session);
         addOrUpdateData(sessionModel);
     });
@@ -26,7 +25,7 @@ void SessionListModel::addOrUpdateData(QSharedPointer<SessionModel> session){
     }
     beginResetModel();
     if(target != -1){
-        _datas.replace(target,session);
+        _datas.at(target)->setModel(session);
     }else{
         _datas.append(session);
     }

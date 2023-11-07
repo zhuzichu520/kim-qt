@@ -44,12 +44,11 @@ public:
     Q_SIGNAL void receiveMessage(Message &message);
     Q_SIGNAL void updateSessionCompleted(Session &session);
     Q_SIGNAL void wsConnected();
-
     Q_SLOT void onSocketMessage(const QByteArray &message);
     Q_SLOT void handleMsgResent();
-
     QList<Session> getSessionList();
-
+    QList<Message> getMessageListBySessionId(QString sessionId);
+    QString loginAccid();
 private:
     QString wsUri();
     QString apiUri();
@@ -66,7 +65,7 @@ private:
     QString _token = "";
     QString _loginAccid = "";
     QWebSocket* _socket = nullptr;
-    QString _host = "localhost";
+    QString _host = "192.168.0.122";
     QString _wsport = "34567";
     QString _apiport = "8080";
     QMap<QString,Message> _msgBuffer;

@@ -37,6 +37,7 @@ set(PROJECT_SOURCES
     model/UserModel.h model/UserModel.cpp
     model/BaseListModel.h
     model/SessionModel.h model/SessionModel.cpp
+    model/MessageModel.h model/MessageModel.cpp
     model/MessageListModel.h model/MessageListModel.cpp
     model/SessionListModel.h model/SessionListModel.cpp
     model/ContactListModel.h model/ContactListModel.cpp

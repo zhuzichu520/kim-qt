@@ -52,6 +52,13 @@ QList<Session> DBManager::findSessionListById(QString id){
     return list;
 }
 
+QList<Message>  DBManager::findMessageListBySessionId(QString sessionId){
+    qx::QxSqlQuery query(QString("WHERE Message.session_id = '%1'").arg(sessionId));
+    QList<Message> list;
+    qx::dao::fetch_by_query(query, list);
+    return list;
+}
+
 QList<Session> DBManager::findSessionAll(){
     QList<Session> list;
     qx::dao::fetch_all(list);

@@ -18,6 +18,7 @@ FluClip {
         id:image_source
         anchors.fill: parent
         mipmap: true
+        cache: true
     }
 
 }

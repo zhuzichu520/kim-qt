@@ -20,9 +20,8 @@ public:
     bool saveOrUpdateMessage(Message message);
     QList<Session> findSessionListById(QString id);
     bool saveOrUpdateSession(Session session);
-
     QList<Session> findSessionAll();
-
+    QList<Message> findMessageListBySessionId(QString sessionId);
 private:
     QString _dbPath = (QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/db");
 

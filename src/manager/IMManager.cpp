@@ -165,8 +165,16 @@ void IMManager::wsConnect(){
     _socket->open(request);
 }
 
+QString IMManager::loginAccid(){
+    return _loginAccid;
+}
+
 QList<Session> IMManager::getSessionList(){
     return DBManager::getInstance()->findSessionAll();
+}
+
+QList<Message> IMManager::getMessageListBySessionId(QString sessionId){
+    return DBManager::getInstance()->findMessageListBySessionId(sessionId);
 }
 
 void IMManager::userRegister(const QString& account,const QString& password,const QString& confirmPassword,IMCallback* callback){

@@ -20,6 +20,8 @@ class SessionModel : public QObject
 
     Q_PROPERTY_AUTO(QString,text)
 
+    void setModel(QSharedPointer<SessionModel> val);
+
 public:
     explicit SessionModel(QObject *parent = nullptr);
     ~SessionModel();

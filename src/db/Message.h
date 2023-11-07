@@ -10,7 +10,7 @@ public:
     ~Message();
 
 public:
-    QString id = "";
+    QString id;
     QString content;
     QString sender;
     QString receiver;
