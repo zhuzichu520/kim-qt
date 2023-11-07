@@ -5,6 +5,7 @@
 #include <stdafx.h>
 #include <QSharedPointer>
 #include <model/UserModel.h>
+#include <QJsonObject>
 
 class MessageModel : public QObject
 {
@@ -25,6 +26,8 @@ class MessageModel : public QObject
 
     Q_PROPERTY_AUTO(bool,isSelf)
     Q_PROPERTY_AUTO(UserModel*,user)
+    Q_PROPERTY_AUTO(QJsonObject,body)
+    Q_PROPERTY_AUTO(QString,time)
 public:
     explicit MessageModel(QObject *parent = nullptr);
     void setModel(QSharedPointer<MessageModel> val);

@@ -15,6 +15,7 @@
 #include <model/UserModel.h>
 #include <model/ImageModel.h>
 #include <helper/SettingsHelper.h>
+#include <QTextCodec>
 
 int main(int argc, char *argv[])
 {

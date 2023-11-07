@@ -27,7 +27,6 @@ void MessageListModel::resetData(){
     Q_EMIT viewToBottom();
 }
 
-
 QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){
     auto model = QSharedPointer<MessageModel>(new MessageModel(this));
     model->id(val.id);
@@ -45,7 +44,31 @@ QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){
     model->readUidList(val.readUidList);
     model->isSelf(val.sender==IMManager::getInstance()->loginAccid());
     model->user(UserProvider::getInstance()->of(val.sessionId));
+    model->body(QJsonDocument::fromJson(val.content.toUtf8()).object());
+    model->time(formatMessageTime(val.timestamp));
     return model;
+}
+
+QString MessageListModel::formatMessageTime(qint64 timestamp){
+    QDateTime dateTime;
+    dateTime.setMSecsSinceEpoch(timestamp);
+    QDateTime currentTime = QDateTime::currentDateTime();
+    qint64 days = dateTime.daysTo(currentTime);
+    if (days == 0) {
+        int minutes = dateTime.time().minute() / 5 * 5;
+        QTime roundedTime(dateTime.time().hour(), minutes);
+        return roundedTime.toString("hh:mm");
+    }  else if(days ==1){
+        return dateTime.toString("昨天　hh:mm");
+    } {
+        if (dateTime.date().year() == currentTime.date().year())
+        {
+            return dateTime.toString("M月dd日　hh:mm");
+        } else
+        {
+            return dateTime.toString("yyyy年M月dd日　hh:mm");
+        }
+    }
 }
 
 void MessageListModel::addOrUpdateData(QSharedPointer<MessageModel> session){

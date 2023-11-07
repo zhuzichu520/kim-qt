@@ -172,7 +172,7 @@ Page{
             color: modelData.isSelf ? Qt.rgba(149/255,231/255,105/255,1)  : Qt.rgba(255/255,255/255,255/255,1)
             FluCopyableText{
                 id:item_message_content
-                text:modelData.content
+                text:modelData.body.msg
                 width: parent.width
                 topPadding: 8
                 leftPadding: 8
@@ -245,9 +245,15 @@ Page{
                         radius: 3
                         color: Qt.rgba(218/255,218/255,218/255,1)
                         anchors.horizontalCenter: parent.horizontalCenter
+                        visible: {
+                            if(index === 0){
+                                return true
+                            }
+                            return checkTimestampDiff(message_model.data(message_model.index(Math.max(index-1,0),0),0).timestamp,display.timestamp)
+                        }
                         Text {
-                            id:item_message_time
-                            text: "21:11"
+                            id: item_message_time
+                            text: display.time
                             color: Qt.rgba(255/255,255/255,255/255,1)
                             anchors.centerIn: parent
                         }
@@ -371,9 +377,7 @@ Page{
                 onClicked:{
                     var text =  textbox_message_input.text
                     IMManager.sendTextMessage(currentSession.id,text,callback_message_send)
-                    //                    model_message.append({isIsent:true,content:textbox_message_input.text})
-                    //                    listview_message.positionViewAtEnd()
-                    //                    textbox_message_input.clear()
+                    textbox_message_input.clear()
                 }
             }
         }
@@ -395,6 +399,18 @@ Page{
         color: Qt.rgba(214/255,214/255,214/255,1)
         anchors{
             left: layout_session.right
+        }
+    }
+
+    function checkTimestampDiff(timestamp1, timestamp2) {
+        const time1 = timestamp1;
+        const time2 = timestamp2;
+        const diff = Math.abs(time1 - time2);
+        const diffMinutes = diff / 60000;
+        if (diffMinutes <= 5) {
+            return false;
+        } else {
+            return true;
         }
     }
 

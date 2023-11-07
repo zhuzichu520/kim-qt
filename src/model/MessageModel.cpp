@@ -24,4 +24,6 @@ void MessageModel::setModel(QSharedPointer<MessageModel> val){
 
     this->isSelf(message->isSelf());
     this->user(message->user());
+    this->body(message->body());
+    this->time(message->time());
 }

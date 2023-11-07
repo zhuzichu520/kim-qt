@@ -20,6 +20,7 @@ public:
 private:
     QSharedPointer<MessageModel> handleMessage(Message val);
     void addOrUpdateData(QSharedPointer<MessageModel> session);
+    QString formatMessageTime(qint64 timestamp);
 };
 
 #endif // MESSAGELISTMODEL_H
