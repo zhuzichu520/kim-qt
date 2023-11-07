@@ -14,10 +14,6 @@ FluWindow {
     title: "设置"
     launchMode: FluWindowType.SingleTask
 
-    UserViewModel{
-        id:user_viewmodel
-    }
-
     component TabItem:Item{
         property bool selected: listview_tab.currentIndex === model.index
         width: listview_tab.width
@@ -73,10 +69,11 @@ FluWindow {
     Component{
         id:com_account_settings
         Item{
-
             Component{
                 id:com_profile_panne
                 FluArea{
+
+                    property var user : UserProvider.loginUser()
 
                     AvatarView{
                         id: profile_avatar
@@ -118,10 +115,9 @@ FluWindow {
             }
 
             FluLoader{
-                property var user: user_viewmodel.profile
                 height: 140
                 width: parent.width
-                sourceComponent: !user_viewmodel.profile ? undefined : com_profile_panne
+                sourceComponent: com_profile_panne
             }
 
 

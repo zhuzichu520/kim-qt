@@ -2,6 +2,7 @@
 #define USERMODEL_H
 
 #include <QObject>
+#include <QDebug>
 #include <stdafx.h>
 
 class UserModel : public QObject
@@ -19,7 +20,6 @@ class UserModel : public QObject
     Q_PROPERTY_AUTO(QString,uid)
 public:
     explicit UserModel(QObject *parent = nullptr);
-
 signals:
 
 };

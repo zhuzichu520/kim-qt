@@ -4,6 +4,7 @@
 #include <QObject>
 #include <stdafx.h>
 #include <QSharedPointer>
+#include <model/UserModel.h>
 
 class MessageModel : public QObject
 {
@@ -23,6 +24,7 @@ class MessageModel : public QObject
     Q_PROPERTY_AUTO(QString,readUidList)
 
     Q_PROPERTY_AUTO(bool,isSelf)
+    Q_PROPERTY_AUTO(UserModel*,user)
 public:
     explicit MessageModel(QObject *parent = nullptr);
     void setModel(QSharedPointer<MessageModel> val);

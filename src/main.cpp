@@ -13,8 +13,8 @@
 #include <model/SessionModel.h>
 #include <provider/UserProvider.h>
 #include <model/UserModel.h>
+#include <model/ImageModel.h>
 #include <helper/SettingsHelper.h>
-#include <helper/CacheNetworkAccessManagerFactory.h>
 
 int main(int argc, char *argv[])
 {
@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
     SettingsHelper::getInstance()->init(argv);
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
-    engine.setNetworkAccessManagerFactory(new CacheNetworkAccessManagerFactory);
     engine.rootContext()->setContextProperty("IMManager",IMManager::getInstance());
     engine.rootContext()->setContextProperty("DBManager",DBManager::getInstance());
     engine.rootContext()->setContextProperty("UserProvider",UserProvider::getInstance());
@@ -43,6 +42,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<SessionListModel>("IM", 1, 0, "SessionListModel");
     qmlRegisterType<ContactListModel>("IM", 1, 0, "ContactListModel");
     qmlRegisterType<SessionModel>("IM", 1, 0, "SessionModel");
+    qmlRegisterType<ImageModel>("IM", 1, 0, "ImageModel");
     qmlRegisterType<UserModel>("IM", 1, 0, "UserModel");
     const QUrl url(QStringLiteral("qrc:/App.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

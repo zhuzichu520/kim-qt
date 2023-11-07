@@ -22,31 +22,10 @@ FluWindow {
         IMManager.wsConnect()
     }
 
-    UserViewModel{
-        id:user_viewmodel
-    }
-
-    IMCallback{
-        id:callback_userprofile
-        onStart: {
-        }
-        onFinish: {
-        }
-        onError:
-            (code,message)=>{
-                showError(message)
-            }
-        onSuccess:
-            (result)=>{
-                console.debug(JSON.stringify(result.data))
-                user_viewmodel.profile = result.data
-            }
-    }
-
     Connections{
         target: IMManager
         function onWsConnected(){
-            IMManager.userProfile(callback_userprofile)
+
         }
     }
 
@@ -126,8 +105,8 @@ FluWindow {
                 control_tab.clicked()
             }
         }
-
     }
+
 
     Rectangle{
         id:layout_tab
@@ -137,7 +116,7 @@ FluWindow {
         AvatarView{
             width: 38
             height: 38
-            userInfo: user_viewmodel.profile
+            userInfo: UserProvider.loginUser()
             anchors{
                 horizontalCenter: parent.horizontalCenter
                 top: parent.top

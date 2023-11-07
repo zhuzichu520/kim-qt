@@ -46,9 +46,10 @@ public:
     Q_SIGNAL void wsConnected();
     Q_SLOT void onSocketMessage(const QByteArray &message);
     Q_SLOT void handleMsgResent();
+    Q_INVOKABLE QString loginAccid();
+    Q_INVOKABLE QString token();
     QList<Session> getSessionList();
     QList<Message> getMessageListBySessionId(QString sessionId);
-    QString loginAccid();
 private:
     QString wsUri();
     QString apiUri();
@@ -62,8 +63,6 @@ private:
     Session message2session(const Message &val);
     Message buildMessage(const QString &sessionId, int scene, int type, const QString &content);
 private:
-    QString _token = "";
-    QString _loginAccid = "";
     QWebSocket* _socket = nullptr;
     QString _host = "192.168.0.122";
     QString _wsport = "34567";

@@ -1,6 +1,7 @@
 #include "MessageListModel.h"
 
 #include <manager/IMManager.h>
+#include <provider/UserProvider.h>
 
 MessageListModel::MessageListModel(QObject *parent)
     : BaseListModel{parent}
@@ -43,6 +44,7 @@ QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){
     model->sessionId(val.sessionId);
     model->readUidList(val.readUidList);
     model->isSelf(val.sender==IMManager::getInstance()->loginAccid());
+    model->user(UserProvider::getInstance()->of(val.sessionId));
     return model;
 }
 

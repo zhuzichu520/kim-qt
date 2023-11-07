@@ -12,13 +12,19 @@ UserProvider::~UserProvider(){
 
 }
 
+UserModel* UserProvider::loginUser(){
+    return of(IMManager::getInstance()->loginAccid());
+}
+
 UserModel* UserProvider::of(const QString& uid){
-    foreach (auto item, _datas) {
-        if(item->uid() == uid){
-            return item;
+    for (int i = 0; i < _datas.size(); ++i)
+    {
+        auto item = _datas.at(i);
+        if(!item.isNull() && item.get()->uid() == uid){
+            return item.get();
         }
     }
-    UserModel* userModel = new UserModel();
+    QSharedPointer<UserModel> userModel = QSharedPointer<UserModel>(new UserModel(this));
     _datas.append(userModel);
     IMCallback *callback = new IMCallback();
     connect(callback,&IMCallback::finish,this,[callback]{ callback->deleteLater(); });
@@ -36,5 +42,5 @@ UserModel* UserProvider::of(const QString& uid){
         userModel->extension(user.value("extension").toString());
     });
     IMManager::getInstance()->userInfo(uid,callback);
-    return userModel;
+    return userModel.get();
 }

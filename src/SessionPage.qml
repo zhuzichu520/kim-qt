@@ -48,7 +48,6 @@ Page{
 
     component SessionItem:Rectangle{
         property bool selected: control.currentSession === display
-        property var user: UserProvider.of(display.id)
         id:control_session
         height: 65
         width: 250
@@ -72,7 +71,7 @@ Page{
             id:item_avatar
             width: 42
             height: 42
-            userInfo: control_session.user
+            userInfo: display.user
             anchors{
                 verticalCenter: parent.verticalCenter
                 left: parent.left
@@ -80,7 +79,7 @@ Page{
             }
         }
         FluText{
-            text: control_session.user.name
+            text: display.user.name
             anchors{
                 top: item_avatar.top
                 topMargin: 2
@@ -236,7 +235,6 @@ Page{
                 }
                 delegate: Column{
                     id:item_message_control
-                    property var user: UserProvider.of(display.sender)
                     Item{
                         width: 1
                         height: 10
@@ -268,7 +266,7 @@ Page{
                         AvatarView{
                             width: 36
                             height: 36
-                            userInfo: item_message_control.user
+                            userInfo: display.user
                         }
                         Item{
                             width: 10

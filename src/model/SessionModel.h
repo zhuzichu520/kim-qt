@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <stdafx.h>
+#include <model/UserModel.h>
 
 class SessionModel : public QObject
 {
@@ -19,6 +20,7 @@ class SessionModel : public QObject
     Q_PROPERTY_AUTO(bool,stayTop)
 
     Q_PROPERTY_AUTO(QString,text)
+    Q_PROPERTY_AUTO(UserModel*,user)
 
     void setModel(QSharedPointer<SessionModel> val);
 

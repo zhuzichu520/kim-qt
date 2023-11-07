@@ -77,8 +77,8 @@ void IMManager::updateSessionByMessage(const Message &message) {
             session.extra = it.extra;
         }
     }
-    if (message.sender != _loginAccid) {
-        if (!message.readUidList.contains(_loginAccid)) {
+    if (message.sender != loginAccid()) {
+        if (!message.readUidList.contains(loginAccid())) {
             session.unreadCount = session.unreadCount + 1;
         }
     }
@@ -116,7 +116,7 @@ void IMManager::bind(){
     com::chuzi::imsdk::server::model::proto::SentBody body;
     body.set_key("client_bind");
     body.set_timestamp(QDateTime::currentMSecsSinceEpoch());
-    body.mutable_data()->insert({"token",_token.toLatin1().constData()});
+    body.mutable_data()->insert({"token",token().toLatin1().constData()});
     body.mutable_data()->insert({"channel",APP_CHANNEL.toLatin1().constData()});
     body.mutable_data()->insert({"appVersion",APP_VERSION.toLatin1().constData()});
     body.mutable_data()->insert({"osVersion",QSysInfo::productVersion().toLatin1().constData()});
@@ -136,19 +136,17 @@ void IMManager::pong(){
 }
 
 void IMManager::wsConnect(){
+    DBManager::getInstance()->initDb();
     if(_socket!=nullptr){
         delete _socket;
         _socket = nullptr;
     }
-    _token = SettingsHelper::getInstance()->getToken().toString();
-    _loginAccid = SettingsHelper::getInstance()->getAccount().toString();
     _socket = new QWebSocket();
     connect(_socket, &QWebSocket::binaryMessageReceived, this, &IMManager::onSocketMessage);
     connect(_socket, &QWebSocket::stateChanged, this,
             [=](QAbstractSocket::SocketState state) {
                 qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketState>().valueToKey(state);
                 if(state == QAbstractSocket::ConnectedState){
-                    DBManager::getInstance()->initDb();
                     bind();
                     Q_EMIT wsConnected();
                 }
@@ -156,17 +154,17 @@ void IMManager::wsConnect(){
     connect(_socket, &QWebSocket::connected, this,
             [=]() {
             });
-    //    connect(_socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this,
-    //            [=](QAbstractSocket::SocketError error) {
-    //                qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketError>().valueToKey(error);
-    //            });
     QNetworkRequest request(wsUri());
-    request.setRawHeader("token", _token.toUtf8());
+    request.setRawHeader("token", token().toUtf8());
     _socket->open(request);
 }
 
 QString IMManager::loginAccid(){
-    return _loginAccid;
+    return SettingsHelper::getInstance()->getAccount().toString();
+}
+
+QString IMManager::token(){
+    return SettingsHelper::getInstance()->getToken().toString();
 }
 
 QList<Session> IMManager::getSessionList(){
@@ -249,7 +247,7 @@ Message IMManager::buildMessage(const QString &sessionId, int scene, int type, c
     Message message;
     message.id = QUuid::createUuid().toString().remove("{").remove("}");
     message.content = content;
-    message.sender = _loginAccid;
+    message.sender = loginAccid();
     message.receiver = sessionId;
     message.sessionId = sessionId;
     message.scene = scene;
@@ -281,8 +279,8 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
             Q_EMIT callback->start();
         }
         QNetworkRequest req(apiUri()+path);
-        if(!_token.isEmpty()){
-            req.setRawHeader("access-token",_token.toUtf8());
+        if(!token().isEmpty()){
+            req.setRawHeader("access-token",token().toUtf8());
         }
         QHttpMultiPart multiPart(QHttpMultiPart::FormDataType);
         for (const auto& each : params.toStdMap())

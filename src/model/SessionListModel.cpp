@@ -1,6 +1,7 @@
 #include "SessionListModel.h"
 
 #include <manager/IMManager.h>
+#include <provider/UserProvider.h>
 
 SessionListModel::SessionListModel(QObject *parent) : BaseListModel(parent) {
     connect(IMManager::getInstance(),&IMManager::updateSessionCompleted,this,[this](Session& session){
@@ -14,26 +15,24 @@ SessionListModel::~SessionListModel(){
 }
 
 void SessionListModel::addOrUpdateData(QSharedPointer<SessionModel> session){
-    int target = -1;
     for (int i = 0; i < _datas.size(); ++i)
     {
         auto item = _datas.at(i);
         if(item.get()->id() == session.get()->id()){
-            target = i;
-            break;
+            _datas.at(i)->setModel(session);
+            Q_EMIT dataChanged(this->index(i),this->index(i));
+            sortDatas();
+            return;
         }
     }
-    beginResetModel();
-    if(target != -1){
-        _datas.at(target)->setModel(session);
-    }else{
-        _datas.append(session);
-    }
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    _datas.append(session);
+    endInsertRows();
     sortDatas();
-    endResetModel();
 }
 
 void SessionListModel::sortDatas(){
+    Q_EMIT layoutAboutToBeChanged();
     qSort(_datas.begin(),_datas.end(),[](QSharedPointer<SessionModel> left,QSharedPointer<SessionModel> right){
         if(left.get()->stayTop() && !right.get()->stayTop()){
             return true;
@@ -43,6 +42,8 @@ void SessionListModel::sortDatas(){
             return left.get()->timestamp()>right.get()->timestamp();
         }
     });
+    changePersistentIndex(index(0,0),index(_datas.count()-1,0));
+    Q_EMIT layoutChanged(QList<QPersistentModelIndex>(),QAbstractItemModel::VerticalSortHint);
 }
 
 void SessionListModel::resetData(){
@@ -76,6 +77,7 @@ QSharedPointer<SessionModel> SessionListModel::handleSession(Session val){
     model->status(val.status);
     model->stayTop(val.stayTop);
     model->text(handleContent(val.type,val.content));
+    model->user(UserProvider::getInstance()->of(val.id));
     return model;
 }
 

@@ -23,4 +23,5 @@ void MessageModel::setModel(QSharedPointer<MessageModel> val){
     this->readUidList(message->readUidList());
 
     this->isSelf(message->isSelf());
+    this->user(message->user());
 }
