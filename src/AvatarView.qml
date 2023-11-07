@@ -19,6 +19,7 @@ FluClip {
         anchors.fill: parent
         mipmap: true
         cache: true
+        sourceSize: Qt.size(width*2,height*2)
     }
 
 }
