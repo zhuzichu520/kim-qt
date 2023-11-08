@@ -365,7 +365,7 @@ void IMManager::onSocketMessage(const QByteArray &message)
         message.id = QString::fromStdString(messageProto.id());
         message.scene = messageProto.scene();
         message.type = messageProto.type();
-        //        message.subType = messageProto.subType();
+        message.subType = messageProto.subtype();
         message.title = QString::fromStdString(messageProto.title());
         message.content = QString::fromStdString(messageProto.content());
         message.sender = QString::fromStdString(messageProto.sender());

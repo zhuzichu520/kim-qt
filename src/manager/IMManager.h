@@ -65,7 +65,7 @@ private:
     void handleMessageBuf(const Message &message);
 private:
     QWebSocket* _socket = nullptr;
-    QString _host = "192.168.0.122";
+    QString _host = "192.168.31.69";
     QString _wsport = "34567";
     QString _apiport = "8080";
     QMap<QString,Message> _msgBuffer;

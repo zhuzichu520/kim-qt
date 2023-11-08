@@ -35,7 +35,6 @@ void DBManager::initDb(){
     db->setVerifyOffsetRelation(true);
     db->setTraceSqlQuery(false);
     db->setTraceSqlBoundValues(false);
-
     db->setTraceSqlBoundValuesOnError(false);
     db->setTraceSqlRecord(false);
 
@@ -71,8 +70,6 @@ QList<Session> DBManager::findSessionListById(QString id){
 QList<Message> DBManager::findMessageListBySessionId(QString sessionId){
     qx::QxSqlQuery query(QString("WHERE Message.session_id = '%1'").arg(sessionId));
     QList<Message> list;
-    qDebug()<<"-----------------------------";
-    qDebug()<<list.size();
     qx::dao::fetch_by_query(query, list);
     return list;
 }
