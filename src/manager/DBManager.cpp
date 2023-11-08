@@ -23,8 +23,6 @@ DBManager::~DBManager(){
 void DBManager::initDb(){
     auto account = SettingsHelper::getInstance()->getAccount().toString();
     auto dbName = QString(QCryptographicHash::hash(account.toUtf8(), QCryptographicHash::Md5).toHex());
-    //    qx::QxSqlDatabase * pDatabaseSettings = qx::QxSqlDatabase::getSingleton();
-    //    pDatabaseSettings->setTraceSqlQuery(false);
     auto db=qx::QxSqlDatabase::getSingleton();
     db->setDriverName("QSQLITE");
     db->setDatabaseName(QString::fromStdString("%1/%2").arg(_dbPath,dbName));
@@ -32,12 +30,30 @@ void DBManager::initDb(){
     db->setUserName("root");
     db->setPassword("");
 
-    qx::QxSqlDatabase::getSingleton()->setVerifyOffsetRelation(true);
-    QSqlError daoError = qx::dao::create_table<Message>();
-    daoError = qx::dao::create_table<Session>();
+    db->setFormatSqlQueryBeforeLogging(false);
+    db->setDisplayTimerDetails(false);
+    db->setVerifyOffsetRelation(true);
+    db->setTraceSqlQuery(false);
+    db->setTraceSqlBoundValues(false);
+
+    db->setTraceSqlBoundValuesOnError(false);
+    db->setTraceSqlRecord(false);
+
+    QSqlError sqlError = qx::dao::create_table<Message>();
+    if(sqlError.isValid()){
+        qDebug()<<sqlError.text();
+    }
+    sqlError = qx::dao::create_table<Session>();
+    if(sqlError.isValid()){
+        qDebug()<<sqlError.text();
+    }
 }
 
 bool DBManager::saveOrUpdateMessage(Message message){
+    QList<Message> data = findMessageListById(message.id);
+    if(!data.isEmpty()){
+        message.localExtra = data.at(0).localExtra;
+    }
     return qx::dao::save(message).type() == QSqlError::NoError;
 }
 
@@ -52,8 +68,17 @@ QList<Session> DBManager::findSessionListById(QString id){
     return list;
 }
 
-QList<Message>  DBManager::findMessageListBySessionId(QString sessionId){
+QList<Message> DBManager::findMessageListBySessionId(QString sessionId){
     qx::QxSqlQuery query(QString("WHERE Message.session_id = '%1'").arg(sessionId));
+    QList<Message> list;
+    qDebug()<<"-----------------------------";
+    qDebug()<<list.size();
+    qx::dao::fetch_by_query(query, list);
+    return list;
+}
+
+QList<Message>  DBManager::findMessageListById(QString id){
+    qx::QxSqlQuery query(QString("WHERE Message.id = '%1'").arg(id));
     QList<Message> list;
     qx::dao::fetch_by_query(query, list);
     return list;

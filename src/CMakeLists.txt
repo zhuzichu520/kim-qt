@@ -43,6 +43,7 @@ set(PROJECT_SOURCES
     model/SessionListModel.h model/SessionListModel.cpp
     model/ContactListModel.h model/ContactListModel.cpp
     provider/UserProvider.h provider/UserProvider.cpp
+    component/CircularReveal.h component/CircularReveal.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

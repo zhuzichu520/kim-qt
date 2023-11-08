@@ -55,9 +55,7 @@ QString MessageListModel::formatMessageTime(qint64 timestamp){
     QDateTime currentTime = QDateTime::currentDateTime();
     qint64 days = dateTime.daysTo(currentTime);
     if (days == 0) {
-        int minutes = dateTime.time().minute() / 5 * 5;
-        QTime roundedTime(dateTime.time().hour(), minutes);
-        return roundedTime.toString("hh:mm");
+        return dateTime.toString("hh:mm");
     }  else if(days ==1){
         return dateTime.toString("昨天　hh:mm");
     } {

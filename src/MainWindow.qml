@@ -15,9 +15,6 @@ FluWindow {
     minimumHeight: 500
     appBar:undefined
 
-    property int pageIndex: 0
-
-
     Component.onCompleted: {
         IMManager.wsConnect()
     }
@@ -29,6 +26,79 @@ FluWindow {
         }
     }
 
+    Connections{
+        target: MainGlobal
+        function onSwitchSessionEvent(uid){
+            nav_view.startPageByItem(pane_item_session)
+        }
+    }
+
+    FluObject{
+        id:items_original
+        FluPaneItem{
+            id:pane_item_session
+            count: 99
+            title: "聊天"
+            icon:FluentIcons.Home
+            url:"qrc:/SessionPage.qml"
+            onTap:{
+                nav_view.push(url)
+            }
+        }
+        FluPaneItem{
+            id:pane_item_contacts
+            count: 99
+            title: "联系人"
+            icon:FluentIcons.ContactPresence
+            url:"qrc:/ContactsPage.qml"
+            onTap:{
+                nav_view.push(url)
+            }
+        }
+    }
+
+    FluObject{
+        id:items_footer
+        FluPaneItem{
+            title:"设置"
+            icon:FluentIcons.Settings
+            onTapListener:function(){
+                FluApp.navigate("/setting")
+            }
+        }
+    }
+
+
+    FluNavigationView{
+        id:nav_view
+        width: parent.width
+        height: parent.height
+        pageMode: FluNavigationViewType.Stack
+        items: items_original
+        navCompactWidth: 60
+        footerItems:items_footer
+        hideNavAppBar: true
+        navTopMargin: 86
+        displayMode:FluNavigationViewType.Compact
+        logo: UserProvider.loginUser().avatar
+        title: UserProvider.loginUser().name
+        Component.onCompleted: {
+            setCurrentIndex(0)
+        }
+    }
+
+    AvatarView{
+        width: 38
+        height: 38
+        userInfo: UserProvider.loginUser()
+        anchors{
+            left: parent.left
+            leftMargin: (nav_view.navCompactWidth - width) / 2
+            top: parent.top
+            topMargin: 36
+        }
+    }
+
     FluAppBar {
         id:app_bar_front
         anchors {
@@ -36,153 +106,57 @@ FluWindow {
             left: parent.left
             right: parent.right
         }
-        showDark: false
+        darkText: "夜间模式"
+        showDark: true
         z:7
+        darkClickListener:(button)=>handleDarkChanged(button)
     }
 
-    ListModel{
-        id:model_tab
-        ListElement{
-            title:"聊天"
-            icon: FluentIcons.Message
-        }
-        ListElement{
-            title:"通讯录"
-            icon: FluentIcons.ContactInfo
-        }
-    }
-
-    component TabButton:Rectangle{
-        property int iconSource: FluentIcons.Message
-        property string title: FluentIcons.Message
-        property bool selected: true
-        signal clicked
-        id:control_tab
-        width: 55
-        height: 55
-        color: {
-            if(control_tab.selected){
-                return Qt.rgba(34/255,34/255,34/255,1)
+    Component{
+        id:com_reveal
+        CircularReveal{
+            id:reveal
+            target:window.contentItem
+            anchors.fill: parent
+            onAnimationFinished:{
+                loader_reveal.sourceComponent = undefined
             }
-            if(hover_handler_tab.hovered){
-                return  Qt.rgba(94/255,94/255,94/255,1)
-            }
-            return Qt.rgba(0,0,0,0)
-        }
-
-        Rectangle{
-            width: 2
-            height: parent.height
-            color: FluTheme.primaryColor
-            visible: control_tab.selected
-        }
-
-        ColumnLayout{
-            width: parent.width
-            spacing: 6
-            FluIcon{
-                Layout.topMargin: 10
-                Layout.preferredHeight: 20
-                Layout.preferredWidth: 20
-                iconSize: 20
-                iconColor: Qt.rgba(190/255,190/255,190/255,1)
-                iconSource: control_tab.iconSource
-                Layout.alignment: Qt.AlignHCenter
-            }
-            FluText{
-                text: control_tab.title
-                color:Qt.rgba(190/255,190/255,190/255,1)
-                font.pixelSize: 10
-                font.bold: true
-                Layout.alignment: Qt.AlignHCenter
-            }
-        }
-        HoverHandler{
-            id:hover_handler_tab
-        }
-        TapHandler{
-            onTapped: {
-                control_tab.clicked()
+            onImageChanged: {
+                changeDark()
             }
         }
     }
 
+    FluLoader{
+        id:loader_reveal
+        anchors.fill: parent
+    }
 
-    Rectangle{
-        id:layout_tab
-        width: 55
-        height: parent.height
-        color:Qt.rgba(64/255,64/255,64/255,1)
-        AvatarView{
-            width: 38
-            height: 38
-            userInfo: UserProvider.loginUser()
-            anchors{
-                horizontalCenter: parent.horizontalCenter
-                top: parent.top
-                topMargin: 36
-            }
-        }
-        ColumnLayout{
-            spacing: 0
-            width: parent.width
-            anchors{
-                top: parent.top
-                topMargin: 100
-            }
-            Repeater{
-                model: model_tab
-                TabButton{
-                    iconSource: model.icon
-                    title: model.title
-                    selected: index === window.pageIndex
-                    onClicked: {
-                        window.pageIndex = index
-                    }
-                }
-            }
-        }
+    function distance(x1,y1,x2,y2){
+        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
+    }
 
-        ColumnLayout{
-            spacing: 0
-            width: parent.width
-            anchors{
-                bottom: parent.bottom
-            }
-            TabButton{
-                iconSource: FluentIcons.GlobalNavButton
-                title: "设置"
-                selected: false
-                onClicked: {
-                    FluApp.navigate("/setting")
-                }
-            }
+    function handleDarkChanged(button){
+        if(!FluTheme.enableAnimation){
+            changeDark()
+        }else{
+            loader_reveal.sourceComponent = com_reveal
+            var target = window.contentItem
+            var pos = button.mapToItem(target,0,0)
+            var mouseX = pos.x
+            var mouseY = pos.y
+            var radius = Math.max(distance(mouseX,mouseY,0,0),distance(mouseX,mouseY,target.width,0),distance(mouseX,mouseY,0,target.height),distance(mouseX,mouseY,target.width,target.height))
+            var reveal = loader_reveal.item
+            reveal.start(reveal.width*Screen.devicePixelRatio,reveal.height*Screen.devicePixelRatio,Qt.point(mouseX,mouseY),radius)
         }
     }
 
-
-    StackLayout {
-        currentIndex: window.pageIndex
-        anchors{
-            left: layout_tab.right
-            top: layout_tab.top
-            bottom: layout_tab.bottom
-            right: parent.right
-        }
-        clip: true
-        SessionPage{
-            id:session_page
-        }
-
-        ContactsPage{
-            onSendMessageItemClicked:
-                (contact)=>{
-                    IMManager.addEmptySession(contact.uid,0)
-                    session_page.switchSession(contact.uid)
-                    window.pageIndex = 0
-                }
+    function changeDark(){
+        if(FluTheme.dark){
+            FluTheme.darkMode = FluThemeType.Light
+        }else{
+            FluTheme.darkMode = FluThemeType.Dark
         }
     }
-
 
 }

@@ -351,7 +351,7 @@ QString IMManager::apiUri(){
     return "http://" + _host + ":" + _apiport;
 }
 
-void  IMManager::onSocketMessage(const QByteArray &message)
+void IMManager::onSocketMessage(const QByteArray &message)
 {
     int type = message[0];
     QByteArray body = message.mid(1);
@@ -359,12 +359,46 @@ void  IMManager::onSocketMessage(const QByteArray &message)
         qDebug()<<QString::fromStdString("ws recevie ping");
         pong();
     }else if(type == MESSAGE){
-        com::chuzi::imsdk::server::model::proto::Message message;
-        message.ParseFromArray(body.data(),body.size());
-        qDebug()<<QString::fromStdString("ws recevie message: ")<<QString::fromUtf8(message.Utf8DebugString().c_str());
+        com::chuzi::imsdk::server::model::proto::Message messageProto;
+        messageProto.ParseFromArray(body.data(),body.size());
+        Message message;
+        message.id = QString::fromStdString(messageProto.id());
+        message.scene = messageProto.scene();
+        message.type = messageProto.type();
+        //        message.subType = messageProto.subType();
+        message.title = QString::fromStdString(messageProto.title());
+        message.content = QString::fromStdString(messageProto.content());
+        message.sender = QString::fromStdString(messageProto.sender());
+        message.receiver = QString::fromStdString(messageProto.receiver());
+        message.extra = QString::fromStdString(messageProto.extra());
+        message.timestamp = messageProto.timestamp();
+        message.status = 0;
+        if(message.sender == loginAccid()){
+            message.sessionId = message.receiver;
+        }else{
+            message.sessionId = message.sender;
+        }
+        bool success = DBManager::getInstance()->saveOrUpdateMessage(message);
+        if (success) {
+            handleMessageBuf(message);
+            Q_EMIT receiveMessage(message);
+            updateSessionByMessage(message);
+        }
+        qDebug()<<QString::fromStdString("ws recevie message: ")<<QString::fromUtf8(messageProto.Utf8DebugString().c_str());
     }else if(type == REPLY_BODY){
         com::chuzi::imsdk::server::model::proto::ReplyBody replyBody;
         replyBody.ParseFromArray(body.data(),body.size());
         qDebug()<<QString::fromStdString("ws recevie replyBody: ")<<QString::fromUtf8(replyBody.Utf8DebugString().c_str());
+    }
+}
+
+void IMManager::handleMessageBuf(const Message &message) {
+    foreach(const QString id,_msgBuffer.keys())
+    {
+        const Message& item = _msgBuffer.value(id);
+        if (item.id == message.id) {
+            _msgBuffer.remove(id);
+            return;
+        }
     }
 }

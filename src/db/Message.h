@@ -11,6 +11,7 @@ public:
 
 public:
     QString id;
+    QString title;
     QString content;
     QString sender;
     QString receiver;

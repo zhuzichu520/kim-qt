@@ -8,6 +8,7 @@ namespace qx {
 template<> void register_class(QxClass<Message> &t)
 {
     t.id(&Message::id, "id");
+    t.data(&Message::title, "title");
     t.data(&Message::content, "content");
     t.data(&Message::sender, "sender");
     t.data(&Message::receiver, "receiver");

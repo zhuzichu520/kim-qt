@@ -5,10 +5,18 @@ import QtQuick.Window 2.15
 import FluentUI 1.0
 import IM 1.0
 
-Page{
+FluPage{
 
     id:control
+    launchMode: FluPageType.SingleInstance
     property var currentSession : null
+
+    Connections{
+        target: MainGlobal
+        function onSwitchSessionEvent(uid){
+            switchSession(uid)
+        }
+    }
 
     IMCallback{
         id:callback_message_send
@@ -44,6 +52,31 @@ Page{
 
     SessionListModel{
         id:session_model
+    }
+
+    Component{
+        id:com_message_status_loading
+        FluProgressRing{
+            width: 20
+            height: 20
+            strokeWidth:4
+        }
+    }
+
+    Component{
+        id:com_message_status_error
+        FluIcon{
+            width: 20
+            height: 20
+            iconSource: FluentIcons.InfoSolid
+            iconColor: {
+                if(FluTheme.dark){
+                    return Qt.rgba(255/255,153/255,164/255,1)
+                }else{
+                    return Qt.rgba(196/255,43/255,28/255,1)
+                }
+            }
+        }
     }
 
     component SessionItem:Rectangle{
@@ -102,25 +135,23 @@ Page{
             font.pixelSize: 12
         }
     }
-    Rectangle{
+    Item{
         id:layout_session
         width: 250
         height: parent.height
-        color: Qt.rgba(230/255,230/255,230/255,1)
-        Rectangle{
+        Item{
             id:layout_session_top_bar
-            color: Qt.rgba(247/255,247/255,247/255,1)
             width: parent.width
             height: 60
             FluTextBox{
-                width: 190
+                width: 200
                 iconSource: FluentIcons.Search
                 placeholderText: "搜索"
                 anchors{
                     bottom: parent.bottom
                     bottomMargin: 8
                     left: parent.left
-                    leftMargin: 8
+                    leftMargin: 10
                 }
             }
             FluIconButton{
@@ -134,7 +165,7 @@ Page{
                     bottom: parent.bottom
                     bottomMargin: 10
                     right: parent.right
-                    rightMargin: 14
+                    rightMargin: 8
                 }
                 onClicked:{
                     session_model.clear()
@@ -142,6 +173,7 @@ Page{
             }
         }
         ListView{
+            id:list_session
             anchors{
                 left: parent.left
                 right: parent.right
@@ -155,10 +187,7 @@ Page{
             delegate: SessionItem{
             }
         }
-        Rectangle{
-            color: Qt.rgba(214/255,214/255,214/255,1)
-            height: 1
-            width: parent.width
+        FluDivider{
             anchors.top: layout_session_top_bar.bottom
         }
     }
@@ -166,7 +195,7 @@ Page{
     Component{
         id:com_text_message
         Rectangle{
-            width: Math.min(item_message_content.implicitWidth,listviewMessage.width/2+30)
+            width: Math.max(Math.min(item_message_content.implicitWidth,listviewMessage.width/2+30),36)
             height: Math.max(item_message_content.implicitHeight,36)
             radius: 4
             color: modelData.isSelf ? Qt.rgba(149/255,231/255,105/255,1)  : Qt.rgba(255/255,255/255,255/255,1)
@@ -177,9 +206,12 @@ Page{
                 topPadding: 8
                 leftPadding: 8
                 bottomPadding: 8
+                color: FluColors.Black
                 rightPadding: 8
                 wrapMode: Text.WrapAnywhere
                 anchors.centerIn: parent
+                horizontalAlignment: contentWidth<36 ? Qt.AlignHCenter : Qt.AlignLeft
+                verticalAlignment: Qt.AlignVCenter
                 readOnly: true
             }
         }
@@ -187,9 +219,8 @@ Page{
 
     Component{
         id:com_message_panne
-        Rectangle{
+        Item{
             id:layout_message_panne
-            color: Qt.rgba(245/255,245/255,245/255,1)
 
             MessageListModel{
                 id:message_model
@@ -209,11 +240,11 @@ Page{
                 height: 60
             }
 
-            Rectangle{
+            FluDivider{
                 id:rect_divider_top
-                color: Qt.rgba(214/255,214/255,214/255,1)
                 height: 1
                 width: parent.width
+                orientation: Qt.Horizontal
                 anchors.top: layout_message_top_bar.bottom
             }
 
@@ -243,7 +274,7 @@ Page{
                         width: item_message_time.width+8
                         height: item_message_time.height+8
                         radius: 3
-                        color: Qt.rgba(218/255,218/255,218/255,1)
+                        color: FluTheme.dark ? Qt.rgba(255,255,255,0.1) : Qt.rgba(0,0,0,0.1)
                         anchors.horizontalCenter: parent.horizontalCenter
                         visible: {
                             if(index === 0){
@@ -251,7 +282,7 @@ Page{
                             }
                             return checkTimestampDiff(message_model.data(message_model.index(Math.max(index-1,0),0),0).timestamp,display.timestamp)
                         }
-                        Text {
+                        FluText {
                             id: item_message_time
                             text: display.time
                             color: Qt.rgba(255/255,255/255,255/255,1)
@@ -283,6 +314,22 @@ Page{
                             property var listviewMessage: listview_message
                             sourceComponent: com_text_message
                         }
+                        Item{
+                            width: 5
+                            height: 1
+                        }
+                        FluLoader{
+                            anchors.verticalCenter: parent.verticalCenter
+                            sourceComponent: {
+                                if(display.status === 1){
+                                    return com_message_status_loading
+                                }
+                                if(display.status === 2){
+                                    return com_message_status_error
+                                }
+                                return undefined
+                            }
+                        }
                     }
                     Item{
                         width: 1
@@ -292,11 +339,10 @@ Page{
             }
 
 
-            Rectangle{
+            FluDivider{
                 id:rect_divider_bottom
-                color: Qt.rgba(214/255,214/255,214/255,1)
                 height: 1
-                width: parent.width
+                orientation: Qt.Horizontal
                 y:parent.height-150
                 onYChanged: {
                     listview_message.positionViewAtEnd()
@@ -393,11 +439,12 @@ Page{
         }
     }
 
-    Rectangle{
+    FluDivider{
         width: 1
-        height: layout_session.height
-        color: Qt.rgba(214/255,214/255,214/255,1)
+        orientation: Qt.Vertical
         anchors{
+            top: parent.top
+            bottom: parent.bottom
             left: layout_session.right
         }
     }

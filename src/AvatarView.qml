@@ -14,6 +14,11 @@ FluClip {
         }
     }
 
+    Rectangle{
+        color: FluTheme.itemPressColor
+        anchors.fill: parent
+    }
+
     Image {
         id:image_source
         anchors.fill: parent
