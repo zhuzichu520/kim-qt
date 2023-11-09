@@ -23,6 +23,7 @@ public:
     QList<Session> findSessionAll();
     QList<Message> findMessageListBySessionId(QString sessionId);
     QList<Message> findMessageListById(QString id);
+    QList<Message> findUnreadMessageList(const QString &sessionId,const QString &uid);
 private:
     QString _dbPath = (QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/db");
 

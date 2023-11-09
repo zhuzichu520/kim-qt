@@ -74,11 +74,25 @@ QList<Message> DBManager::findMessageListBySessionId(QString sessionId){
     return list;
 }
 
-QList<Message>  DBManager::findMessageListById(QString id){
+QList<Message> DBManager::findMessageListById(QString id){
     qx::QxSqlQuery query(QString("WHERE Message.id = '%1'").arg(id));
     QList<Message> list;
     qx::dao::fetch_by_query(query, list);
     return list;
+}
+
+QList<Message> DBManager::findUnreadMessageList(const QString &sessionId,const QString &uid){
+    qx::QxSqlQuery query(QString("where session_id = '%1' and receiver = '%2'").arg(sessionId,uid));
+    QList<Message> list;
+    qx::dao::fetch_by_query(query, list);
+    QList<Message> data;
+    for (int i = 0; i < list.size(); ++i) {
+        auto &item = const_cast<Message &>(list.at(i));
+        if (!item.readUidList.contains(uid)) {
+            data.append(item);
+        }
+    }
+    return data;
 }
 
 QList<Session> DBManager::findSessionAll(){

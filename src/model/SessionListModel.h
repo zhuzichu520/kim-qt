@@ -21,6 +21,7 @@ private:
     QSharedPointer<SessionModel> handleSession(Session val);
     QString handleContent(int type,const QString& content);
     void addOrUpdateData(QSharedPointer<SessionModel> session);
+    QString formatSessionime(qint64 timestamp);
     void sortDatas();
 };
 

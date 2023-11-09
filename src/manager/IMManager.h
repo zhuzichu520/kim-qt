@@ -9,6 +9,7 @@
 #include <singleton.h>
 #include <db/Message.h>
 #include <db/Session.h>
+#include <QNetworkAccessManager>
 #include <QTimer>
 
 class IMCallback: public QObject{
@@ -39,13 +40,14 @@ public:
     Q_INVOKABLE void friendAdd(const QString& friendId,IMCallback* callback = nullptr);
     Q_INVOKABLE void friendRemove(const QString& friendId,IMCallback* callback = nullptr);
     Q_INVOKABLE void friends(IMCallback* callback = nullptr);
+    Q_INVOKABLE void messageRead(const QString& ids,IMCallback* callback = nullptr);
     Q_INVOKABLE void sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback,int scene=0);
     Q_INVOKABLE void addEmptySession(QString sessionId,int scene);
+    Q_INVOKABLE void clearUnreadCount(const QString &sessionId);
     Q_SIGNAL void receiveMessage(Message &message);
     Q_SIGNAL void updateSessionCompleted(Session &session);
     Q_SIGNAL void wsConnected();
     Q_SLOT void onSocketMessage(const QByteArray &message);
-    Q_SLOT void handleMsgResent();
     Q_INVOKABLE QString loginAccid();
     Q_INVOKABLE QString token();
     QList<Session> getSessionList();
@@ -62,14 +64,12 @@ private:
     void updateSessionByMessage(const Message& message);
     Session message2session(const Message &val);
     Message buildMessage(const QString &sessionId, int scene, int type, const QString &content);
-    void handleMessageBuf(const Message &message);
 private:
     QWebSocket* _socket = nullptr;
-    QString _host = "192.168.31.69";
+    QString _host = "192.168.0.122";
     QString _wsport = "34567";
     QString _apiport = "8080";
-    QMap<QString,Message> _msgBuffer;
-    QTimer* _msgResentTimer;
+    QNetworkAccessManager _netManager;
 };
 
 #endif // IMMANAGER_H

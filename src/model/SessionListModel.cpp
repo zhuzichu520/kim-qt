@@ -78,8 +78,24 @@ QSharedPointer<SessionModel> SessionListModel::handleSession(Session val){
     model->stayTop(val.stayTop);
     model->text(handleContent(val.type,val.content));
     model->user(UserProvider::getInstance()->of(val.id));
+    model->time(formatSessionime(val.timestamp));
     return model;
 }
+
+QString SessionListModel::formatSessionime(qint64 timestamp){
+    QDateTime dateTime;
+    dateTime.setMSecsSinceEpoch(timestamp);
+    QDateTime currentTime = QDateTime::currentDateTime();
+    qint64 days = dateTime.daysTo(currentTime);
+    if (days == 0) {
+        return dateTime.toString("hh:mm");
+    }  else if(days ==1){
+        return dateTime.toString("昨天");
+    } {
+        return dateTime.toString("yy/M/dd");
+    }
+}
+
 
 QString SessionListModel::handleContent(int type,const QString& content){
     QJsonParseError error;

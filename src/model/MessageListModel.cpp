@@ -20,9 +20,10 @@ void MessageListModel::resetData(){
     _datas.clear();
     QList<QSharedPointer<MessageModel>> data;
     foreach (auto item, IMManager::getInstance()->getMessageListBySessionId(_session->id())) {
-        data.append(handleMessage(item));
+        data.insert(0,handleMessage(item));
     }
     _datas.append(data);
+
     endResetModel();
     Q_EMIT viewToBottom();
 }
@@ -79,8 +80,8 @@ void MessageListModel::addOrUpdateData(QSharedPointer<MessageModel> session){
             return;
         }
     }
-    beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    _datas.append(session);
+    beginInsertRows(QModelIndex(), 0, 0);
+    _datas.insert(0,session);
     endInsertRows();
     Q_EMIT viewToBottom();
 }

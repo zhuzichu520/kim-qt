@@ -36,8 +36,10 @@ FluPage{
 
     onCurrentSessionChanged: {
         if(currentSession){
+            console.debug("----------------------------------------")
             loader_session.sourceComponent = undefined
             loader_session.sourceComponent = com_message_panne
+            IMManager.clearUnreadCount(currentSession.id)
         }else{
             loader_session.sourceComponent = undefined
         }
@@ -112,28 +114,67 @@ FluPage{
             }
         }
         FluText{
+            id:item_session_name
             text: display.user.name
+            maximumLineCount: 1
+            elide: Text.ElideRight
             anchors{
                 top: item_avatar.top
                 topMargin: 2
                 left: item_avatar.right
                 leftMargin: 10
+                right: item_session_time.left
+                rightMargin: 10
             }
         }
         FluText{
+            id:item_session_time
+            text: display.time
+            anchors{
+                verticalCenter: item_session_name.verticalCenter
+                right: parent.right
+                rightMargin: 10
+            }
+            color:FluTheme.fontTertiaryColor
+        }
+
+        FluText{
+            id:item_session_text
             text:display.text
             anchors{
                 bottom: item_avatar.bottom
                 bottomMargin: 2
                 left: item_avatar.right
                 leftMargin: 10
+                right: item_session_unreadcount.left
+                rightMargin: 10
+            }
+            maximumLineCount: 1
+            elide: Text.ElideRight
+            color:FluTheme.fontTertiaryColor
+            font.pixelSize: 12
+        }
+
+        Rectangle{
+            id:item_session_unreadcount
+            width: visible ? 18 : 0
+            height: 18
+            radius: 10
+            visible: display.unreadCount !== 0
+            color:Qt.rgba(255/255,77/255,79/255,1)
+            anchors{
+                verticalCenter:item_session_text.verticalCenter
                 right: parent.right
                 rightMargin: 10
             }
-            elide: Text.ElideRight
-            color: FluColors.Grey110
-            font.pixelSize: 12
+            Text{
+                text: Math.min(display.unreadCount,99)
+                font.pixelSize: 10
+                color: FluColors.White
+                anchors.centerIn: parent
+            }
         }
+
     }
     Item{
         id:layout_session
@@ -192,27 +233,45 @@ FluPage{
         }
     }
 
+    FluMenu{
+        id:menu_item_text
+        width: 120
+        focus: false
+        FluIconButton{
+            display: Button.TextOnly
+            text: "复制"
+            focus: false
+            padding: 0
+            height: 36
+            onClicked: {
+
+            }
+        }
+    }
+
     Component{
         id:com_text_message
         Rectangle{
-            width: Math.max(Math.min(item_message_content.implicitWidth,listviewMessage.width/2+30),36)
-            height: Math.max(item_message_content.implicitHeight,36)
+            width: item_message_content.contentWidth + 18
+            height: item_message_content.contentHeight + 18
             radius: 4
             color: modelData.isSelf ? Qt.rgba(149/255,231/255,105/255,1)  : Qt.rgba(255/255,255/255,255/255,1)
-            FluCopyableText{
+            FluText{
                 id:item_message_content
                 text:modelData.body.msg
-                width: parent.width
-                topPadding: 8
-                leftPadding: 8
-                bottomPadding: 8
                 color: FluColors.Black
-                rightPadding: 8
+                width: Math.min(implicitWidth,listviewMessage.width/2+30)
+                height:  implicitHeight
                 wrapMode: Text.WrapAnywhere
-                anchors.centerIn: parent
-                horizontalAlignment: contentWidth<36 ? Qt.AlignHCenter : Qt.AlignLeft
-                verticalAlignment: Qt.AlignVCenter
-                readOnly: true
+                x: 9
+                y: 9
+            }
+            MouseArea{
+                anchors.fill: parent
+                acceptedButtons: Qt.RightButton
+                onClicked: {
+                    menu_item_text.popup()
+                }
             }
         }
     }
@@ -226,12 +285,11 @@ FluPage{
                 id:message_model
                 session:currentSession
                 onViewToBottom:{
-                    listview_message.positionViewAtEnd()
-                    listview_message.positionViewAtEnd()
+                    listview_message.positionViewAtBeginning()
                 }
                 onViewToPosition:
                     (positon)=>{
-                        listview_message.positionViewAtIndex(pos,ListView.Beginning)
+
                     }
             }
 
@@ -252,15 +310,15 @@ FluPage{
                 id:listview_message
                 boundsBehavior: ListView.StopAtBounds
                 clip: true
+                verticalLayoutDirection: ListView.BottomToTop
                 model: message_model
-                ScrollBar.vertical: FluScrollBar {}
                 anchors{
                     top: rect_divider_top.bottom
                     left: parent.left
                     right: parent.right
-                    bottom: rect_divider_bottom.top
                 }
-                reuseItems: true
+                height: Math.min(rect_divider_bottom.y - rect_divider_top.y,listview_message.contentHeight)
+                ScrollBar.vertical: FluScrollBar {}
                 Component.onCompleted: {
                     message_model.resetData()
                 }
@@ -277,10 +335,10 @@ FluPage{
                         color: FluTheme.dark ? Qt.rgba(255,255,255,0.1) : Qt.rgba(0,0,0,0.1)
                         anchors.horizontalCenter: parent.horizontalCenter
                         visible: {
-                            if(index === 0){
+                            if(index === listview_message.count-1){
                                 return true
                             }
-                            return checkTimestampDiff(message_model.data(message_model.index(Math.max(index-1,0),0),0).timestamp,display.timestamp)
+                            return checkTimestampDiff(message_model.data(message_model.index(Math.min(index+1,listview_message.count-1),0),0).timestamp,display.timestamp)
                         }
                         FluText {
                             id: item_message_time
@@ -345,7 +403,7 @@ FluPage{
                 orientation: Qt.Horizontal
                 y:parent.height-150
                 onYChanged: {
-                    listview_message.positionViewAtEnd()
+                    listview_message.positionViewAtBeginning()
                 }
                 MouseArea {
                     height: 6

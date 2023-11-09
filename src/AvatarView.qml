@@ -9,6 +9,9 @@ FluClip {
     onUserInfoChanged: {
         if(userInfo){
             image_source.source = Qt.binding(function(){
+                if(userInfo === null){
+                    return ""
+                }
                 return userInfo.avatar
             })
         }

@@ -32,28 +32,7 @@ QByteArray PONG_BODY= QByteArray::fromRawData(reinterpret_cast<const char*>(std:
 IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
-    _msgResentTimer = new QTimer();
-    connect(_msgResentTimer, &QTimer::timeout, this, &IMManager::handleMsgResent);
-}
-
-void IMManager::handleMsgResent() {
-    if (_msgBuffer.count() == 0) {
-        _msgResentTimer->stop();
-        return;
-    }
-    foreach(const QString id,_msgBuffer.keys())
-    {
-        Message item = _msgBuffer.value(id);
-        if (QDateTime::currentDateTimeUtc().toMSecsSinceEpoch() > item.timestamp + 30000) {
-            item.status = 2;
-            bool success = DBManager::getInstance()->saveOrUpdateMessage(item);
-            if (success) {
-                _msgBuffer.remove(id);
-                Q_EMIT receiveMessage(item);
-                updateSessionByMessage(item);
-            }
-        }
-    }
+    _netManager.setTransferTimeout(5000);
 }
 
 Session IMManager::message2session(const Message &val){
@@ -86,6 +65,37 @@ void IMManager::updateSessionByMessage(const Message &message) {
     if (success) {
         Q_EMIT updateSessionCompleted(session);
     }
+}
+
+void IMManager::clearUnreadCount(const QString &sessionId){
+    QList<Message> data = DBManager::getInstance()->findUnreadMessageList(sessionId, loginAccid());
+    if (data.count() == 0)
+        return;
+    QString uuids;
+    for (int i = 0; i < data.size(); ++i) {
+        auto &item = const_cast<Message &>(data.at(i));
+        const QString &accids = item.readUidList;
+        if (accids.isEmpty()) {
+            item.readUidList = loginAccid();
+        } else {
+            item.readUidList = accids + "," + loginAccid();
+        }
+        uuids.append(item.id).append(",");
+    }
+    uuids.chop(1);
+    qx::dao::save(data);
+    QList<Session> sessionList = DBManager::getInstance()->findSessionListById(sessionId);
+    if(!sessionList.isEmpty()){
+        Session session = sessionList.at(0);
+        session.unreadCount = 0;
+        DBManager::getInstance()->saveOrUpdateSession(session);
+        Q_EMIT updateSessionCompleted(session);
+    }
+    IMCallback* callback = new IMCallback();
+    connect(callback,&IMCallback::finish,this,[callback](){
+        callback->deleteLater();
+    });
+    messageRead(uuids,callback);
 }
 
 void IMManager::addEmptySession(QString sessionId,int scene){
@@ -224,6 +234,12 @@ void IMManager::friends(IMCallback* callback){
     post("/friend/getFriends",params,callback);
 }
 
+void IMManager::messageRead(const QString& ids,IMCallback* callback){
+    QMap<QString, QVariant> params;
+    params.insert("ids",ids);
+    post("/message/messageRead",params,callback);
+}
+
 void IMManager::sendMessage(Message message,IMCallback* callback){
     QMap<QString, QVariant> params;
     params.insert("id",message.id);
@@ -231,7 +247,23 @@ void IMManager::sendMessage(Message message,IMCallback* callback){
     params.insert("scene",message.scene);
     params.insert("type",message.type);
     params.insert("content",message.content);
-    post("/message/send",params,callback);
+    IMCallback* sendback = new IMCallback();
+    connect(sendback,&IMCallback::start,this,[callback](){
+        callback->start();
+    });
+    connect(sendback,&IMCallback::success,this,[callback](QJsonObject result){
+        callback->success(result);
+    });
+    connect(sendback,&IMCallback::error,this,[callback,message,this](int code,QString erroString) mutable{
+        message.status = 2;
+        sendMessageToLocal(message);
+        callback->error(code,erroString);
+    });
+    connect(sendback,&IMCallback::finish,this,[callback,sendback](){
+        sendback->deleteLater();
+        callback->finish();
+    });
+    post("/message/send",params,sendback);
 }
 
 void IMManager::sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback,int scene){
@@ -272,33 +304,28 @@ void IMManager::sendRequest(google::protobuf::Message* message){
     _socket->sendBinaryMessage(protobuf);
 }
 
-
 void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallback* callback){
-    QThreadPool::globalInstance()->start([=](){
-        if(callback){
-            Q_EMIT callback->start();
-        }
-        QNetworkRequest req(apiUri()+path);
-        if(!token().isEmpty()){
-            req.setRawHeader("access-token",token().toUtf8());
-        }
-        QHttpMultiPart multiPart(QHttpMultiPart::FormDataType);
-        for (const auto& each : params.toStdMap())
-        {
-            const QString& key = each.first;
-            const QString& value = each.second.toString();
-            QString dispositionHeader = QString("form-data; name=\"%1\"").arg(key);
-            QHttpPart part;
-            part.setHeader(QNetworkRequest::ContentDispositionHeader, dispositionHeader);
-            part.setBody(value.toUtf8());
-            multiPart.append(part);
-        }
-        QNetworkAccessManager manager;
-        QNetworkReply* reply = manager.post(req,&multiPart);
-        QEventLoop loop;
-        connect(&manager,&QNetworkAccessManager::finished,&manager,[&loop](QNetworkReply *reply){loop.quit();});
-        connect(qApp,&QCoreApplication::aboutToQuit,&manager, [&loop,reply](){reply->abort(),loop.quit();});
-        loop.exec();
+    if(callback){
+        Q_EMIT callback->start();
+    }
+    QNetworkRequest req(apiUri()+path);
+    if(!token().isEmpty()){
+        req.setRawHeader("access-token",token().toUtf8());
+    }
+    QHttpMultiPart* multiPart= new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    for (const auto& each : params.toStdMap())
+    {
+        const QString& key = each.first;
+        const QString& value = each.second.toString();
+        QString dispositionHeader = QString("form-data; name=\"%1\"").arg(key);
+        QHttpPart part;
+        part.setHeader(QNetworkRequest::ContentDispositionHeader, dispositionHeader);
+        part.setBody(value.toUtf8());
+        multiPart->append(part);
+    }
+    auto reply =  _netManager.post(req,multiPart);
+    multiPart->setParent(reply);
+    connect(reply,&QNetworkReply::finished,this,[reply,callback](){
         QString response = QString::fromUtf8(reply->readAll());
         QJsonObject result;
         int code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -335,12 +362,78 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
             }
         }
         reply->deleteLater();
-        reply = nullptr;
         if(callback){
             Q_EMIT callback->finish();
         }
+        reply->deleteLater();
     });
 
+    //    QThreadPool::globalInstance()->start([=](){
+    //        if(callback){
+    //            Q_EMIT callback->start();
+    //        }
+    //        QNetworkRequest req(apiUri()+path);
+    //        if(!token().isEmpty()){
+    //            req.setRawHeader("access-token",token().toUtf8());
+    //        }
+    //        QHttpMultiPart multiPart(QHttpMultiPart::FormDataType);
+    //        for (const auto& each : params.toStdMap())
+    //        {
+    //            const QString& key = each.first;
+    //            const QString& value = each.second.toString();
+    //            QString dispositionHeader = QString("form-data; name=\"%1\"").arg(key);
+    //            QHttpPart part;
+    //            part.setHeader(QNetworkRequest::ContentDispositionHeader, dispositionHeader);
+    //            part.setBody(value.toUtf8());
+    //            multiPart.append(part);
+    //        }
+    //        QNetworkAccessManager manager;
+    //        QNetworkReply* reply = manager.post(req,&multiPart);
+    //        QEventLoop loop;
+    //        connect(&manager,&QNetworkAccessManager::finished,&manager,[&loop](QNetworkReply *reply){loop.quit();});
+    //        connect(qApp,&QCoreApplication::aboutToQuit,&manager, [&loop,reply](){reply->abort(),loop.quit();});
+    //        loop.exec();
+    //        QString response = QString::fromUtf8(reply->readAll());
+    //        QJsonObject result;
+    //        int code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    //        QString message = reply->errorString();
+    //        QNetworkReply::NetworkError error = reply->error();
+    //        bool isSuccess = false;
+    //        if(error == QNetworkReply::NoError){
+    //            QJsonParseError jsonError;
+    //            QJsonDocument doucment = QJsonDocument::fromJson(response.toUtf8(), &jsonError);
+    //            if (!doucment.isNull() && (jsonError.error == QJsonParseError::NoError)) {
+    //                result = doucment.object();
+    //                int code = result.value("code").toInt();
+    //                if(code == 200){
+    //                    isSuccess = true;
+    //                }else{
+    //                    isSuccess = false;
+    //                    message = result.value("message").toString();
+    //                }
+    //            }else{
+    //                isSuccess = false;
+    //                code = -1;
+    //                message = "JSON解析失败";
+    //            }
+    //        }else{
+    //            isSuccess = false;
+    //        }
+    //        if(isSuccess){
+    //            if(callback){
+    //                Q_EMIT callback->success(result);
+    //            }
+    //        }else{
+    //            if(callback){
+    //                Q_EMIT callback->error(code,message);
+    //            }
+    //        }
+    //        reply->deleteLater();
+    //        reply = nullptr;
+    //        if(callback){
+    //            Q_EMIT callback->finish();
+    //        }
+    //    });
 }
 
 QString IMManager::wsUri(){
@@ -380,7 +473,6 @@ void IMManager::onSocketMessage(const QByteArray &message)
         }
         bool success = DBManager::getInstance()->saveOrUpdateMessage(message);
         if (success) {
-            handleMessageBuf(message);
             Q_EMIT receiveMessage(message);
             updateSessionByMessage(message);
         }
@@ -389,16 +481,5 @@ void IMManager::onSocketMessage(const QByteArray &message)
         com::chuzi::imsdk::server::model::proto::ReplyBody replyBody;
         replyBody.ParseFromArray(body.data(),body.size());
         qDebug()<<QString::fromStdString("ws recevie replyBody: ")<<QString::fromUtf8(replyBody.Utf8DebugString().c_str());
-    }
-}
-
-void IMManager::handleMessageBuf(const Message &message) {
-    foreach(const QString id,_msgBuffer.keys())
-    {
-        const Message& item = _msgBuffer.value(id);
-        if (item.id == message.id) {
-            _msgBuffer.remove(id);
-            return;
-        }
     }
 }
