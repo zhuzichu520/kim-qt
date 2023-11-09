@@ -33,7 +33,7 @@ void SessionListModel::addOrUpdateData(QSharedPointer<SessionModel> session){
 
 void SessionListModel::sortDatas(){
     Q_EMIT layoutAboutToBeChanged();
-    qSort(_datas.begin(),_datas.end(),[](QSharedPointer<SessionModel> left,QSharedPointer<SessionModel> right){
+    std::sort(_datas.begin(),_datas.end(),[](QSharedPointer<SessionModel> left,QSharedPointer<SessionModel> right){
         if(left.get()->stayTop() && !right.get()->stayTop()){
             return true;
         }else if(!left.get()->stayTop() && right.get()->stayTop()){
