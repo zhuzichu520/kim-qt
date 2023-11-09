@@ -36,12 +36,13 @@ FluPage{
 
     onCurrentSessionChanged: {
         if(currentSession){
-            console.debug("----------------------------------------")
             loader_session.sourceComponent = undefined
             loader_session.sourceComponent = com_message_panne
             IMManager.clearUnreadCount(currentSession.id)
+            IMManager.openAutoRead(currentSession.id)
         }else{
             loader_session.sourceComponent = undefined
+            IMManager.openAutoRead("")
         }
     }
 
@@ -255,11 +256,23 @@ FluPage{
             width: item_message_content.contentWidth + 18
             height: item_message_content.contentHeight + 18
             radius: 4
-            color: modelData.isSelf ? Qt.rgba(149/255,231/255,105/255,1)  : Qt.rgba(255/255,255/255,255/255,1)
+            color: {
+                if(modelData.isSelf){
+                    return Qt.rgba(149/255,231/255,105/255,1)
+                }
+                return FluTheme.dark ? Qt.rgba(38/255,44/255,54/255,1) : Qt.rgba(253/255,253/255,253/255,1)
+            }
+            border.width: modelData.isSelf ? 0 : 1
+            border.color: FluTheme.dark ? Window.active ? Qt.rgba(55/255,55/255,55/255,1):Qt.rgba(45/255,45/255,45/255,1) : Qt.rgba(226/255,229/255,234/255,1)
             FluText{
                 id:item_message_content
                 text:modelData.body.msg
-                color: FluColors.Black
+                color: {
+                    if(modelData.isSelf){
+                        return FluColors.Black
+                    }
+                    return FluTheme.dark ?Qt.rgba(233/255,233/255,233/255,1) : FluColors.Black
+                }
                 width: Math.min(implicitWidth,listviewMessage.width/2+30)
                 height:  implicitHeight
                 wrapMode: Text.WrapAnywhere

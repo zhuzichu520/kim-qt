@@ -50,6 +50,7 @@ public:
     Q_SLOT void onSocketMessage(const QByteArray &message);
     Q_INVOKABLE QString loginAccid();
     Q_INVOKABLE QString token();
+    Q_INVOKABLE void openAutoRead(QString sessionId);
     QList<Session> getSessionList();
     QList<Message> getMessageListBySessionId(QString sessionId);
 private:
@@ -69,6 +70,7 @@ private:
     QString _host = "192.168.31.69";
     QString _wsport = "34567";
     QString _apiport = "8080";
+    QString _autoReadSessionId = "";
     QNetworkAccessManager _netManager;
 };
 

@@ -196,6 +196,7 @@ class Message final :
     kReceiverFieldNumber = 5,
     kExtraFieldNumber = 6,
     kTitleFieldNumber = 7,
+    kReadUIdsFieldNumber = 11,
     kSceneFieldNumber = 2,
     kTypeFieldNumber = 8,
     kTimestampFieldNumber = 10,
@@ -285,6 +286,20 @@ class Message final :
   std::string* _internal_mutable_title();
   public:
 
+  // string readUIds = 11;
+  void clear_readuids();
+  const std::string& readuids() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_readuids(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_readuids();
+  PROTOBUF_NODISCARD std::string* release_readuids();
+  void set_allocated_readuids(std::string* readuids);
+  private:
+  const std::string& _internal_readuids() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_readuids(const std::string& value);
+  std::string* _internal_mutable_readuids();
+  public:
+
   // int32 scene = 2;
   void clear_scene();
   int32_t scene() const;
@@ -334,6 +349,7 @@ class Message final :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr receiver_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr extra_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr title_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr readuids_;
   int32_t scene_;
   int32_t type_;
   int64_t timestamp_;
@@ -730,6 +746,56 @@ inline void Message::_internal_set_timestamp(int64_t value) {
 inline void Message::set_timestamp(int64_t value) {
   _internal_set_timestamp(value);
   // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.timestamp)
+}
+
+// string readUIds = 11;
+inline void Message::clear_readuids() {
+  readuids_.ClearToEmpty();
+}
+inline const std::string& Message::readuids() const {
+  // @@protoc_insertion_point(field_get:com.chuzi.imsdk.server.model.proto.Message.readUIds)
+  return _internal_readuids();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void Message::set_readuids(ArgT0&& arg0, ArgT... args) {
+ 
+ readuids_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:com.chuzi.imsdk.server.model.proto.Message.readUIds)
+}
+inline std::string* Message::mutable_readuids() {
+  std::string* _s = _internal_mutable_readuids();
+  // @@protoc_insertion_point(field_mutable:com.chuzi.imsdk.server.model.proto.Message.readUIds)
+  return _s;
+}
+inline const std::string& Message::_internal_readuids() const {
+  return readuids_.Get();
+}
+inline void Message::_internal_set_readuids(const std::string& value) {
+  
+  readuids_.Set(value, GetArenaForAllocation());
+}
+inline std::string* Message::_internal_mutable_readuids() {
+  
+  return readuids_.Mutable(GetArenaForAllocation());
+}
+inline std::string* Message::release_readuids() {
+  // @@protoc_insertion_point(field_release:com.chuzi.imsdk.server.model.proto.Message.readUIds)
+  return readuids_.Release();
+}
+inline void Message::set_allocated_readuids(std::string* readuids) {
+  if (readuids != nullptr) {
+    
+  } else {
+    
+  }
+  readuids_.SetAllocated(readuids, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (readuids_.IsDefault()) {
+    readuids_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:com.chuzi.imsdk.server.model.proto.Message.readUIds)
 }
 
 #ifdef __GNUC__

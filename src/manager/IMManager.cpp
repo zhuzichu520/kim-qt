@@ -251,7 +251,9 @@ void IMManager::sendMessage(Message message,IMCallback* callback){
     connect(sendback,&IMCallback::start,this,[callback](){
         callback->start();
     });
-    connect(sendback,&IMCallback::success,this,[callback](QJsonObject result){
+    connect(sendback,&IMCallback::success,this,[callback,message,this](QJsonObject result) mutable{
+        message.status = 0;
+        sendMessageToLocal(message);
         callback->success(result);
     });
     connect(sendback,&IMCallback::error,this,[callback,message,this](int code,QString erroString) mutable{
@@ -369,6 +371,10 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
     });
 }
 
+void IMManager::openAutoRead(QString sessionId){
+    _autoReadSessionId = sessionId;
+}
+
 QString IMManager::wsUri(){
     return "ws://" + _host + ":" + _wsport;
 }
@@ -397,6 +403,7 @@ void IMManager::onSocketMessage(const QByteArray &message)
         message.sender = QString::fromStdString(messageProto.sender());
         message.receiver = QString::fromStdString(messageProto.receiver());
         message.extra = QString::fromStdString(messageProto.extra());
+        message.readUidList = QString::fromStdString(messageProto.readuids());
         message.timestamp = messageProto.timestamp();
         message.status = 0;
         if(message.sender == loginAccid()){
@@ -404,6 +411,14 @@ void IMManager::onSocketMessage(const QByteArray &message)
         }else{
             message.sessionId = message.sender;
         }
+
+        const QString &accids = message.readUidList;
+        if (accids.isEmpty()) {
+            message.readUidList = loginAccid();
+        } else {
+            message.readUidList = accids + "," + loginAccid();
+        }
+
         bool success = DBManager::getInstance()->saveOrUpdateMessage(message);
         if (success) {
             Q_EMIT receiveMessage(message);

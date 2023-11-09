@@ -34,6 +34,7 @@ PROTOBUF_CONSTEXPR Message::Message(
   , receiver_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
   , extra_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
   , title_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
+  , readuids_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
   , scene_(0)
   , type_(0)
   , timestamp_(int64_t{0})
@@ -74,6 +75,7 @@ const uint32_t TableStruct_Message_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, type_),
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, subtype_),
   PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, timestamp_),
+  PROTOBUF_FIELD_OFFSET(::com::chuzi::imsdk::server::model::proto::Message, readuids_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::com::chuzi::imsdk::server::model::proto::Message)},
@@ -85,16 +87,16 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_Message_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\rMessage.proto\022\"com.chuzi.imsdk.server."
-  "model.proto\"\247\001\n\007Message\022\n\n\002id\030\001 \001(\t\022\r\n\005s"
+  "model.proto\"\271\001\n\007Message\022\n\n\002id\030\001 \001(\t\022\r\n\005s"
   "cene\030\002 \001(\005\022\017\n\007content\030\003 \001(\t\022\016\n\006sender\030\004 "
   "\001(\t\022\020\n\010receiver\030\005 \001(\t\022\r\n\005extra\030\006 \001(\t\022\r\n\005"
   "title\030\007 \001(\t\022\014\n\004type\030\010 \001(\005\022\017\n\007subType\030\t \001"
-  "(\005\022\021\n\ttimestamp\030\n \001(\003B\016B\014MessageProtob\006p"
-  "roto3"
+  "(\005\022\021\n\ttimestamp\030\n \001(\003\022\020\n\010readUIds\030\013 \001(\tB"
+  "\016B\014MessageProtob\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_Message_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Message_2eproto = {
-    false, false, 245, descriptor_table_protodef_Message_2eproto,
+    false, false, 263, descriptor_table_protodef_Message_2eproto,
     "Message.proto",
     &descriptor_table_Message_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_Message_2eproto::offsets,
@@ -177,6 +179,14 @@ Message::Message(const Message& from)
     title_.Set(from._internal_title(), 
       GetArenaForAllocation());
   }
+  readuids_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    readuids_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_readuids().empty()) {
+    readuids_.Set(from._internal_readuids(), 
+      GetArenaForAllocation());
+  }
   ::memcpy(&scene_, &from.scene_,
     static_cast<size_t>(reinterpret_cast<char*>(&subtype_) -
     reinterpret_cast<char*>(&scene_)) + sizeof(subtype_));
@@ -208,6 +218,10 @@ title_.InitDefault();
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   title_.Set("", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+readuids_.InitDefault();
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  readuids_.Set("", GetArenaForAllocation());
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&scene_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&subtype_) -
@@ -231,6 +245,7 @@ inline void Message::SharedDtor() {
   receiver_.Destroy();
   extra_.Destroy();
   title_.Destroy();
+  readuids_.Destroy();
 }
 
 void Message::SetCachedSize(int size) const {
@@ -249,6 +264,7 @@ void Message::Clear() {
   receiver_.ClearToEmpty();
   extra_.ClearToEmpty();
   title_.ClearToEmpty();
+  readuids_.ClearToEmpty();
   ::memset(&scene_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&subtype_) -
       reinterpret_cast<char*>(&scene_)) + sizeof(subtype_));
@@ -350,6 +366,16 @@ const char* Message::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 80)) {
           timestamp_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string readUIds = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+          auto str = _internal_mutable_readuids();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "com.chuzi.imsdk.server.model.proto.Message.readUIds"));
         } else
           goto handle_unusual;
         continue;
@@ -466,6 +492,16 @@ uint8_t* Message::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt64ToArray(10, this->_internal_timestamp(), target);
   }
 
+  // string readUIds = 11;
+  if (!this->_internal_readuids().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_readuids().data(), static_cast<int>(this->_internal_readuids().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "com.chuzi.imsdk.server.model.proto.Message.readUIds");
+    target = stream->WriteStringMaybeAliased(
+        11, this->_internal_readuids(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -522,6 +558,13 @@ size_t Message::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_title());
+  }
+
+  // string readUIds = 11;
+  if (!this->_internal_readuids().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_readuids());
   }
 
   // int32 scene = 2;
@@ -584,6 +627,9 @@ void Message::MergeFrom(const Message& from) {
   if (!from._internal_title().empty()) {
     _internal_set_title(from._internal_title());
   }
+  if (!from._internal_readuids().empty()) {
+    _internal_set_readuids(from._internal_readuids());
+  }
   if (from._internal_scene() != 0) {
     _internal_set_scene(from._internal_scene());
   }
@@ -638,6 +684,10 @@ void Message::InternalSwap(Message* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &title_, lhs_arena,
       &other->title_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &readuids_, lhs_arena,
+      &other->readuids_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Message, subtype_)
