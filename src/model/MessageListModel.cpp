@@ -30,6 +30,7 @@ void MessageListModel::resetData(){
 
 QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){
     auto model = QSharedPointer<MessageModel>(new MessageModel(this));
+    auto loginAccid = IMManager::getInstance()->loginAccid();
     model->id(val.id);
     model->content(val.content);
     model->sender(val.sender);
@@ -43,8 +44,8 @@ QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){
     model->status(val.status);
     model->sessionId(val.sessionId);
     model->readUidList(val.readUidList);
-    model->isSelf(val.sender==IMManager::getInstance()->loginAccid());
-    model->user(UserProvider::getInstance()->of(val.sessionId));
+    model->isSelf(val.sender==loginAccid);
+    model->user(model->isSelf() ? UserProvider::getInstance()->of(loginAccid) : UserProvider::getInstance()->of(val.sessionId));
     model->body(QJsonDocument::fromJson(val.content.toUtf8()).object());
     model->time(formatMessageTime(val.timestamp));
     return model;

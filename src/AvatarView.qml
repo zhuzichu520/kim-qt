@@ -18,7 +18,7 @@ FluClip {
     }
 
     Rectangle{
-        color: FluTheme.itemPressColor
+        color: FluColors.Grey50
         anchors.fill: parent
     }
 
@@ -27,6 +27,7 @@ FluClip {
         anchors.fill: parent
         mipmap: true
         cache: true
+        visible: image_source.status === Image.Ready
         sourceSize: Qt.size(width*2,height*2)
     }
 

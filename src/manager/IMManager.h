@@ -67,7 +67,7 @@ private:
     Message buildMessage(const QString &sessionId, int scene, int type, const QString &content);
 private:
     QWebSocket* _socket = nullptr;
-    QString _host = "192.168.31.69";
+    QString _host = "47.96.133.87";
     QString _wsport = "34567";
     QString _apiport = "8080";
     QString _autoReadSessionId = "";
