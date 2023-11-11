@@ -81,6 +81,13 @@ QList<Message> DBManager::findMessageListById(QString id){
     return list;
 }
 
+QList<Message> DBManager::findLastMessage(){
+    qx::QxSqlQuery query(QString("WHERE Message.timestamp = (SELECT max(Message.timestamp) from Message)"));
+    QList<Message> list;
+    qx::dao::fetch_by_query(query, list);
+    return list;
+}
+
 QList<Message> DBManager::findUnreadMessageList(const QString &sessionId,const QString &uid){
     qx::QxSqlQuery query(QString("where session_id = '%1' and receiver = '%2'").arg(sessionId,uid));
     QList<Message> list;

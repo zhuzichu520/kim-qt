@@ -7,10 +7,13 @@ MessageListModel::MessageListModel(QObject *parent)
     : BaseListModel{parent}
 {
     _session = nullptr;
-    connect(IMManager::getInstance(),&IMManager::receiveMessage,this,[this](Message &message){
-        if(session()->id()==message.sessionId){
-            auto model = handleMessage(message);
-            addOrUpdateData(model);
+    connect(IMManager::getInstance(),&IMManager::messageChanged,this,[this](QList<Message> data){
+        for (int i = 0; i <= data.count()-1; ++i) {
+            auto message = data.at(i);
+            if(session()->id()==message.sessionId){
+                auto model = handleMessage(message);
+                addOrUpdateData(model);
+            }
         }
     });
 }

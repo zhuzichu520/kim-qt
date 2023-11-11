@@ -9,5 +9,6 @@
         <file>AvatarView.qml</file>
         <file>MainGlobal.qml</file>
         <file>qmldir</file>
+        <file>RegisterWindow.qml</file>
     </qresource>
 </RCC>

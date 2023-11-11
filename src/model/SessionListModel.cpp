@@ -4,9 +4,12 @@
 #include <provider/UserProvider.h>
 
 SessionListModel::SessionListModel(QObject *parent) : BaseListModel(parent) {
-    connect(IMManager::getInstance(),&IMManager::updateSessionCompleted,this,[this](Session& session){
-        QSharedPointer<SessionModel> sessionModel =  handleSession(session);
-        addOrUpdateData(sessionModel);
+    connect(IMManager::getInstance(),&IMManager::sessionChanged,this,[this](QList<Session> data){
+        for (int i = 0; i <= data.count()-1; ++i) {
+            auto session = data.at(i);
+            QSharedPointer<SessionModel> sessionModel =  handleSession(session);
+            addOrUpdateData(sessionModel);
+        }
     });
 }
 

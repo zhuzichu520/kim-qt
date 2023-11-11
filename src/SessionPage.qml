@@ -210,7 +210,7 @@ FluPage{
                     rightMargin: 8
                 }
                 onClicked:{
-                    session_model.clear()
+                    showInfo("还在努力开发中...")
                 }
             }
         }
@@ -330,7 +330,11 @@ FluPage{
                     left: parent.left
                     right: parent.right
                 }
-                height: Math.min(rect_divider_bottom.y - rect_divider_top.y,listview_message.contentHeight)
+                Binding on height {
+                    when: rect_divider_bottom.y - rect_divider_top.y > listview_message.contentHeight
+                    value: listview_message.contentHeight
+                }
+                height: rect_divider_bottom.y - rect_divider_top.y
                 ScrollBar.vertical: FluScrollBar {}
                 Component.onCompleted: {
                     message_model.resetData()
@@ -479,6 +483,9 @@ FluPage{
                     Layout.preferredWidth: 24
                     Layout.preferredHeight: 24
                     iconSource: FluentIcons.Emoji2
+                    onClicked: {
+                        showInfo("还在努力开发中...")
+                    }
                 }
             }
 
@@ -493,6 +500,10 @@ FluPage{
                 }
                 onClicked:{
                     var text =  textbox_message_input.text
+                    if(text === ""){
+                        showError("不能发送空白信息")
+                        return
+                    }
                     IMManager.sendTextMessage(currentSession.id,text,callback_message_send)
                     textbox_message_input.clear()
                 }

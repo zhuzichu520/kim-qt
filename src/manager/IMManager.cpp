@@ -32,6 +32,9 @@ QByteArray PONG_BODY= QByteArray::fromRawData(reinterpret_cast<const char*>(std:
 IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
+    host("127.0.0.1");
+    port("8080");
+    wsport("34567");
     _netManager.setTransferTimeout(5000);
 }
 
@@ -44,6 +47,27 @@ Session IMManager::message2session(const Message &val){
     session.timestamp = val.timestamp;
     session.type = val.type;
     return session;
+}
+
+Message IMManager::json2message(const QString& login,const QJsonObject& val){
+    Message message;
+    message.id = val.value("id").toString();
+    message.scene = val.value("scene").toInt();
+    message.type = val.value("type").toInt();
+    message.subType = val.value("subType").toInt();
+    message.title = val.value("title").toString();
+    message.content = val.value("content").toString();
+    message.sender = val.value("sender").toString();
+    message.receiver = val.value("receiver").toString();
+    message.extra = val.value("extra").toString();
+    message.timestamp = val.value("timestamp").toDouble();
+    message.readUidList = val.value("readUIds").toString();
+    if(login == message.sender){
+        message.sessionId = message.receiver;
+    }else{
+        message.sessionId = message.sender;
+    }
+    return message;
 }
 
 void IMManager::updateSessionByMessage(const Message &message) {
@@ -63,7 +87,7 @@ void IMManager::updateSessionByMessage(const Message &message) {
     }
     bool success = DBManager::getInstance()->saveOrUpdateSession(session);
     if (success) {
-        Q_EMIT updateSessionCompleted(session);
+        updateSession(session);
     }
 }
 
@@ -89,7 +113,7 @@ void IMManager::clearUnreadCount(const QString &sessionId){
         Session session = sessionList.at(0);
         session.unreadCount = 0;
         DBManager::getInstance()->saveOrUpdateSession(session);
-        Q_EMIT updateSessionCompleted(session);
+        updateSession(session);
     }
     IMCallback* callback = new IMCallback();
     connect(callback,&IMCallback::finish,this,[callback](){
@@ -110,7 +134,7 @@ void IMManager::addEmptySession(QString sessionId,int scene){
         it.type = 0;
         bool success = DBManager::getInstance()->saveOrUpdateSession(it);
         if (success) {
-            Q_EMIT updateSessionCompleted(it);
+            updateSession(it);
         }
     }
 }
@@ -158,6 +182,7 @@ void IMManager::wsConnect(){
                 qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketState>().valueToKey(state);
                 if(state == QAbstractSocket::ConnectedState){
                     bind();
+                    syncMessage();
                     Q_EMIT wsConnected();
                 }
             });
@@ -185,11 +210,31 @@ QList<Message> IMManager::getMessageListBySessionId(QString sessionId){
     return DBManager::getInstance()->findMessageListBySessionId(sessionId);
 }
 
-void IMManager::userRegister(const QString& account,const QString& password,const QString& confirmPassword,IMCallback* callback){
+void IMManager::userRegister(
+    const QString& account,
+    const QString& password,
+    const QString& confirmPassword,
+    const QString& name,
+    const QString& mobile,
+    const QString& email,
+    qint64 birthday,
+    const QString& avatar,
+    IMCallback* callback){
     QMap<QString, QVariant> params;
     params.insert("uid",account);
     params.insert("password",password);
     params.insert("confirmPassword",confirmPassword);
+    params.insert("name",name);
+    params.insert("birthday",birthday);
+    if(!mobile.isEmpty()){
+        params.insert("mobile",mobile);
+    }
+    if(!email.isEmpty()){
+        params.insert("email",email);
+    }
+    if(!avatar.isEmpty()){
+        params.insert("avatar",avatar);
+    }
     post("/user/register",params,callback);
 }
 
@@ -238,6 +283,60 @@ void IMManager::messageRead(const QString& ids,IMCallback* callback){
     QMap<QString, QVariant> params;
     params.insert("ids",ids);
     post("/message/messageRead",params,callback);
+}
+
+void IMManager::syncMessage(){
+    IMCallback* callback = new IMCallback();
+    connect(callback,&IMCallback::start,this,[](){
+
+    });
+    connect(callback,&IMCallback::success,this,[callback,this](QJsonObject result) mutable{
+        if(result.contains("data")){
+            QJsonArray data = result.value("data").toArray();
+            auto login = loginAccid();
+            QList<Message> messageList;
+            QMap<QString, Message> map;
+            QMap<QString, int> mapUnread;
+            for (int i = 0; i < data.size(); ++i) {
+                auto item = data.at(i).toObject();
+                const Message &message = json2message(login,item);
+                if (message.sender != login) {
+                    if (!message.readUidList.contains(login)) {
+                        int unread = mapUnread.value(message.sessionId) + 1;
+                        mapUnread.insert(message.sessionId, unread);
+                    }
+                }
+                map.insert(message.sessionId, message);
+                messageList.append(message);
+            }
+            QList<Session> sessionList;
+            for (const auto &item: map) {
+                Session session = message2session(item);
+                int unread = mapUnread.value(session.id);
+                session.unreadCount = unread;
+                sessionList.append(session);
+            }
+            qx::dao::save(messageList);
+            qx::dao::save(sessionList);
+            Q_EMIT messageChanged(messageList);
+            Q_EMIT sessionChanged(sessionList);
+            Q_EMIT syncMessageCompleted();
+        }
+    });
+    connect(callback,&IMCallback::error,this,[callback,this](int code,QString erroString) mutable{
+
+    });
+    connect(callback,&IMCallback::finish,this,[callback](){
+        callback->deleteLater();
+    });
+    QMap<QString, QVariant> params;
+    QList<Message> data = DBManager::getInstance()->findLastMessage();
+    qint64 timestamp = 0;
+    if(!data.isEmpty()){
+        timestamp = data.at(0).timestamp;
+    }
+    params.insert("timestamp",timestamp);
+    post("/message/syncMessage",params,callback);
 }
 
 void IMManager::sendMessage(Message message,IMCallback* callback){
@@ -293,8 +392,20 @@ Message IMManager::buildMessage(const QString &sessionId, int scene, int type, c
 
 void IMManager::sendMessageToLocal(Message& message){
     DBManager::getInstance()->saveOrUpdateMessage(message);
-    Q_EMIT receiveMessage(message);
+    updateMessage(message);
     updateSessionByMessage(message);
+}
+
+void IMManager::updateMessage(Message message){
+    QList<Message> data;
+    data.append(message);
+    Q_EMIT messageChanged(data);
+}
+
+void IMManager::updateSession(Session session){
+    QList<Session> data;
+    data.append(session);
+    Q_EMIT sessionChanged(data);
 }
 
 void IMManager::sendRequest(google::protobuf::Message* message){
@@ -380,7 +491,7 @@ QString IMManager::wsUri(){
 }
 
 QString IMManager::apiUri(){
-    return "http://" + _host + ":" + _apiport;
+    return "http://" + _host + ":" + _port;
 }
 
 void IMManager::onSocketMessage(const QByteArray &message)
@@ -421,7 +532,7 @@ void IMManager::onSocketMessage(const QByteArray &message)
 
         bool success = DBManager::getInstance()->saveOrUpdateMessage(message);
         if (success) {
-            Q_EMIT receiveMessage(message);
+            updateMessage(message);
             updateSessionByMessage(message);
         }
         qDebug()<<QString::fromStdString("ws recevie message: ")<<QString::fromUtf8(messageProto.Utf8DebugString().c_str());

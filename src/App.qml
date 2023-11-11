@@ -9,6 +9,7 @@ Item {
         FluApp.vsync = true
         FluApp.routes = {
             "/login":"qrc:/LoginWindow.qml",
+            "/register":"qrc:/RegisterWindow.qml",
             "/setting":"qrc:/SettingWindow.qml",
             "/":"qrc:/MainWindow.qml",
         }

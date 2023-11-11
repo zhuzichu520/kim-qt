@@ -36,10 +36,10 @@ FluWindow {
             title:"账号设置"
             comId: function(){return com_account_settings}
         }
-        ListElement{
-            title:"关于KIM"
-            comId: function(){return com_about}
-        }
+//        ListElement{
+//            title:"关于KIM"
+//            comId: function(){return com_about}
+//        }
     }
 
     ListView{

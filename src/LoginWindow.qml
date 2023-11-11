@@ -19,27 +19,31 @@ FluWindow {
         background: Rectangle{
             color:window.backgroundColor
         }
+
+        Component.onCompleted: {
+            textbox_login_account.forceActiveFocus()
+        }
+
         ColumnLayout{
             anchors.centerIn: parent
-            spacing: 20
+            spacing: 0
 
             FluTextBox{
                 id:textbox_login_account
-                text:"zhuzichu"
                 Layout.preferredWidth: 240
                 placeholderText: "请输入账号"
             }
 
             FluPasswordBox{
+                Layout.topMargin: 20
                 id:textbox_login_password
-                text:"123456"
                 Layout.preferredWidth: 240
                 placeholderText: "请输入密码"
             }
 
             FluFilledButton{
                 text: "登录"
-                Layout.topMargin: 10
+                Layout.topMargin: 30
                 Layout.preferredWidth: 240
                 Layout.preferredHeight: 34
                 onClicked: {
@@ -48,9 +52,18 @@ FluWindow {
                     IMManager.userLogin(account,password,callback_user_login)
                 }
             }
+            FluButton{
+                text: "注册"
+                Layout.topMargin: 10
+                Layout.preferredWidth: 240
+                Layout.preferredHeight: 34
+                onClicked: {
+                    FluApp.navigate("/register")
+                }
+            }
         }
         FluTextButton{
-            text:"注册"
+            text:"设置"
             anchors{
                 right: parent.right
                 rightMargin: 10
@@ -63,7 +76,7 @@ FluWindow {
         }
     }
 
-    component RegisterPage:Page{
+    component SettingPage:Page{
         background: Rectangle{
             color:window.backgroundColor
         }
@@ -74,31 +87,30 @@ FluWindow {
             FluTextBox{
                 id:textbox_register_account
                 Layout.preferredWidth: 240
-                placeholderText: "请输入账号"
+                placeholderText: "Host"
+                text:IMManager.host
+                onTextChanged: {
+                    IMManager.host = text
+                }
             }
 
-            FluPasswordBox{
+            FluTextBox{
                 id:textbox_register_password
                 Layout.preferredWidth: 240
-                placeholderText: "请输入密码"
+                placeholderText: "WS Port"
+                text: IMManager.wsport
+                onTextChanged: {
+                    IMManager.wsport = text
+                }
             }
 
-            FluPasswordBox{
+            FluTextBox{
                 id:textbox_register_confirm_password
                 Layout.preferredWidth: 240
-                placeholderText: "请再次输入密码"
-            }
-
-            FluFilledButton{
-                text: "注册"
-                Layout.preferredHeight: 34
-                Layout.topMargin: 10
-                Layout.preferredWidth: 240
-                onClicked: {
-                    var account = textbox_register_account.text
-                    var password = textbox_register_password.text
-                    var confirmPassword = textbox_register_confirm_password.text
-                    IMManager.userRegister(account,password,confirmPassword,callback_user_register)
+                placeholderText: "Api Port"
+                text: IMManager.port
+                onTextChanged: {
+                    IMManager.port = text
                 }
             }
         }
@@ -114,24 +126,6 @@ FluWindow {
                 window.pageIndex = 0
             }
         }
-    }
-
-    IMCallback{
-        id:callback_user_register
-        onStart: {
-            showLoading()
-        }
-        onFinish: {
-            hideLoading()
-        }
-        onError:
-            (code,message)=>{
-                showError(message)
-            }
-        onSuccess:
-            (result)=>{
-                showSuccess("注册成功")
-            }
     }
 
     IMCallback{
@@ -164,7 +158,7 @@ FluWindow {
         LoginPage{
 
         }
-        RegisterPage{
+        SettingPage{
 
         }
     }

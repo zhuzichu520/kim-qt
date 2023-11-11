@@ -11,6 +11,7 @@
 #include <db/Session.h>
 #include <QNetworkAccessManager>
 #include <QTimer>
+#include <stdafx.h>
 
 class IMCallback: public QObject{
     Q_OBJECT
@@ -26,13 +27,26 @@ public:
 class IMManager : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY_AUTO(QString,host)
+    Q_PROPERTY_AUTO(QString,port)
+    Q_PROPERTY_AUTO(QString,wsport)
 private:
     explicit IMManager(QObject *parent = nullptr);
     ~IMManager();
 public:
     SINGLETONG(IMManager)
     Q_INVOKABLE void wsConnect();
-    Q_INVOKABLE void userRegister(const QString& account,const QString& password,const QString& confirmPassword,IMCallback* callback = nullptr);
+    Q_INVOKABLE void userRegister(
+        const QString& account,
+        const QString& password,
+        const QString& confirmPassword,
+        const QString& name,
+        const QString& mobile,
+        const QString& email,
+        qint64 birthday,
+        const QString& avatar,
+        IMCallback* callback = nullptr
+        );
     Q_INVOKABLE void userLogin(const QString& account,const QString& password,IMCallback* callback = nullptr);
     Q_INVOKABLE void userSearch(const QString& keyword,IMCallback* callback = nullptr);
     Q_INVOKABLE void userProfile(IMCallback* callback = nullptr);
@@ -44,8 +58,9 @@ public:
     Q_INVOKABLE void sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback,int scene=0);
     Q_INVOKABLE void addEmptySession(QString sessionId,int scene);
     Q_INVOKABLE void clearUnreadCount(const QString &sessionId);
-    Q_SIGNAL void receiveMessage(Message &message);
-    Q_SIGNAL void updateSessionCompleted(Session &session);
+    Q_SIGNAL void syncMessageCompleted();
+    Q_SIGNAL void messageChanged(QList<Message> data);
+    Q_SIGNAL void sessionChanged(QList<Session> data);
     Q_SIGNAL void wsConnected();
     Q_SLOT void onSocketMessage(const QByteArray &message);
     Q_INVOKABLE QString loginAccid();
@@ -63,13 +78,14 @@ private:
     void sendMessage(Message message,IMCallback* callback);
     void sendMessageToLocal(Message& message);
     void updateSessionByMessage(const Message& message);
-    Session message2session(const Message &val);
+    void syncMessage();
+    void updateMessage(Message message);
+    void updateSession(Session session);
+    Session message2session(const Message& val);
+    Message json2message(const QString& login,const QJsonObject& val);
     Message buildMessage(const QString &sessionId, int scene, int type, const QString &content);
 private:
     QWebSocket* _socket = nullptr;
-    QString _host = "47.96.133.87";
-    QString _wsport = "34567";
-    QString _apiport = "8080";
     QString _autoReadSessionId = "";
     QNetworkAccessManager _netManager;
 };
