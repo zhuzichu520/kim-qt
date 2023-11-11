@@ -181,6 +181,7 @@ void IMManager::wsConnect(){
             [=](QAbstractSocket::SocketState state) {
                 qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketState>().valueToKey(state);
                 if(state == QAbstractSocket::ConnectedState){
+                    handleFailedMessage();
                     bind();
                     syncMessage();
                     Q_EMIT wsConnected();
@@ -192,6 +193,15 @@ void IMManager::wsConnect(){
     QNetworkRequest request(wsUri());
     request.setRawHeader("token", token().toUtf8());
     _socket->open(request);
+}
+
+void IMManager::handleFailedMessage(){
+    QList<Message> data = DBManager::getInstance()->findMessageByStatus(1);
+    for (int i = 0; i < data.count(); ++i) {
+        auto item = data.at(i);
+        item.status = 2;
+        DBManager::getInstance()->saveOrUpdateMessage(item);
+    }
 }
 
 QString IMManager::loginAccid(){
@@ -208,6 +218,10 @@ QList<Session> IMManager::getSessionList(){
 
 QList<Message> IMManager::getMessageListBySessionId(QString sessionId){
     return DBManager::getInstance()->findMessageListBySessionId(sessionId);
+}
+
+QList<Message> IMManager::getMessageByPage(QString sessionId,qint64 anchor,int pageSize){
+    return DBManager::getInstance()->findMessageByPage(sessionId,anchor,pageSize);
 }
 
 void IMManager::userRegister(
@@ -376,6 +390,17 @@ void IMManager::sendTextMessage(const QString& receiver,const QString& text,IMCa
     sendMessage(message,callback);
 }
 
+void IMManager::resendMessage(const QString& id,IMCallback* callback){
+    QList<Message> data = DBManager::getInstance()->findMessageListById(id);
+    if(!data.isEmpty()){
+        auto message = data.at(0);
+        message.status = 1;
+        message.timestamp = QDateTime::currentDateTimeUtc().toMSecsSinceEpoch();
+        sendMessageToLocal(message);
+        sendMessage(message,callback);
+    }
+}
+
 Message IMManager::buildMessage(const QString &sessionId, int scene, int type, const QString &content){
     Message message;
     message.id = QUuid::createUuid().toString().remove("{").remove("}");
@@ -522,14 +547,16 @@ void IMManager::onSocketMessage(const QByteArray &message)
         }else{
             message.sessionId = message.sender;
         }
-
         const QString &accids = message.readUidList;
         if (accids.isEmpty()) {
             message.readUidList = loginAccid();
         } else {
             message.readUidList = accids + "," + loginAccid();
         }
-
+        QList<Message> data = DBManager::getInstance()->findMessageListById(message.id);
+        if(!data.isEmpty()){
+            message.localExtra = data.at(0).localExtra;
+        }
         bool success = DBManager::getInstance()->saveOrUpdateMessage(message);
         if (success) {
             updateMessage(message);

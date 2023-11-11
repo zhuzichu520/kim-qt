@@ -49,15 +49,22 @@ void DBManager::initDb(){
 }
 
 bool DBManager::saveOrUpdateMessage(Message message){
-    QList<Message> data = findMessageListById(message.id);
-    if(!data.isEmpty()){
-        message.localExtra = data.at(0).localExtra;
-    }
     return qx::dao::save(message).type() == QSqlError::NoError;
 }
 
 bool DBManager::saveOrUpdateSession(Session session){
     return qx::dao::save(session).type() == QSqlError::NoError;
+}
+
+bool DBManager::deleteMessage(Message message){
+    return qx::dao::delete_by_id(message).type() == QSqlError::NoError;
+}
+
+QList<Message> DBManager::findMessageByPage(QString sessionId,qint64 anchor,int pageSize){
+    qx::QxSqlQuery query(QString("WHERE Message.session_id = '%1' and Message.timestamp < %2 order by Message.timestamp desc limit %3").arg(sessionId).arg(anchor).arg(pageSize));
+    QList<Message> list;
+    qx::dao::fetch_by_query(query, list);
+    return list;
 }
 
 QList<Session> DBManager::findSessionListById(QString id){
@@ -100,6 +107,13 @@ QList<Message> DBManager::findUnreadMessageList(const QString &sessionId,const Q
         }
     }
     return data;
+}
+
+QList<Message> DBManager::findMessageByStatus(int status){
+    qx::QxSqlQuery query(QString("WHERE Message.status = '%1'").arg(status));
+    QList<Message> list;
+    qx::dao::fetch_by_query(query, list);
+    return list;
 }
 
 QList<Session> DBManager::findSessionAll(){

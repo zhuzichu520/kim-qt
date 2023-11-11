@@ -55,6 +55,7 @@ public:
     Q_INVOKABLE void friendRemove(const QString& friendId,IMCallback* callback = nullptr);
     Q_INVOKABLE void friends(IMCallback* callback = nullptr);
     Q_INVOKABLE void messageRead(const QString& ids,IMCallback* callback = nullptr);
+    Q_INVOKABLE void resendMessage(const QString& id,IMCallback* callback);
     Q_INVOKABLE void sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback,int scene=0);
     Q_INVOKABLE void addEmptySession(QString sessionId,int scene);
     Q_INVOKABLE void clearUnreadCount(const QString &sessionId);
@@ -68,6 +69,7 @@ public:
     Q_INVOKABLE void openAutoRead(QString sessionId);
     QList<Session> getSessionList();
     QList<Message> getMessageListBySessionId(QString sessionId);
+    QList<Message> getMessageByPage(QString sessionId,qint64 anchor = QDateTime::currentDateTimeUtc().toMSecsSinceEpoch(),int pageSize=30);
 private:
     QString wsUri();
     QString apiUri();
@@ -81,6 +83,7 @@ private:
     void syncMessage();
     void updateMessage(Message message);
     void updateSession(Session session);
+    void handleFailedMessage();
     Session message2session(const Message& val);
     Message json2message(const QString& login,const QJsonObject& val);
     Message buildMessage(const QString &sessionId, int scene, int type, const QString &content);

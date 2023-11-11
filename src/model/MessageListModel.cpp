@@ -18,17 +18,25 @@ MessageListModel::MessageListModel(QObject *parent)
     });
 }
 
-void MessageListModel::resetData(){
-    beginResetModel();
-    _datas.clear();
-    QList<QSharedPointer<MessageModel>> data;
-    foreach (auto item, IMManager::getInstance()->getMessageListBySessionId(_session->id())) {
-        data.insert(0,handleMessage(item));
+void MessageListModel::loadData(){
+    qint64 lastTimestamp = QDateTime::currentDateTimeUtc().toMSecsSinceEpoch();
+    if(!_anchor.isNull()){
+        lastTimestamp = _anchor->timestamp();
     }
-    _datas.append(data);
-
-    endResetModel();
+    QList<QSharedPointer<MessageModel>> data;
+    auto list = IMManager::getInstance()->getMessageByPage(_session->id(),lastTimestamp,30);
+    if(list.empty()){
+        return;
+    }
+    foreach (auto item, list) {
+        data.append(handleMessage(item));
+    }
+    beginInsertRows(QModelIndex(), 0, data.count()-1);
+    data.append(_datas);
+    _datas = data;
+    endInsertRows();
     Q_EMIT viewToBottom();
+    _anchor = data.last();
 }
 
 QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){
@@ -74,18 +82,18 @@ QString MessageListModel::formatMessageTime(qint64 timestamp){
     }
 }
 
-void MessageListModel::addOrUpdateData(QSharedPointer<MessageModel> session){
+void MessageListModel::addOrUpdateData(QSharedPointer<MessageModel> message){
     for (int i = 0; i < _datas.size(); ++i)
     {
         auto item = _datas.at(i);
-        if(item.get()->id() == session.get()->id()){
-            _datas.at(i)->setModel(session);
+        if(item.get()->id() == message.get()->id()){
+            _datas.at(i)->setModel(message);
             Q_EMIT dataChanged(this->index(i),this->index(i));
             return;
         }
     }
     beginInsertRows(QModelIndex(), 0, 0);
-    _datas.insert(0,session);
+    _datas.append(message);
     endInsertRows();
     Q_EMIT viewToBottom();
 }

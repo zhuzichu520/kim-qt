@@ -25,6 +25,9 @@ public:
     QList<Message> findMessageListById(QString id);
     QList<Message> findUnreadMessageList(const QString &sessionId,const QString &uid);
     QList<Message> findLastMessage();
+    QList<Message> findMessageByStatus(int status);
+    QList<Message> findMessageByPage(QString sessionId,qint64 anchor,int pageSize);
+    bool deleteMessage(Message message);
 
 private:
     QString _dbPath = (QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/db");

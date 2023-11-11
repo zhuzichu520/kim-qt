@@ -16,11 +16,13 @@ public:
     explicit MessageListModel(QObject *parent = nullptr);
     Q_SIGNAL void viewToBottom();
     Q_SIGNAL void viewToPosition(int position);
-    Q_INVOKABLE void resetData();
+    Q_INVOKABLE void loadData();
 private:
     QSharedPointer<MessageModel> handleMessage(Message val);
-    void addOrUpdateData(QSharedPointer<MessageModel> session);
+    void addOrUpdateData(QSharedPointer<MessageModel> message);
     QString formatMessageTime(qint64 timestamp);
+private:
+    QSharedPointer<MessageModel> _anchor;
 };
 
 #endif // MESSAGELISTMODEL_H

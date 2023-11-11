@@ -79,6 +79,14 @@ FluPage{
                     return Qt.rgba(196/255,43/255,28/255,1)
                 }
             }
+            MouseArea{
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    IMManager.resendMessage(modelData.id,callback_message_send)
+                    console.debug("---------->"+modelData.id)
+                }
+            }
         }
     }
 
@@ -138,7 +146,6 @@ FluPage{
             }
             color:FluTheme.fontTertiaryColor
         }
-
         FluText{
             id:item_session_text
             text:display.text
@@ -155,7 +162,6 @@ FluPage{
             color:FluTheme.fontTertiaryColor
             font.pixelSize: 12
         }
-
         Rectangle{
             id:item_session_unreadcount
             width: visible ? 18 : 0
@@ -175,7 +181,6 @@ FluPage{
                 anchors.centerIn: parent
             }
         }
-
     }
     Item{
         id:layout_session
@@ -273,7 +278,7 @@ FluPage{
                     }
                     return FluTheme.dark ?Qt.rgba(233/255,233/255,233/255,1) : FluColors.Black
                 }
-                width: Math.min(implicitWidth,listviewMessage.width/2+30)
+                width: Math.min(implicitWidth,viewMessage.width/2+30)
                 height:  implicitHeight
                 wrapMode: Text.WrapAnywhere
                 x: 9
@@ -330,14 +335,17 @@ FluPage{
                     left: parent.left
                     right: parent.right
                 }
+                height:rect_divider_bottom.y - rect_divider_top.y
                 Binding on height {
                     when: rect_divider_bottom.y - rect_divider_top.y > listview_message.contentHeight
                     value: listview_message.contentHeight
                 }
-                height: rect_divider_bottom.y - rect_divider_top.y
                 ScrollBar.vertical: FluScrollBar {}
                 Component.onCompleted: {
-                    message_model.resetData()
+                    message_model.loadData()
+                    rect_divider_bottom.y = Qt.binding(function(){
+                        return layout_message_panne.height-150
+                    })
                 }
                 delegate: Column{
                     id:item_message_control
@@ -386,7 +394,7 @@ FluPage{
                         }
                         FluLoader{
                             property var modelData: display
-                            property var listviewMessage: listview_message
+                            property var viewMessage: listview_message
                             sourceComponent: com_text_message
                         }
                         Item{
@@ -394,6 +402,8 @@ FluPage{
                             height: 1
                         }
                         FluLoader{
+                            property var modelData: display
+                            property var viewMessage: listview_message
                             anchors.verticalCenter: parent.verticalCenter
                             sourceComponent: {
                                 if(display.status === 1){
@@ -418,7 +428,6 @@ FluPage{
                 id:rect_divider_bottom
                 height: 1
                 orientation: Qt.Horizontal
-                y:parent.height-150
                 onYChanged: {
                     listview_message.positionViewAtBeginning()
                 }
