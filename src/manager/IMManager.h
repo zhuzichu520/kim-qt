@@ -90,7 +90,6 @@ private:
 private:
     QWebSocket* _socket = nullptr;
     QString _autoReadSessionId = "";
-    QNetworkAccessManager _netManager;
 };
 
 #endif // IMMANAGER_H

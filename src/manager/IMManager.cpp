@@ -35,7 +35,6 @@ IMManager::IMManager(QObject *parent)
     host("127.0.0.1");
     port("8080");
     wsport("34567");
-    _netManager.setTransferTimeout(5000);
 }
 
 Session IMManager::message2session(const Message &val){
@@ -461,9 +460,12 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
         part.setBody(value.toUtf8());
         multiPart->append(part);
     }
-    auto reply =  _netManager.post(req,multiPart);
+
+    QNetworkAccessManager* netManager = new QNetworkAccessManager();
+    netManager->setTransferTimeout(5000);
+    auto reply =  netManager->post(req,multiPart);
     multiPart->setParent(reply);
-    connect(reply,&QNetworkReply::finished,this,[reply,callback](){
+    connect(reply,&QNetworkReply::finished,this,[reply,callback,netManager](){
         QString response = QString::fromUtf8(reply->readAll());
         QJsonObject result;
         int code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -500,10 +502,10 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
             }
         }
         reply->deleteLater();
+        netManager->deleteLater();
         if(callback){
             Q_EMIT callback->finish();
         }
-        reply->deleteLater();
     });
 }
 

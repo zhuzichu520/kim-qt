@@ -53,6 +53,11 @@ FluPage{
         }
     }
 
+    SessionListSortProxyModel{
+        id:session_sort_model
+        model:session_model
+    }
+
     SessionListModel{
         id:session_model
     }
@@ -84,7 +89,6 @@ FluPage{
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     IMManager.resendMessage(modelData.id,callback_message_send)
-                    console.debug("---------->"+modelData.id)
                 }
             }
         }
@@ -228,7 +232,7 @@ FluPage{
                 bottom: parent.bottom
             }
             boundsBehavior: ListView.StopAtBounds
-            model: session_model
+            model: session_sort_model
             clip: true
             ScrollBar.vertical: FluScrollBar{}
             delegate: SessionItem{
@@ -311,6 +315,11 @@ FluPage{
                     }
             }
 
+            MessageListSortProxyModel{
+                id:message_sort_model
+                model:message_model
+            }
+
             Item{
                 id:layout_message_top_bar
                 height: 60
@@ -329,7 +338,7 @@ FluPage{
                 boundsBehavior: ListView.StopAtBounds
                 clip: true
                 verticalLayoutDirection: ListView.BottomToTop
-                model: message_model
+                model: message_sort_model
                 anchors{
                     top: rect_divider_top.bottom
                     left: parent.left
@@ -339,6 +348,30 @@ FluPage{
                 Binding on height {
                     when: rect_divider_bottom.y - rect_divider_top.y > listview_message.contentHeight
                     value: listview_message.contentHeight
+                }
+                footer: Item{
+                    height: visible ? 30 : 0
+                    width: listview_message.width
+                    visible: message_model.loadStatus === 0
+                    RowLayout{
+                        anchors.centerIn: parent
+                        FluText{
+                            text: "正在加载"
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+                        FluProgressRing{
+                            Layout.preferredWidth: 20
+                            Layout.preferredHeight: 20
+                            Layout.alignment: Qt.AlignVCenter
+                            strokeWidth:4
+                        }
+                    }
+                }
+                onContentYChanged: {
+                    if(contentY == originY && contentY!=0){
+//                        console.debug("_------------------>"+contentY)
+                        message_model.loadData()
+                    }
                 }
                 ScrollBar.vertical: FluScrollBar {}
                 Component.onCompleted: {

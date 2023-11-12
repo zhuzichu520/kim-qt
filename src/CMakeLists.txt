@@ -41,6 +41,8 @@ set(PROJECT_SOURCES
     model/MessageModel.h model/MessageModel.cpp
     model/MessageListModel.h model/MessageListModel.cpp
     model/SessionListModel.h model/SessionListModel.cpp
+    model/SessionListSortProxyModel.h model/SessionListSortProxyModel.cpp
+    model/MessageListSortProxyModel.h model/MessageListSortProxyModel.cpp
     model/ContactListModel.h model/ContactListModel.cpp
     provider/UserProvider.h provider/UserProvider.cpp
     component/CircularReveal.h component/CircularReveal.cpp

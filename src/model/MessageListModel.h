@@ -12,11 +12,13 @@ class MessageListModel : public BaseListModel<MessageModel>
 {
     Q_OBJECT
     Q_PROPERTY_AUTO(SessionModel*,session)
+    Q_PROPERTY_AUTO(int,loadStatus)
 public:
     explicit MessageListModel(QObject *parent = nullptr);
     Q_SIGNAL void viewToBottom();
     Q_SIGNAL void viewToPosition(int position);
     Q_INVOKABLE void loadData();
+    Q_INVOKABLE void deleteMessage(int index);
 private:
     QSharedPointer<MessageModel> handleMessage(Message val);
     void addOrUpdateData(QSharedPointer<MessageModel> message);

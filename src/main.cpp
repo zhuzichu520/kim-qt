@@ -8,7 +8,9 @@
 #include <manager/IMManager.h>
 #include <manager/DBManager.h>
 #include <model/MessageListModel.h>
+#include <model/MessageListSortProxyModel.h>
 #include <model/SessionListModel.h>
+#include <model/SessionListSortProxyModel.h>
 #include <model/ContactListModel.h>
 #include <model/SessionModel.h>
 #include <provider/UserProvider.h>
@@ -40,7 +42,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("SettingsHelper",SettingsHelper::getInstance());
     qmlRegisterType<IMCallback>("IM", 1, 0, "IMCallback");
     qmlRegisterType<MessageListModel>("IM", 1, 0, "MessageListModel");
+    qmlRegisterType<MessageListSortProxyModel>("IM", 1, 0, "MessageListSortProxyModel");
     qmlRegisterType<SessionListModel>("IM", 1, 0, "SessionListModel");
+    qmlRegisterType<SessionListSortProxyModel>("IM", 1, 0, "SessionListSortProxyModel");
     qmlRegisterType<ContactListModel>("IM", 1, 0, "ContactListModel");
     qmlRegisterType<SessionModel>("IM", 1, 0, "SessionModel");
     qmlRegisterType<ImageModel>("IM", 1, 0, "ImageModel");

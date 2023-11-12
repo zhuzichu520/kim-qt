@@ -23,30 +23,13 @@ void SessionListModel::addOrUpdateData(QSharedPointer<SessionModel> session){
         auto item = _datas.at(i);
         if(item.get()->id() == session.get()->id()){
             _datas.at(i)->setModel(session);
-            Q_EMIT dataChanged(this->index(i),this->index(i));
-            sortDatas();
+            Q_EMIT dataChanged(this->index(i,0),this->index(i,0));
             return;
         }
     }
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     _datas.append(session);
     endInsertRows();
-    sortDatas();
-}
-
-void SessionListModel::sortDatas(){
-    Q_EMIT layoutAboutToBeChanged();
-    std::sort(_datas.begin(),_datas.end(),[](QSharedPointer<SessionModel> left,QSharedPointer<SessionModel> right){
-        if(left.get()->stayTop() && !right.get()->stayTop()){
-            return true;
-        }else if(!left.get()->stayTop() && right.get()->stayTop()){
-            return false;
-        }else{
-            return left.get()->timestamp()>right.get()->timestamp();
-        }
-    });
-    changePersistentIndex(index(0,0),index(_datas.count()-1,0));
-    Q_EMIT layoutChanged(QList<QPersistentModelIndex>(),QAbstractItemModel::VerticalSortHint);
 }
 
 void SessionListModel::resetData(){
@@ -57,7 +40,6 @@ void SessionListModel::resetData(){
         data.append(handleSession(item));
     }
     _datas.append(data);
-    sortDatas();
     endResetModel();
 }
 

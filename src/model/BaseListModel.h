@@ -32,7 +32,6 @@ public:
         return { {Qt::DisplayRole, "display"} };
     }
 
-protected:
     QList<QSharedPointer<T>> _datas;
 };
 

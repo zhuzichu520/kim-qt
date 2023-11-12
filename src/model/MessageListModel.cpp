@@ -6,6 +6,7 @@
 MessageListModel::MessageListModel(QObject *parent)
     : BaseListModel{parent}
 {
+    _loadStatus = 0;
     _session = nullptr;
     connect(IMManager::getInstance(),&IMManager::messageChanged,this,[this](QList<Message> data){
         for (int i = 0; i <= data.count()-1; ++i) {
@@ -19,6 +20,10 @@ MessageListModel::MessageListModel(QObject *parent)
 }
 
 void MessageListModel::loadData(){
+    if(_loadStatus != 0){
+        return;
+    }
+    loadStatus(1);
     qint64 lastTimestamp = QDateTime::currentDateTimeUtc().toMSecsSinceEpoch();
     if(!_anchor.isNull()){
         lastTimestamp = _anchor->timestamp();
@@ -31,11 +36,13 @@ void MessageListModel::loadData(){
     foreach (auto item, list) {
         data.append(handleMessage(item));
     }
-    beginInsertRows(QModelIndex(), 0, data.count()-1);
-    data.append(_datas);
-    _datas = data;
+    beginInsertRows(QModelIndex(), _datas.count(), _datas.count()+data.count()-1);
+    _datas.append(data);
     endInsertRows();
-    Q_EMIT viewToBottom();
+    loadStatus(0);
+    if(data.count()<30){
+        loadStatus(2);
+    }
     _anchor = data.last();
 }
 
@@ -60,6 +67,12 @@ QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){
     model->body(QJsonDocument::fromJson(val.content.toUtf8()).object());
     model->time(formatMessageTime(val.timestamp));
     return model;
+}
+
+void MessageListModel::deleteMessage(int index){
+    beginRemoveRows(QModelIndex(), index, index);
+    _datas.removeAt(index);
+    endRemoveRows();
 }
 
 QString MessageListModel::formatMessageTime(qint64 timestamp){
@@ -88,12 +101,12 @@ void MessageListModel::addOrUpdateData(QSharedPointer<MessageModel> message){
         auto item = _datas.at(i);
         if(item.get()->id() == message.get()->id()){
             _datas.at(i)->setModel(message);
-            Q_EMIT dataChanged(this->index(i),this->index(i));
+            Q_EMIT dataChanged(this->index(i,0),this->index(i,0));
             return;
         }
     }
     beginInsertRows(QModelIndex(), 0, 0);
-    _datas.append(message);
+    _datas.insert(0,message);
     endInsertRows();
     Q_EMIT viewToBottom();
 }
