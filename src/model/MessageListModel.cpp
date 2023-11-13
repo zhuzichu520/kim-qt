@@ -31,6 +31,7 @@ void MessageListModel::loadData(){
     QList<QSharedPointer<MessageModel>> data;
     auto list = IMManager::getInstance()->getMessageByPage(_session->id(),lastTimestamp,30);
     if(list.empty()){
+        Q_EMIT loadCompleted();
         return;
     }
     foreach (auto item, list) {
