@@ -31,7 +31,7 @@ public:
 
 private:
     QString _dbPath = (QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)+"/db");
-
+    bool _inited = false;
 };
 
 #endif // DBMANAGER_H

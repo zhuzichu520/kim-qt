@@ -27,6 +27,7 @@ public:
 class IMManager : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY_AUTO(int,netStatus)
     Q_PROPERTY_AUTO(QString,host)
     Q_PROPERTY_AUTO(QString,port)
     Q_PROPERTY_AUTO(QString,wsport)
@@ -89,6 +90,7 @@ private:
     Message buildMessage(const QString &sessionId, int scene, int type, const QString &content);
 private:
     QWebSocket* _socket = nullptr;
+    QTimer _reconnectTimer;
     QString _autoReadSessionId = "";
 };
 

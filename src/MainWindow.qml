@@ -8,7 +8,7 @@ import IM 1.0
 FluWindow {
     id:window
     width: 880
-    height: 610
+    height: 580
     showStayTop: false
     title: "KIM"
     minimumWidth: 702
@@ -156,6 +156,24 @@ FluWindow {
             FluTheme.darkMode = FluThemeType.Light
         }else{
             FluTheme.darkMode = FluThemeType.Dark
+        }
+    }
+
+    Window{
+        flags: Qt.FramelessWindowHint
+        width: 330
+        height: 34
+        visible: window.visible && IMManager.netStatus !== 3
+        color: Qt.rgba(204/255,83/255,83/255,1)
+        x:window.x + (window.width - width)/2
+        y:Math.max(window.y - height - 5,0)
+        Row{
+            anchors.centerIn: parent
+            Text{
+                text:"网络不可用, 请检查你的网络设置"
+                color: FluColors.White
+                font.pixelSize: 15
+            }
         }
     }
 

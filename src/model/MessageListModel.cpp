@@ -44,6 +44,7 @@ void MessageListModel::loadData(){
         loadStatus(2);
     }
     _anchor = data.last();
+    Q_EMIT loadCompleted();
 }
 
 QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){

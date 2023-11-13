@@ -313,6 +313,11 @@ FluPage{
                     (positon)=>{
 
                     }
+                onLoadCompleted: {
+                    rect_divider_bottom.y = Qt.binding(function(){
+                        return layout_message_panne.height-150
+                    })
+                }
             }
 
             MessageListSortProxyModel{
@@ -369,16 +374,12 @@ FluPage{
                 }
                 onContentYChanged: {
                     if(contentY == originY && contentY!=0){
-//                        console.debug("_------------------>"+contentY)
                         message_model.loadData()
                     }
                 }
                 ScrollBar.vertical: FluScrollBar {}
                 Component.onCompleted: {
                     message_model.loadData()
-                    rect_divider_bottom.y = Qt.binding(function(){
-                        return layout_message_panne.height-150
-                    })
                 }
                 delegate: Column{
                     id:item_message_control

@@ -32,9 +32,14 @@ QByteArray PONG_BODY= QByteArray::fromRawData(reinterpret_cast<const char*>(std:
 IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
-    host("127.0.0.1");
+    netStatus(0);
+    host("192.168.0.122");
     port("8080");
     wsport("34567");
+    connect(&_reconnectTimer,&QTimer::timeout,this,[this](){
+        wsConnect();
+    });
+
 }
 
 Session IMManager::message2session(const Message &val){
@@ -169,6 +174,10 @@ void IMManager::pong(){
 }
 
 void IMManager::wsConnect(){
+    QString wsToken = token();
+    if(wsToken.isEmpty()){
+        return;
+    }
     DBManager::getInstance()->initDb();
     if(_socket!=nullptr){
         delete _socket;
@@ -180,17 +189,30 @@ void IMManager::wsConnect(){
             [=](QAbstractSocket::SocketState state) {
                 qDebug()<<QMetaEnum::fromType<QAbstractSocket::SocketState>().valueToKey(state);
                 if(state == QAbstractSocket::ConnectedState){
+                    netStatus(3);
                     handleFailedMessage();
                     bind();
                     syncMessage();
                     Q_EMIT wsConnected();
+                    _reconnectTimer.stop();
+                }else if(state == QAbstractSocket::UnconnectedState){
+                    netStatus(2);
+                    handleFailedMessage();
+                    bind();
+                    syncMessage();
+                    Q_EMIT wsConnected();
+                    _reconnectTimer.start(5000);
+                } else if(state == QAbstractSocket::ConnectingState){
+                    netStatus(1);
+                }else{
+                    netStatus(0);
                 }
             });
     connect(_socket, &QWebSocket::connected, this,
             [=]() {
             });
     QNetworkRequest request(wsUri());
-    request.setRawHeader("token", token().toUtf8());
+    request.setRawHeader("token", wsToken.toUtf8());
     _socket->open(request);
 }
 
@@ -529,6 +551,7 @@ void IMManager::onSocketMessage(const QByteArray &message)
         qDebug()<<QString::fromStdString("ws recevie ping");
         pong();
     }else if(type == MESSAGE){
+        auto login = loginAccid();
         com::chuzi::imsdk::server::model::proto::Message messageProto;
         messageProto.ParseFromArray(body.data(),body.size());
         Message message;
@@ -544,16 +567,21 @@ void IMManager::onSocketMessage(const QByteArray &message)
         message.readUidList = QString::fromStdString(messageProto.readuids());
         message.timestamp = messageProto.timestamp();
         message.status = 0;
-        if(message.sender == loginAccid()){
+        if(message.sender == login){
             message.sessionId = message.receiver;
         }else{
             message.sessionId = message.sender;
         }
-        const QString &accids = message.readUidList;
-        if (accids.isEmpty()) {
-            message.readUidList = loginAccid();
-        } else {
-            message.readUidList = accids + "," + loginAccid();
+        if(_autoReadSessionId  == message.sessionId){
+            const QString &accids = message.readUidList;
+            if (accids.isEmpty()) {
+                message.readUidList = login;
+            } else {
+                if(!accids.contains(login)){
+                    message.readUidList = accids + "," + loginAccid();
+                }
+            }
+            messageRead(message.readUidList);
         }
         QList<Message> data = DBManager::getInstance()->findMessageListById(message.id);
         if(!data.isEmpty()){

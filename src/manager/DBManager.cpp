@@ -21,6 +21,9 @@ DBManager::~DBManager(){
 }
 
 void DBManager::initDb(){
+    if(_inited){
+        return;
+    }
     auto account = SettingsHelper::getInstance()->getAccount().toString();
     auto dbName = QString(QCryptographicHash::hash(account.toUtf8(), QCryptographicHash::Md5).toHex());
     auto db=qx::QxSqlDatabase::getSingleton();
@@ -46,6 +49,7 @@ void DBManager::initDb(){
     if(sqlError.isValid()){
         qDebug()<<sqlError.text();
     }
+    _inited = true;
 }
 
 bool DBManager::saveOrUpdateMessage(Message message){

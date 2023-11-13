@@ -17,6 +17,7 @@ public:
     explicit MessageListModel(QObject *parent = nullptr);
     Q_SIGNAL void viewToBottom();
     Q_SIGNAL void viewToPosition(int position);
+    Q_SIGNAL void loadCompleted();
     Q_INVOKABLE void loadData();
     Q_INVOKABLE void deleteMessage(int index);
 private:
