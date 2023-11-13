@@ -14,6 +14,7 @@ FluWindow {
     minimumWidth: 702
     minimumHeight: 500
     appBar:undefined
+    property var loginUser : UserProvider.loginUser()
 
     Component.onCompleted: {
         IMManager.wsConnect()
@@ -22,7 +23,7 @@ FluWindow {
     Connections{
         target: IMManager
         function onWsConnected(){
-
+            loginUser = UserProvider.loginUser()
         }
     }
 
@@ -90,7 +91,7 @@ FluWindow {
     AvatarView{
         width: 38
         height: 38
-        userInfo: UserProvider.loginUser()
+        userInfo: loginUser
         anchors{
             left: parent.left
             leftMargin: (nav_view.navCompactWidth - width) / 2
@@ -163,7 +164,7 @@ FluWindow {
         flags: Qt.FramelessWindowHint
         width: 330
         height: 34
-        visible: window.visible && IMManager.netStatus !== 3
+        visible: IMManager.netStatus === 2
         color: Qt.rgba(204/255,83/255,83/255,1)
         x:window.x + (window.width - width)/2
         y:Math.max(window.y - height - 5,0)

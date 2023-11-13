@@ -33,9 +33,10 @@ IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
     netStatus(0);
-    host("192.168.0.122");
+    host("192.168.31.69");
     port("8080");
     wsport("34567");
+    _reconnectTimer.setSingleShot(true);
     connect(&_reconnectTimer,&QTimer::timeout,this,[this](){
         wsConnect();
     });
@@ -197,15 +198,7 @@ void IMManager::wsConnect(){
                     _reconnectTimer.stop();
                 }else if(state == QAbstractSocket::UnconnectedState){
                     netStatus(2);
-                    handleFailedMessage();
-                    bind();
-                    syncMessage();
-                    Q_EMIT wsConnected();
                     _reconnectTimer.start(5000);
-                } else if(state == QAbstractSocket::ConnectingState){
-                    netStatus(1);
-                }else{
-                    netStatus(0);
                 }
             });
     connect(_socket, &QWebSocket::connected, this,
