@@ -4,6 +4,8 @@ import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 import FluentUI 1.0
 import IM 1.0
+import "../component"
+import "../global"
 
 FluWindow {
     id:window
@@ -41,7 +43,7 @@ FluWindow {
             count: 99
             title: "聊天"
             icon:FluentIcons.Home
-            url:"qrc:/SessionPage.qml"
+            url:"qrc:/res/qml/page/SessionPage.qml"
             onTap:{
                 nav_view.push(url)
             }
@@ -51,7 +53,7 @@ FluWindow {
             count: 99
             title: "联系人"
             icon:FluentIcons.ContactPresence
-            url:"qrc:/ContactsPage.qml"
+            url:"qrc:/res/qml/page/ContactsPage.qml"
             onTap:{
                 nav_view.push(url)
             }

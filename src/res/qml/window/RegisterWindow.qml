@@ -160,6 +160,8 @@ FluWindow {
         onSuccess:
             (result)=>{
                 showSuccess("注册成功")
+                onResult({account:textbox_register_account.text,password:textbox_register_password.text})
+                window.close()
             }
     }
 

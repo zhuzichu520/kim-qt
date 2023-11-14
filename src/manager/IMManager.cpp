@@ -33,7 +33,7 @@ IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
     netStatus(0);
-    host("192.168.31.69");
+    host("192.168.0.128");
     port("8080");
     wsport("34567");
     _reconnectTimer.setSingleShot(true);
@@ -92,6 +92,16 @@ void IMManager::updateSessionByMessage(const Message &message) {
     }
     bool success = DBManager::getInstance()->saveOrUpdateSession(session);
     if (success) {
+        updateSession(session);
+    }
+}
+
+void IMManager::sessionStayTop(const QString &sessionId,bool stayTop){
+    QList<Session> data = DBManager::getInstance()->findSessionListById(sessionId);
+    if(!data.isEmpty()){
+        Session session =  data.at(0);
+        session.stayTop = stayTop;
+        DBManager::getInstance()->saveOrUpdateSession(session);
         updateSession(session);
     }
 }

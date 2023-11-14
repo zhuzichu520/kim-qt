@@ -60,6 +60,7 @@ public:
     Q_INVOKABLE void sendTextMessage(const QString& receiver,const QString& text,IMCallback* callback,int scene=0);
     Q_INVOKABLE void addEmptySession(QString sessionId,int scene);
     Q_INVOKABLE void clearUnreadCount(const QString &sessionId);
+    Q_INVOKABLE void sessionStayTop(const QString &sessionId,bool stayTop);
     Q_SIGNAL void syncMessageCompleted();
     Q_SIGNAL void messageChanged(QList<Message> data);
     Q_SIGNAL void sessionChanged(QList<Session> data);

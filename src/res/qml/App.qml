@@ -8,10 +8,10 @@ Item {
         FluApp.init(app)
         FluApp.vsync = true
         FluApp.routes = {
-            "/login":"qrc:/LoginWindow.qml",
-            "/register":"qrc:/RegisterWindow.qml",
-            "/setting":"qrc:/SettingWindow.qml",
-            "/":"qrc:/MainWindow.qml",
+            "/login":"qrc:/res/qml/window/LoginWindow.qml",
+            "/register":"qrc:/res/qml/window/RegisterWindow.qml",
+            "/setting":"qrc:/res/qml/window/SettingWindow.qml",
+            "/":"qrc:/res/qml/window/MainWindow.qml",
         }
         if(SettingsHelper.isLogin()){
             FluApp.initialRoute = "/"

@@ -13,11 +13,21 @@ FluWindow {
     fixSize: true
     title: "KIM"
 
+    property var registerPageRegister: registerForWindowResult("/register")
     property int pageIndex: 0
 
     component LoginPage:Page{
         background: Rectangle{
             color:window.backgroundColor
+        }
+
+        Connections{
+            target: registerPageRegister
+            function onResult(data)
+            {
+                textbox_login_account.text = data.account
+                textbox_login_password.text = data.password
+            }
         }
 
         Component.onCompleted: {
@@ -35,8 +45,8 @@ FluWindow {
             }
 
             FluPasswordBox{
-                Layout.topMargin: 20
                 id:textbox_login_password
+                Layout.topMargin: 20
                 Layout.preferredWidth: 240
                 placeholderText: "请输入密码"
             }
@@ -58,7 +68,7 @@ FluWindow {
                 Layout.preferredWidth: 240
                 Layout.preferredHeight: 34
                 onClicked: {
-                    FluApp.navigate("/register")
+                    registerPageRegister.launch()
                 }
             }
         }

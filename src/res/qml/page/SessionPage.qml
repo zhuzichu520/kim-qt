@@ -2,8 +2,11 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
+import QtQuick.Shapes 1.15
 import FluentUI 1.0
 import IM 1.0
+import "../component"
+import "../global"
 
 FluPage{
 
@@ -15,6 +18,73 @@ FluPage{
         target: MainGlobal
         function onSwitchSessionEvent(uid){
             switchSession(uid)
+        }
+    }
+
+    component CusMenuItem:FluIconButton{
+        display: Button.TextOnly
+        focus: false
+        padding: 0
+        height: 36
+    }
+
+
+    FluMenu{
+        id:menu_item_message_text
+        width: 120
+        focus: false
+        CusMenuItem{
+            text: "复制"
+            onClicked: {
+
+            }
+        }
+    }
+
+    FluContentDialog{
+        id:dialog_delete_session
+        property var onClickListener
+        title:"友情提示"
+        message:"删除聊天后，将同时删除聊天记录"
+        buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.PositiveButton
+        negativeText: "取消"
+        positiveText:"确定"
+        onPositiveClicked:{
+            if(dialog_delete_session.onClickListener){
+                dialog_delete_session.onClickListener()
+            }
+        }
+        function showDialog(listener){
+            dialog_delete_session.onClickListener = listener
+            dialog_delete_session.open()
+        }
+    }
+
+
+    FluMenu{
+        property var display
+        id:menu_item_session
+        width: 120
+        CusMenuItem{
+            property alias session: menu_item_session.display
+            text: session && session.stayTop ? "取消置顶" : "置顶"
+            onClicked: {
+                session_model.stayTopItem(session.id,!session.stayTop)
+                menu_item_session.close()
+            }
+        }
+        CusMenuItem{
+            text: "删除聊天"
+            onClicked: {
+                dialog_delete_session.showDialog(function(){
+                    session_model.deleteItem(menu_item_session.display.id)
+                })
+                menu_item_session.close()
+            }
+        }
+        function showMenu(display){
+            menu_item_session.display = display
+            popup()
         }
     }
 
@@ -107,13 +177,38 @@ FluPage{
                 return FluTheme.itemPressColor
             return FluTheme.itemNormalColor
         }
+        Shape {
+            width: 14
+            height: 14
+            anchors{
+                right: parent.right
+                top: parent.top
+            }
+            visible: display.stayTop
+            ShapePath {
+                fillColor: FluTheme.primaryColor
+                strokeWidth: 0
+                strokeColor: "#00000000"
+                startX: 14; startY: 14
+                PathLine { x: 14; y: 0 }
+                PathLine { x: 0; y: 0 }
+                PathLine { x: 14; y: 14 }
+            }
+        }
+
         MouseArea{
             id:mouse_area_session
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
             anchors.fill: parent
             hoverEnabled: true
-            onClicked: {
-                control.currentSession = display
-            }
+            onClicked:
+                (event)=>{
+                    if(event.button === Qt.LeftButton){
+                        control.currentSession = display
+                    }else{
+                        menu_item_session.showMenu(display)
+                    }
+                }
         }
         AvatarView{
             id:item_avatar
@@ -243,22 +338,6 @@ FluPage{
         }
     }
 
-    FluMenu{
-        id:menu_item_text
-        width: 120
-        focus: false
-        FluIconButton{
-            display: Button.TextOnly
-            text: "复制"
-            focus: false
-            padding: 0
-            height: 36
-            onClicked: {
-
-            }
-        }
-    }
-
     Component{
         id:com_text_message
         Rectangle{
@@ -292,7 +371,7 @@ FluPage{
                 anchors.fill: parent
                 acceptedButtons: Qt.RightButton
                 onClicked: {
-                    menu_item_text.popup()
+                    menu_item_message_text.popup()
                 }
             }
         }
@@ -328,6 +407,17 @@ FluPage{
             Item{
                 id:layout_message_top_bar
                 height: 60
+
+                FluText{
+                    text: currentSession.user.name
+                    anchors{
+                        verticalCenter: parent.verticalCenter
+                        left: parent.left
+                        leftMargin: 20
+                    }
+                    font.pixelSize: 18
+                }
+
             }
 
             FluDivider{

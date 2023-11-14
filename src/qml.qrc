@@ -1,14 +1,15 @@
 <RCC>
     <qresource prefix="/">
-        <file>App.qml</file>
-        <file>LoginWindow.qml</file>
-        <file>MainWindow.qml</file>
-        <file>SettingWindow.qml</file>
-        <file>SessionPage.qml</file>
-        <file>ContactsPage.qml</file>
-        <file>AvatarView.qml</file>
-        <file>MainGlobal.qml</file>
-        <file>qmldir</file>
-        <file>RegisterWindow.qml</file>
+        <file>res/qml/App.qml</file>
+        <file>res/qml/component/AvatarView.qml</file>
+        <file>res/qml/page/ContactsPage.qml</file>
+        <file>res/qml/page/SessionPage.qml</file>
+        <file>res/qml/window/LoginWindow.qml</file>
+        <file>res/qml/window/MainWindow.qml</file>
+        <file>res/qml/window/RegisterWindow.qml</file>
+        <file>res/qml/window/SettingWindow.qml</file>
+        <file>res/qml/global/MainGlobal.qml</file>
+        <file>res/qml/global/qmldir</file>
+        <file>res/image/avatar_default.png</file>
     </qresource>
 </RCC>

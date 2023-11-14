@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<ImageModel>("IM", 1, 0, "ImageModel");
     qmlRegisterType<UserModel>("IM", 1, 0, "UserModel");
     qmlRegisterType<CircularReveal>("IM", 1, 0, "CircularReveal");
-    const QUrl url(QStringLiteral("qrc:/App.qml"));
+    const QUrl url(QStringLiteral("qrc:/res/qml/App.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app, [url](QObject *obj, const QUrl &objUrl) {
             if (!obj && url == objUrl)

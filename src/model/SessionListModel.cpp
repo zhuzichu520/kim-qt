@@ -81,6 +81,31 @@ QString SessionListModel::formatSessionime(qint64 timestamp){
     }
 }
 
+void SessionListModel::stayTopItem(const QString& id,bool stayTop){
+    IMManager::getInstance()->sessionStayTop(id,stayTop);
+}
+
+void SessionListModel::deleteItem(const QString& id){
+    int index = getIndexById(id);
+    if(index!=-1){
+        beginRemoveRows(QModelIndex(),index,index);
+        _datas.removeAt(index);
+        endRemoveRows();
+    }
+}
+
+int SessionListModel::getIndexById(const QString& id){
+    int index = -1;
+    for (int i = 0; i < _datas.size(); ++i)
+    {
+        auto item = _datas.at(i);
+        if(item.get()->id() == id){
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
 
 QString SessionListModel::handleContent(int type,const QString& content){
     QJsonParseError error;
