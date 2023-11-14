@@ -33,7 +33,7 @@ IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
     netStatus(0);
-    host("192.168.0.128");
+    host("127.0.0.1");
     port("8080");
     wsport("34567");
     _reconnectTimer.setSingleShot(true);
@@ -83,6 +83,7 @@ void IMManager::updateSessionByMessage(const Message &message) {
         if(it.id== message.sessionId){
             session.unreadCount = it.unreadCount;
             session.extra = it.extra;
+            session.stayTop = it.stayTop;
         }
     }
     if (message.sender != loginAccid()) {

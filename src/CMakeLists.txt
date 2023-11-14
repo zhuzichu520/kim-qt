@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
     manager/IMManager.h manager/IMManager.cpp
     manager/DBManager.h manager/DBManager.cpp
     helper/SettingsHelper.h helper/SettingsHelper.cpp
+    helper/TextDocumentHelper.h helper/TextDocumentHelper.cpp
     proto/Message.pb.h proto/Message.pb.cc
     proto/ReplyBody.pb.h proto/ReplyBody.pb.cc
     proto/SentBody.pb.h proto/SentBody.pb.cc

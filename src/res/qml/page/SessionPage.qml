@@ -590,6 +590,12 @@ FluPage{
                 ScrollBar.vertical: FluScrollBar{}
                 boundsBehavior: Flickable.StopAtBounds
                 contentHeight: textbox_message_input.height
+                TextDocumentHelper{
+                    document: textbox_message_input.textDocument
+                    cursorPosition: textbox_message_input.cursorPosition
+                    selectionStart: textbox_message_input.selectionStart
+                    selectionEnd: textbox_message_input.selectionEnd
+                }
                 FluMultilineTextBox{
                     id:textbox_message_input
                     padding: 0
@@ -610,14 +616,18 @@ FluPage{
                 }
 
                 FluIconButton{
+                    id:btn_emoji
                     verticalPadding: 0
                     horizontalPadding: 0
                     iconSize: 18
-                    Layout.preferredWidth: 24
-                    Layout.preferredHeight: 24
+                    Layout.preferredWidth: 26
+                    Layout.preferredHeight: 26
                     iconSource: FluentIcons.Emoji2
                     onClicked: {
-                        showInfo("还在努力开发中...")
+                        var pos = mapToGlobal(0,0)
+                        emoji_panel.x = pos.x - (emoji_panel.width-btn_emoji.width) / 2
+                        emoji_panel.y = pos.y - emoji_panel.height
+                        emoji_panel.show()
                     }
                 }
             }
@@ -641,8 +651,18 @@ FluPage{
                     textbox_message_input.clear()
                 }
             }
+
+            EmojiPanel{
+                id:emoji_panel
+                onEmojiClicked:
+                    (tag)=>{
+                        textbox_message_input.insert(textbox_message_input.cursorPosition,tag)
+                    }
+            }
+
         }
     }
+
 
     FluLoader{
         id:loader_session

@@ -17,6 +17,7 @@
 #include <model/UserModel.h>
 #include <model/ImageModel.h>
 #include <helper/SettingsHelper.h>
+#include <helper/TextDocumentHelper.h>
 #include <component/CircularReveal.h>
 
 int main(int argc, char *argv[])
@@ -50,6 +51,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<ImageModel>("IM", 1, 0, "ImageModel");
     qmlRegisterType<UserModel>("IM", 1, 0, "UserModel");
     qmlRegisterType<CircularReveal>("IM", 1, 0, "CircularReveal");
+    qmlRegisterType<TextDocumentHelper>("IM", 1, 0, "TextDocumentHelper");
     const QUrl url(QStringLiteral("qrc:/res/qml/App.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app, [url](QObject *obj, const QUrl &objUrl) {
