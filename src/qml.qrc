@@ -12,8 +12,6 @@
         <file>res/qml/global/qmldir</file>
         <file>res/image/avatar_default.png</file>
         <file>res/qml/component/EmojiPanel.qml</file>
-        <file>res/qml/model/EmojiListModel.qml</file>
-        <file>res/qml/model/qmldir</file>
         <file>res/image/emoji/emoji_00.png</file>
         <file>res/image/emoji/emoji_01.png</file>
         <file>res/image/emoji/emoji_02.png</file>

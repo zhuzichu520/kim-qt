@@ -2,10 +2,21 @@
 
 #include <QTextCursor>
 #include <QDebug>
+#include <QGuiApplication>
+#include <QClipboard>
+#include <QTextBlock>
+#include <helper/EmoticonHelper.h>
 
 TextDocumentHelper::TextDocumentHelper(QObject *parent)
     : QObject{parent}
 {
+    emoticonSize(18);
+    QList<QString> tags;
+    foreach (auto item, EmoticonHelper::getInstance()->_datas) {
+        tags.append(item.get()->tag());
+    }
+    QString tagPattern = "("+ tags.join("|") + ")";
+    _tagRegular.setPattern(tagPattern.replace("[","\\[").replace("]","\\]"));
     _document = nullptr;
     connect(this,&TextDocumentHelper::documentChanged,this,[this]{
         if(_document){
@@ -14,10 +25,29 @@ TextDocumentHelper::TextDocumentHelper(QObject *parent)
     });
 }
 
+//todo 优化
 void TextDocumentHelper::handleEmojiText(){
-    disconnect(_document->textDocument(),&QTextDocument::contentsChanged,this,&TextDocumentHelper::handleEmojiText);
-    insertImage("qrc:/res/image/emoji/emoji_01.png");
-    connect(_document->textDocument(),&QTextDocument::contentsChanged,this,&TextDocumentHelper::handleEmojiText);
+    disconnect(textDocument(),&QTextDocument::contentsChanged,this,&TextDocumentHelper::handleEmojiText);
+    QString text = textDocument()->toRawText();
+    auto cursor = textCursor();
+    QRegularExpressionMatchIterator it = _tagRegular.globalMatch(text);
+    int offset = 0;
+    while (it.hasNext ()) {
+        QRegularExpressionMatch match = it.next();
+        int length = match.capturedLength ();
+        int begin = match.capturedStart () + offset;
+        cursor.setPosition(begin,QTextCursor::MoveAnchor);
+        cursor.setPosition(begin+length,QTextCursor::KeepAnchor);
+        QTextImageFormat format;
+        auto tag = match.captured(1);
+        format.setName(QString::fromStdString("%1%2").arg(_prefix,EmoticonHelper::getInstance()->getFileByTag(tag)));
+        format.setWidth(emoticonSize());
+        format.setHeight(emoticonSize());
+        format.setVerticalAlignment(QTextImageFormat::AlignBottom);
+        cursor.insertImage(format,QTextFrameFormat::InFlow);
+        offset += 1 - length;
+    }
+    connect(textDocument(),&QTextDocument::contentsChanged,this,&TextDocumentHelper::handleEmojiText);
 }
 
 QTextDocument* TextDocumentHelper::textDocument() const
@@ -42,7 +72,6 @@ QTextCursor TextDocumentHelper::textCursor() const
     {
         cursor.setPosition(_cursorPosition);
     }
-
     return cursor;
 }
 
@@ -52,4 +81,54 @@ void TextDocumentHelper::insertImage(const QString& url){
     format.setWidth(20);
     format.setHeight(20);
     textCursor().insertImage(format, QTextFrameFormat::InFlow);
+}
+
+void TextDocumentHelper::copy(){
+    auto cursor = textCursor();
+    int startSelection = cursor.selectionStart();
+    int endSelection = cursor.selectionEnd();
+    QString text = toRawText(startSelection,endSelection);
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->setText(text);
+}
+
+QString TextDocumentHelper::rawText(){
+    auto doc = textDocument();
+    return toRawText(0,doc->characterCount()-1);
+}
+
+QString TextDocumentHelper::toRawText(int start,int end){
+    auto doc = textDocument();
+    QString text;
+    int index = 0;
+    for(QTextBlock it = doc->begin();it != doc->end();it =it.next()){
+        QTextBlock::iterator iterator;
+        for (iterator = it.begin(); !(iterator.atEnd()); ++iterator) {
+            QTextFragment fragment = iterator.fragment();
+            QTextCharFormat format = fragment.charFormat();
+            if(format.isImageFormat()){
+                QTextImageFormat imageFormat = format.toImageFormat();
+                for (int var = 0; var < fragment.length(); var++) {
+                    if(index>=start && index < end){
+                        text.append(EmoticonHelper::getInstance()->getTagByFile(imageFormat.name().replace(_prefix,"")));
+                    }
+                    index++;
+                }
+            }else{
+                auto s = fragment.text();
+                for (int var = 0; var < fragment.length(); var++) {
+                    if(index>=start && index < end){
+                        text.append(s.at(var));
+                    }
+                    index++;
+                }
+            }
+        }
+    }
+    return text;
+}
+
+void TextDocumentHelper::cut(){
+    copy();
+    textCursor().removeSelectedText();
 }

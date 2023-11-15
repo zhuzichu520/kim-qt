@@ -195,21 +195,6 @@ FluPage{
                 PathLine { x: 14; y: 14 }
             }
         }
-
-        MouseArea{
-            id:mouse_area_session
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked:
-                (event)=>{
-                    if(event.button === Qt.LeftButton){
-                        control.currentSession = display
-                    }else{
-                        menu_item_session.showMenu(display)
-                    }
-                }
-        }
         AvatarView{
             id:item_avatar
             width: 42
@@ -245,9 +230,17 @@ FluPage{
             }
             color:FluTheme.fontTertiaryColor
         }
-        FluText{
-            id:item_session_text
-            text:display.text
+        TextDocumentHelper{
+            document: item_session_text.textDocument
+            cursorPosition: item_session_text.cursorPosition
+            selectionStart: item_session_text.selectionStart
+            selectionEnd: item_session_text.selectionEnd
+            emoticonSize: 14
+        }
+
+        Row{
+            spacing: 0
+            id:item_layout_text
             anchors{
                 bottom: item_avatar.bottom
                 bottomMargin: 2
@@ -256,11 +249,24 @@ FluPage{
                 right: item_session_unreadcount.left
                 rightMargin: 10
             }
-            maximumLineCount: 1
-            elide: Text.ElideRight
-            color:FluTheme.fontTertiaryColor
-            font.pixelSize: 12
+            FluCopyableText{
+                id:item_session_text
+                text:display.text
+                clip: true
+                wrapMode: Text.WrapAnywhere
+                color:FluTheme.fontTertiaryColor
+                width: Math.min(implicitWidth,control_session.width-100)
+                font.pixelSize: 12
+                height:14
+            }
+            Text{
+                text:"..."
+                color:FluTheme.fontTertiaryColor
+                visible: item_session_text.implicitWidth>control_session.width-100
+                font.pixelSize: 12
+            }
         }
+
         Rectangle{
             id:item_session_unreadcount
             width: visible ? 18 : 0
@@ -269,7 +275,7 @@ FluPage{
             visible: display.unreadCount !== 0
             color:Qt.rgba(255/255,77/255,79/255,1)
             anchors{
-                verticalCenter:item_session_text.verticalCenter
+                verticalCenter:item_layout_text.verticalCenter
                 right: parent.right
                 rightMargin: 10
             }
@@ -279,6 +285,20 @@ FluPage{
                 color: FluColors.White
                 anchors.centerIn: parent
             }
+        }
+        MouseArea{
+            id:mouse_area_session
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked:
+                (event)=>{
+                    if(event.button === Qt.LeftButton){
+                        control.currentSession = display
+                    }else{
+                        menu_item_session.showMenu(display)
+                    }
+                }
         }
     }
     Item{
@@ -352,7 +372,14 @@ FluPage{
             }
             border.width: modelData.isSelf ? 0 : 1
             border.color: FluTheme.dark ? Window.active ? Qt.rgba(55/255,55/255,55/255,1):Qt.rgba(45/255,45/255,45/255,1) : Qt.rgba(226/255,229/255,234/255,1)
-            FluText{
+            TextDocumentHelper{
+                id:item_message_text_doc_helper
+                document: item_message_content.textDocument
+                cursorPosition: item_message_content.cursorPosition
+                selectionStart: item_message_content.selectionStart
+                selectionEnd: item_message_content.selectionEnd
+            }
+            FluCopyableText{
                 id:item_message_content
                 text:modelData.body.msg
                 color: {
@@ -366,13 +393,16 @@ FluPage{
                 wrapMode: Text.WrapAnywhere
                 x: 9
                 y: 9
-            }
-            MouseArea{
-                anchors.fill: parent
-                acceptedButtons: Qt.RightButton
-                onClicked: {
-                    menu_item_message_text.popup()
+                function copy(){
+                    item_message_text_doc_helper.copy()
                 }
+                Keys.onPressed:
+                    (event) => {
+                        if((event.key === Qt.Key_C)&&(event.modifiers & Qt.ControlModifier)) {
+                            item_message_content.copy()
+                            event.accepted = true
+                        }
+                    }
             }
         }
     }
@@ -591,6 +621,7 @@ FluPage{
                 boundsBehavior: Flickable.StopAtBounds
                 contentHeight: textbox_message_input.height
                 TextDocumentHelper{
+                    id:text_doc_helper
                     document: textbox_message_input.textDocument
                     cursorPosition: textbox_message_input.cursorPosition
                     selectionStart: textbox_message_input.selectionStart
@@ -604,6 +635,22 @@ FluPage{
                     width: parent.width
                     height: Math.max(flickable_message_input.height,textbox_message_input.contentHeight)
                     background: Item{}
+                    function copy(){
+                        text_doc_helper.copy()
+                    }
+                    function cut(){
+                        text_doc_helper.cut()
+                    }
+                    Keys.onPressed:
+                        (event) => {
+                            if((event.key === Qt.Key_C)&&(event.modifiers & Qt.ControlModifier)) {
+                                textbox_message_input.copy()
+                                event.accepted = true
+                            }else if((event.key === Qt.Key_X)&&(event.modifiers & Qt.ControlModifier)){
+                                textbox_message_input.cut()
+                                event.accepted = true
+                            }
+                        }
                 }
             }
 
@@ -642,7 +689,7 @@ FluPage{
                     bottomMargin: 5
                 }
                 onClicked:{
-                    var text =  textbox_message_input.text
+                    var text =  text_doc_helper.rawText()
                     if(text === ""){
                         showError("不能发送空白信息")
                         return

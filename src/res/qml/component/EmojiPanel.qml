@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import FluentUI 1.0
-import "../model"
+import IM 1.0
 
 Window{
     id:control
@@ -16,6 +16,11 @@ Window{
             close()
         }
     }
+
+    EmoticonListModel{
+        id:emoticon_list_model
+    }
+
     Page{
         padding: 0
         anchors{
@@ -39,7 +44,7 @@ Window{
                 bottomMargin: 10
                 leftMargin: 12
             }
-            model:EmojiListModel
+            model:emoticon_list_model
             delegate: FluIconButton{
                 width: 32
                 height: 32
@@ -48,11 +53,11 @@ Window{
                 iconDelegate:Image{
                     width: 26
                     height: 26
-                    source: "qrc:/res/image/emoji/"+model.file
+                    source: "qrc:/res/image/emoji/"+model.display.file
                 }
-                text:model.tag.replace("[","").replace("]","")
+                text:model.display.tag.replace("[","").replace("]","")
                 onClicked: {
-                    control.emojiClicked(model.tag)
+                    control.emojiClicked(model.display.tag)
                 }
             }
         }

@@ -19,6 +19,8 @@
 #include <helper/SettingsHelper.h>
 #include <helper/TextDocumentHelper.h>
 #include <component/CircularReveal.h>
+#include <helper/EmoticonHelper.h>
+#include <model/EmoticonListModel.h>
 
 int main(int argc, char *argv[])
 {
@@ -41,8 +43,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("DBManager",DBManager::getInstance());
     engine.rootContext()->setContextProperty("UserProvider",UserProvider::getInstance());
     engine.rootContext()->setContextProperty("SettingsHelper",SettingsHelper::getInstance());
+    engine.rootContext()->setContextProperty("EmoticonHelper",EmoticonHelper::getInstance());
     qmlRegisterType<IMCallback>("IM", 1, 0, "IMCallback");
     qmlRegisterType<MessageListModel>("IM", 1, 0, "MessageListModel");
+    qmlRegisterType<EmoticonListModel>("IM", 1, 0, "EmoticonListModel");
     qmlRegisterType<MessageListSortProxyModel>("IM", 1, 0, "MessageListSortProxyModel");
     qmlRegisterType<SessionListModel>("IM", 1, 0, "SessionListModel");
     qmlRegisterType<SessionListSortProxyModel>("IM", 1, 0, "SessionListSortProxyModel");
@@ -50,6 +54,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<SessionModel>("IM", 1, 0, "SessionModel");
     qmlRegisterType<ImageModel>("IM", 1, 0, "ImageModel");
     qmlRegisterType<UserModel>("IM", 1, 0, "UserModel");
+    qmlRegisterType<Emoticon>("IM", 1, 0, "Emoticon");
     qmlRegisterType<CircularReveal>("IM", 1, 0, "CircularReveal");
     qmlRegisterType<TextDocumentHelper>("IM", 1, 0, "TextDocumentHelper");
     const QUrl url(QStringLiteral("qrc:/res/qml/App.qml"));

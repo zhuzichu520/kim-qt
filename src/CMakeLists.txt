@@ -40,6 +40,7 @@ set(PROJECT_SOURCES
     model/BaseListModel.h
     model/SessionModel.h model/SessionModel.cpp
     model/MessageModel.h model/MessageModel.cpp
+    model/EmoticonListModel.h model/EmoticonListModel.cpp
     model/MessageListModel.h model/MessageListModel.cpp
     model/SessionListModel.h model/SessionListModel.cpp
     model/SessionListSortProxyModel.h model/SessionListSortProxyModel.cpp
@@ -47,6 +48,7 @@ set(PROJECT_SOURCES
     model/ContactListModel.h model/ContactListModel.cpp
     provider/UserProvider.h provider/UserProvider.cpp
     component/CircularReveal.h component/CircularReveal.cpp
+    helper/EmoticonHelper.h helper/EmoticonHelper.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
