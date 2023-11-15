@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QQuickTextDocument>
 #include <stdafx.h>
-#include <QRegularExpression>
 
 class TextDocumentHelper : public QObject
 {
@@ -24,9 +23,6 @@ public:
     Q_INVOKABLE void cut();
     Q_INVOKABLE QString rawText();
     QString toRawText(int start,int end);
-private:
-    QRegularExpression  _tagRegular;
-    QString _prefix = "qrc:/res/image/emoji/";
 };
 
 #endif // TEXTDOCUMENTHELPER_H

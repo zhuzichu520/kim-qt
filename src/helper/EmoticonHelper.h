@@ -4,6 +4,7 @@
 #include <QObject>
 #include <singleton.h>
 #include <stdafx.h>
+#include <QRegularExpression>
 #include <QSharedPointer>
 
 class Emoticon : public QObject
@@ -28,6 +29,10 @@ public:
     QList<QSharedPointer<Emoticon>> _datas;
     QString getFileByTag(const QString& tag);
     QString getTagByFile(const QString& file);
+    Q_INVOKABLE QString toEmoticonString(QString text,int size = 20);
+public:
+    QRegularExpression  _tagRegular;
+    QString _prefix = "qrc:/res/image/emoji/";
 };
 
 #endif // EMOTICONHELPER_H

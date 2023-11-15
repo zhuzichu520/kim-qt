@@ -11,12 +11,6 @@ TextDocumentHelper::TextDocumentHelper(QObject *parent)
     : QObject{parent}
 {
     emoticonSize(18);
-    QList<QString> tags;
-    foreach (auto item, EmoticonHelper::getInstance()->_datas) {
-        tags.append(item.get()->tag());
-    }
-    QString tagPattern = "("+ tags.join("|") + ")";
-    _tagRegular.setPattern(tagPattern.replace("[","\\[").replace("]","\\]"));
     _document = nullptr;
     connect(this,&TextDocumentHelper::documentChanged,this,[this]{
         if(_document){
@@ -25,12 +19,11 @@ TextDocumentHelper::TextDocumentHelper(QObject *parent)
     });
 }
 
-//todo 优化
 void TextDocumentHelper::handleEmojiText(){
     disconnect(textDocument(),&QTextDocument::contentsChanged,this,&TextDocumentHelper::handleEmojiText);
     QString text = textDocument()->toRawText();
     auto cursor = textCursor();
-    QRegularExpressionMatchIterator it = _tagRegular.globalMatch(text);
+    QRegularExpressionMatchIterator it = EmoticonHelper::getInstance()->_tagRegular.globalMatch(text);
     int offset = 0;
     while (it.hasNext ()) {
         QRegularExpressionMatch match = it.next();
@@ -40,7 +33,7 @@ void TextDocumentHelper::handleEmojiText(){
         cursor.setPosition(begin+length,QTextCursor::KeepAnchor);
         QTextImageFormat format;
         auto tag = match.captured(1);
-        format.setName(QString::fromStdString("%1%2").arg(_prefix,EmoticonHelper::getInstance()->getFileByTag(tag)));
+        format.setName(QString::fromStdString("%1%2").arg(EmoticonHelper::getInstance()->_prefix,EmoticonHelper::getInstance()->getFileByTag(tag)));
         format.setWidth(emoticonSize());
         format.setHeight(emoticonSize());
         format.setVerticalAlignment(QTextImageFormat::AlignBottom);
@@ -110,7 +103,7 @@ QString TextDocumentHelper::toRawText(int start,int end){
                 QTextImageFormat imageFormat = format.toImageFormat();
                 for (int var = 0; var < fragment.length(); var++) {
                     if(index>=start && index < end){
-                        text.append(EmoticonHelper::getInstance()->getTagByFile(imageFormat.name().replace(_prefix,"")));
+                        text.append(EmoticonHelper::getInstance()->getTagByFile(imageFormat.name().replace(EmoticonHelper::getInstance()->_prefix,"")));
                     }
                     index++;
                 }

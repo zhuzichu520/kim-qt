@@ -33,7 +33,7 @@ IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
     netStatus(0);
-    host("192.168.0.140");
+    host("127.0.0.1");
     port("8080");
     wsport("34567");
     _reconnectTimer.setSingleShot(true);

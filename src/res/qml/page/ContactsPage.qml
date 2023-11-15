@@ -15,7 +15,7 @@ FluPage{
     signal refreshFriends
 
     Component.onCompleted: {
-        refreshFriends.call()
+        control.refreshFriends()
     }
 
     ContactListModel{

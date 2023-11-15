@@ -106,5 +106,25 @@ EmoticonHelper::EmoticonHelper(QObject *parent)
     _datas.append(QSharedPointer<Emoticon>(new Emoticon("emoji_66.png","emoticon_emoji_66","[火箭]")));
     _datas.append(QSharedPointer<Emoticon>(new Emoticon("emoji_67.png","emoticon_emoji_67","[救护车]")));
     _datas.append(QSharedPointer<Emoticon>(new Emoticon("emoji_68.png","emoticon_emoji_68","[便便]")));
+    QList<QString> tags;
+    foreach (auto item, _datas) {
+        tags.append(item.get()->tag());
+    }
+    QString tagPattern = "("+ tags.join("|") + ")";
+    _tagRegular.setPattern(tagPattern.replace("[","\\[").replace("]","\\]"));
+}
 
+QString EmoticonHelper::toEmoticonString(QString text,int size){
+    QRegularExpressionMatchIterator it = EmoticonHelper::getInstance()->_tagRegular.globalMatch(text);
+    int offset = 0;
+    while (it.hasNext ()) {
+        QRegularExpressionMatch match = it.next();
+        int length = match.capturedLength ();
+        int begin = match.capturedStart () + offset;
+        QString tag = match.captured(1);
+        QString replaceString = QString::fromStdString("<img src=\"%1\" width=\"%2\" height=\"%2\">").arg((_prefix + getFileByTag(tag)),QString::number(size));
+        text.replace(begin,length,replaceString);
+        offset += replaceString.length() - length;
+    }
+    return QString::fromStdString("<p style=\"vertical-align:bottom;\">%1</p>").arg(text);
 }

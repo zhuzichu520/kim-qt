@@ -230,13 +230,6 @@ FluPage{
             }
             color:FluTheme.fontTertiaryColor
         }
-        TextDocumentHelper{
-            document: item_session_text.textDocument
-            cursorPosition: item_session_text.cursorPosition
-            selectionStart: item_session_text.selectionStart
-            selectionEnd: item_session_text.selectionEnd
-            emoticonSize: 14
-        }
 
         Row{
             spacing: 0
@@ -249,15 +242,14 @@ FluPage{
                 right: item_session_unreadcount.left
                 rightMargin: 10
             }
-            FluCopyableText{
+            FluText{
                 id:item_session_text
-                text:display.text
-                clip: true
-                wrapMode: Text.WrapAnywhere
                 color:FluTheme.fontTertiaryColor
                 width: Math.min(implicitWidth,control_session.width-100)
                 font.pixelSize: 12
-                height:14
+                clip: true
+                text:EmoticonHelper.toEmoticonString(display.text,14)
+                height:15
             }
             Text{
                 text:"..."
@@ -372,37 +364,21 @@ FluPage{
             }
             border.width: modelData.isSelf ? 0 : 1
             border.color: FluTheme.dark ? Window.active ? Qt.rgba(55/255,55/255,55/255,1):Qt.rgba(45/255,45/255,45/255,1) : Qt.rgba(226/255,229/255,234/255,1)
-            TextDocumentHelper{
-                id:item_message_text_doc_helper
-                document: item_message_content.textDocument
-                cursorPosition: item_message_content.cursorPosition
-                selectionStart: item_message_content.selectionStart
-                selectionEnd: item_message_content.selectionEnd
-            }
-            FluCopyableText{
+            FluText{
                 id:item_message_content
-                text:modelData.body.msg
+                text:EmoticonHelper.toEmoticonString(modelData.body.msg)
                 color: {
                     if(modelData.isSelf){
                         return FluColors.Black
                     }
                     return FluTheme.dark ?Qt.rgba(233/255,233/255,233/255,1) : FluColors.Black
                 }
+                textFormat: Text.RichText
                 width: Math.min(implicitWidth,viewMessage.width/2+30)
                 height:  implicitHeight
                 wrapMode: Text.WrapAnywhere
                 x: 9
                 y: 9
-                function copy(){
-                    item_message_text_doc_helper.copy()
-                }
-                Keys.onPressed:
-                    (event) => {
-                        if((event.key === Qt.Key_C)&&(event.modifiers & Qt.ControlModifier)) {
-                            item_message_content.copy()
-                            event.accepted = true
-                        }
-                    }
             }
         }
     }
@@ -474,6 +450,8 @@ FluPage{
                     when: rect_divider_bottom.y - rect_divider_top.y > listview_message.contentHeight
                     value: listview_message.contentHeight
                 }
+                reuseItems: true
+                cacheBuffer: 500
                 footer: Item{
                     height: visible ? 30 : 0
                     width: listview_message.width
@@ -626,6 +604,7 @@ FluPage{
                     cursorPosition: textbox_message_input.cursorPosition
                     selectionStart: textbox_message_input.selectionStart
                     selectionEnd: textbox_message_input.selectionEnd
+                    emoticonSize: 24
                 }
                 FluMultilineTextBox{
                     id:textbox_message_input
