@@ -231,25 +231,28 @@ FluPage{
             color:FluTheme.fontTertiaryColor
         }
 
+
         Row{
-            spacing: 0
             id:item_layout_text
+            spacing: 0
             anchors{
                 bottom: item_avatar.bottom
-                bottomMargin: 2
                 left: item_avatar.right
                 leftMargin: 10
                 right: item_session_unreadcount.left
                 rightMargin: 10
             }
+            height: 16
             FluText{
                 id:item_session_text
                 color:FluTheme.fontTertiaryColor
                 width: Math.min(implicitWidth,control_session.width-100)
                 font.pixelSize: 12
+                wrapMode: Text.NoWrap
                 clip: true
+                textFormat: Text.RichText
+                verticalAlignment: Qt.AlignBottom
                 text:EmoticonHelper.toEmoticonString(display.text,14)
-                height:15
             }
             Text{
                 text:"..."
@@ -374,7 +377,7 @@ FluPage{
                     return FluTheme.dark ?Qt.rgba(233/255,233/255,233/255,1) : FluColors.Black
                 }
                 textFormat: Text.RichText
-                width: Math.min(implicitWidth,viewMessage.width/2+30)
+                width: Math.min(implicitWidth,viewMessage.width/2+36)
                 height:  implicitHeight
                 wrapMode: Text.WrapAnywhere
                 x: 9
@@ -450,7 +453,6 @@ FluPage{
                     when: rect_divider_bottom.y - rect_divider_top.y > listview_message.contentHeight
                     value: listview_message.contentHeight
                 }
-                reuseItems: true
                 cacheBuffer: 500
                 footer: Item{
                     height: visible ? 30 : 0
@@ -584,6 +586,19 @@ FluPage{
                 }
             }
 
+            TextDocumentHelper{
+                id:text_doc_helper
+                document: textbox_message_input.textDocument
+                cursorPosition: textbox_message_input.cursorPosition
+                selectionStart: textbox_message_input.selectionStart
+                selectionEnd: textbox_message_input.selectionEnd
+                emoticonSize: 24
+                onInsertTextChanged:
+                    (text)=>{
+                        textbox_message_input.insert(textbox_message_input.cursorPosition,EmoticonHelper.toEmoticonString(text))
+                    }
+            }
+
             Flickable{
                 id:flickable_message_input
                 anchors{
@@ -595,30 +610,31 @@ FluPage{
                     bottomMargin: 40
                 }
                 clip: true
+                flickableDirection: Flickable.VerticalFlick
                 ScrollBar.vertical: FluScrollBar{}
                 boundsBehavior: Flickable.StopAtBounds
-                contentHeight: textbox_message_input.height
-                TextDocumentHelper{
-                    id:text_doc_helper
-                    document: textbox_message_input.textDocument
-                    cursorPosition: textbox_message_input.cursorPosition
-                    selectionStart: textbox_message_input.selectionStart
-                    selectionEnd: textbox_message_input.selectionEnd
-                    emoticonSize: 24
-                }
-                FluMultilineTextBox{
+                TextArea.flickable : FluMultilineTextBox{
                     id:textbox_message_input
                     padding: 0
                     leftPadding: 12
                     rightPadding: 12
                     width: parent.width
-                    height: Math.max(flickable_message_input.height,textbox_message_input.contentHeight)
+                    textFormat: Text.RichText
                     background: Item{}
+                    onTextChanged: {
+                        if (length > 1024) {
+                            remove(1024, length)
+                            return
+                        }
+                    }
                     function copy(){
                         text_doc_helper.copy()
                     }
                     function cut(){
                         text_doc_helper.cut()
+                    }
+                    function paste(){
+                        text_doc_helper.paste()
                     }
                     Keys.onPressed:
                         (event) => {
@@ -627,6 +643,9 @@ FluPage{
                                 event.accepted = true
                             }else if((event.key === Qt.Key_X)&&(event.modifiers & Qt.ControlModifier)){
                                 textbox_message_input.cut()
+                                event.accepted = true
+                            }else if((event.key === Qt.Key_V)&&(event.modifiers & Qt.ControlModifier)){
+                                textbox_message_input.paste()
                                 event.accepted = true
                             }
                         }
@@ -652,7 +671,7 @@ FluPage{
                     onClicked: {
                         var pos = mapToGlobal(0,0)
                         emoji_panel.x = pos.x - (emoji_panel.width-btn_emoji.width) / 2
-                        emoji_panel.y = pos.y - emoji_panel.height
+                        emoji_panel.y = Math.max(pos.y - emoji_panel.height,0)
                         emoji_panel.show()
                     }
                 }
@@ -678,14 +697,24 @@ FluPage{
                 }
             }
 
+            FluText{
+                text:"%1/%2".arg(textbox_message_input.length).arg(1024)
+                anchors{
+                    left: parent.left
+                    bottom: parent.bottom
+                    bottomMargin: 5
+                    leftMargin: 14
+                }
+                color:FluTheme.fontTertiaryColor
+            }
+
             EmojiPanel{
                 id:emoji_panel
                 onEmojiClicked:
                     (tag)=>{
-                        textbox_message_input.insert(textbox_message_input.cursorPosition,tag)
+                        textbox_message_input.insert(textbox_message_input.cursorPosition,EmoticonHelper.toEmoticonString(tag))
                     }
             }
-
         }
     }
 

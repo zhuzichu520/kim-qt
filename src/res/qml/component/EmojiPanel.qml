@@ -58,6 +58,7 @@ Window{
                 text:model.display.tag.replace("[","").replace("]","")
                 onClicked: {
                     control.emojiClicked(model.display.tag)
+                    control.visible = false
                 }
             }
         }

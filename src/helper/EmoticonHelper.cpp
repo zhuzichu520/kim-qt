@@ -1,5 +1,7 @@
 #include "EmoticonHelper.h"
 
+#include <QImage>
+
 Emoticon::Emoticon(QObject *parent)
     : QObject{parent}
 {
@@ -32,6 +34,10 @@ QString EmoticonHelper::getTagByFile(const QString& file){
         }
     }
     return "";
+}
+
+QString EmoticonHelper::getTagByUrl(QString url){
+    return getTagByFile(url.replace(_prefix,""));
 }
 
 EmoticonHelper::EmoticonHelper(QObject *parent)
@@ -115,6 +121,7 @@ EmoticonHelper::EmoticonHelper(QObject *parent)
 }
 
 QString EmoticonHelper::toEmoticonString(QString text,int size){
+    text = text.replace("\n","<br>");
     QRegularExpressionMatchIterator it = EmoticonHelper::getInstance()->_tagRegular.globalMatch(text);
     int offset = 0;
     while (it.hasNext ()) {
@@ -122,9 +129,10 @@ QString EmoticonHelper::toEmoticonString(QString text,int size){
         int length = match.capturedLength ();
         int begin = match.capturedStart () + offset;
         QString tag = match.captured(1);
-        QString replaceString = QString::fromStdString("<img src=\"%1\" width=\"%2\" height=\"%2\">").arg((_prefix + getFileByTag(tag)),QString::number(size));
+        QString replaceString = QString::fromStdString("<img src=\"%1\" width=\"%2\" height=\"%2\" alt=\"%3\"/>").arg((_prefix + getFileByTag(tag)),QString::number(size),tag);
         text.replace(begin,length,replaceString);
         offset += replaceString.length() - length;
     }
     return QString::fromStdString("<p style=\"vertical-align:bottom;\">%1</p>").arg(text);
 }
+

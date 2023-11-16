@@ -115,8 +115,13 @@ QString SessionListModel::handleContent(int type,const QString& content){
     }
     auto object = jsonDocument.object();
     switch(type){
-    case 0:
-        return object["msg"].toString();
+    case 0:{
+        auto msg = object["msg"].toString();
+        if(msg.length()>50){
+            msg = msg.mid(0,50);
+        }
+        return msg;
+    }
     case 1:
         return "[图片]";
     case 2:

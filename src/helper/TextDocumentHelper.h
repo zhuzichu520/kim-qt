@@ -15,13 +15,15 @@ class TextDocumentHelper : public QObject
     Q_PROPERTY_AUTO(int,emoticonSize)
 public:
     explicit TextDocumentHelper(QObject *parent = nullptr);
+    ~TextDocumentHelper();
     QTextDocument *textDocument() const;
     QTextCursor textCursor() const;
     Q_INVOKABLE void insertImage(const QString& url);
-    Q_SLOT void handleEmojiText();
     Q_INVOKABLE void copy();
     Q_INVOKABLE void cut();
+    Q_INVOKABLE void paste();
     Q_INVOKABLE QString rawText();
+    Q_SIGNAL void insertTextChanged(QString text);
     QString toRawText(int start,int end);
 };
 

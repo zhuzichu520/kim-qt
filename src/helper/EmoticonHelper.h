@@ -6,6 +6,7 @@
 #include <stdafx.h>
 #include <QRegularExpression>
 #include <QSharedPointer>
+#include <QTextDocument>
 
 class Emoticon : public QObject
 {
@@ -29,10 +30,13 @@ public:
     QList<QSharedPointer<Emoticon>> _datas;
     QString getFileByTag(const QString& tag);
     QString getTagByFile(const QString& file);
+    QString getTagByUrl(QString url);
+    void addResource(QTextDocument* textDocument);
     Q_INVOKABLE QString toEmoticonString(QString text,int size = 20);
 public:
     QRegularExpression  _tagRegular;
     QString _prefix = "qrc:/res/image/emoji/";
+    QString _prefix_emoji = "emoji:/";
 };
 
 #endif // EMOTICONHELPER_H

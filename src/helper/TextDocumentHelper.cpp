@@ -4,43 +4,19 @@
 #include <QDebug>
 #include <QGuiApplication>
 #include <QClipboard>
+#include <QPainter>
 #include <QTextBlock>
+#include <QMimeData>
 #include <helper/EmoticonHelper.h>
 
 TextDocumentHelper::TextDocumentHelper(QObject *parent)
     : QObject{parent}
 {
-    emoticonSize(18);
     _document = nullptr;
-    connect(this,&TextDocumentHelper::documentChanged,this,[this]{
-        if(_document){
-            connect(_document->textDocument(),&QTextDocument::contentsChanged,this,&TextDocumentHelper::handleEmojiText);
-        }
-    });
 }
 
-void TextDocumentHelper::handleEmojiText(){
-    disconnect(textDocument(),&QTextDocument::contentsChanged,this,&TextDocumentHelper::handleEmojiText);
-    QString text = textDocument()->toRawText();
-    auto cursor = textCursor();
-    QRegularExpressionMatchIterator it = EmoticonHelper::getInstance()->_tagRegular.globalMatch(text);
-    int offset = 0;
-    while (it.hasNext ()) {
-        QRegularExpressionMatch match = it.next();
-        int length = match.capturedLength ();
-        int begin = match.capturedStart () + offset;
-        cursor.setPosition(begin,QTextCursor::MoveAnchor);
-        cursor.setPosition(begin+length,QTextCursor::KeepAnchor);
-        QTextImageFormat format;
-        auto tag = match.captured(1);
-        format.setName(QString::fromStdString("%1%2").arg(EmoticonHelper::getInstance()->_prefix,EmoticonHelper::getInstance()->getFileByTag(tag)));
-        format.setWidth(emoticonSize());
-        format.setHeight(emoticonSize());
-        format.setVerticalAlignment(QTextImageFormat::AlignBottom);
-        cursor.insertImage(format,QTextFrameFormat::InFlow);
-        offset += 1 - length;
-    }
-    connect(textDocument(),&QTextDocument::contentsChanged,this,&TextDocumentHelper::handleEmojiText);
+TextDocumentHelper::~TextDocumentHelper(){
+
 }
 
 QTextDocument* TextDocumentHelper::textDocument() const
@@ -81,6 +57,9 @@ void TextDocumentHelper::copy(){
     int startSelection = cursor.selectionStart();
     int endSelection = cursor.selectionEnd();
     QString text = toRawText(startSelection,endSelection);
+    if(text.isEmpty()){
+        return;
+    }
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setText(text);
 }
@@ -103,7 +82,7 @@ QString TextDocumentHelper::toRawText(int start,int end){
                 QTextImageFormat imageFormat = format.toImageFormat();
                 for (int var = 0; var < fragment.length(); var++) {
                     if(index>=start && index < end){
-                        text.append(EmoticonHelper::getInstance()->getTagByFile(imageFormat.name().replace(EmoticonHelper::getInstance()->_prefix,"")));
+                        text.append(EmoticonHelper::getInstance()->getTagByUrl(imageFormat.name()));
                     }
                     index++;
                 }
@@ -124,4 +103,18 @@ QString TextDocumentHelper::toRawText(int start,int end){
 void TextDocumentHelper::cut(){
     copy();
     textCursor().removeSelectedText();
+}
+
+void TextDocumentHelper::paste(){
+    const QClipboard *clipboard = QGuiApplication::clipboard();
+    const QMimeData *mimeData = clipboard->mimeData();
+    if (mimeData->hasImage()) {
+        qDebug()<<"Cannot display image data";
+    } else if (mimeData->hasHtml()) {
+        Q_EMIT insertTextChanged(mimeData->text());
+    } else if (mimeData->hasText()) {
+        Q_EMIT insertTextChanged(mimeData->text());
+    } else {
+        qDebug()<<"Cannot display ohter data";
+    }
 }
