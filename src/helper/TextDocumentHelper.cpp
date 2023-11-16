@@ -52,18 +52,6 @@ void TextDocumentHelper::insertImage(const QString& url){
     textCursor().insertImage(format, QTextFrameFormat::InFlow);
 }
 
-void TextDocumentHelper::copy(){
-    auto cursor = textCursor();
-    int startSelection = cursor.selectionStart();
-    int endSelection = cursor.selectionEnd();
-    QString text = toRawText(startSelection,endSelection);
-    if(text.isEmpty()){
-        return;
-    }
-    QClipboard *clipboard = QGuiApplication::clipboard();
-    clipboard->setText(text);
-}
-
 QString TextDocumentHelper::rawText(){
     auto doc = textDocument();
     return toRawText(0,doc->characterCount()-1);
@@ -72,11 +60,11 @@ QString TextDocumentHelper::rawText(){
 QString TextDocumentHelper::toRawText(int start,int end){
     auto doc = textDocument();
     QString text;
+    QTextBlock block = doc->begin();
     int index = 0;
-    for(QTextBlock it = doc->begin();it != doc->end();it =it.next()){
-        QTextBlock::iterator iterator;
-        for (iterator = it.begin(); !(iterator.atEnd()); ++iterator) {
-            QTextFragment fragment = iterator.fragment();
+    while (block.isValid()) {
+        for (QTextBlock::iterator it = block.begin(); !it.atEnd(); ++it) {
+            QTextFragment fragment = it.fragment();
             QTextCharFormat format = fragment.charFormat();
             if(format.isImageFormat()){
                 QTextImageFormat imageFormat = format.toImageFormat();
@@ -96,25 +84,10 @@ QString TextDocumentHelper::toRawText(int start,int end){
                 }
             }
         }
+        if(doc->lastBlock() != block){
+            text.append("\n");
+        }
+        block = block.next();
     }
     return text;
-}
-
-void TextDocumentHelper::cut(){
-    copy();
-    textCursor().removeSelectedText();
-}
-
-void TextDocumentHelper::paste(){
-    const QClipboard *clipboard = QGuiApplication::clipboard();
-    const QMimeData *mimeData = clipboard->mimeData();
-    if (mimeData->hasImage()) {
-        qDebug()<<"Cannot display image data";
-    } else if (mimeData->hasHtml()) {
-        Q_EMIT insertTextChanged(mimeData->text());
-    } else if (mimeData->hasText()) {
-        Q_EMIT insertTextChanged(mimeData->text());
-    } else {
-        qDebug()<<"Cannot display ohter data";
-    }
 }

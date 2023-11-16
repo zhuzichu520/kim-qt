@@ -13,6 +13,7 @@ FluPage{
     id:control
     launchMode: FluPageType.SingleInstance
     property var currentSession : null
+    property bool isCtrlEnterForNewline: true
 
     Connections{
         target: MainGlobal
@@ -242,6 +243,7 @@ FluPage{
                 right: item_session_unreadcount.left
                 rightMargin: 10
             }
+            clip: true
             height: 16
             FluText{
                 id:item_session_text
@@ -249,7 +251,6 @@ FluPage{
                 width: Math.min(implicitWidth,control_session.width-100)
                 font.pixelSize: 12
                 wrapMode: Text.NoWrap
-                clip: true
                 textFormat: Text.RichText
                 verticalAlignment: Qt.AlignBottom
                 text:EmoticonHelper.toEmoticonString(display.text,14)
@@ -378,7 +379,7 @@ FluPage{
                 }
                 textFormat: Text.RichText
                 width: Math.min(implicitWidth,viewMessage.width/2+36)
-                height:  implicitHeight
+                height: implicitHeight
                 wrapMode: Text.WrapAnywhere
                 x: 9
                 y: 9
@@ -627,28 +628,8 @@ FluPage{
                             return
                         }
                     }
-                    function copy(){
-                        text_doc_helper.copy()
-                    }
-                    function cut(){
-                        text_doc_helper.cut()
-                    }
-                    function paste(){
-                        text_doc_helper.paste()
-                    }
-                    Keys.onPressed:
-                        (event) => {
-                            if((event.key === Qt.Key_C)&&(event.modifiers & Qt.ControlModifier)) {
-                                textbox_message_input.copy()
-                                event.accepted = true
-                            }else if((event.key === Qt.Key_X)&&(event.modifiers & Qt.ControlModifier)){
-                                textbox_message_input.cut()
-                                event.accepted = true
-                            }else if((event.key === Qt.Key_V)&&(event.modifiers & Qt.ControlModifier)){
-                                textbox_message_input.paste()
-                                event.accepted = true
-                            }
-                        }
+                    Keys.onEnterPressed: (event)=> {event.accepted = false}
+                    Keys.onReturnPressed:(event)=> {event.accepted = false}
                 }
             }
 

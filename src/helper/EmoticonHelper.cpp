@@ -121,7 +121,6 @@ EmoticonHelper::EmoticonHelper(QObject *parent)
 }
 
 QString EmoticonHelper::toEmoticonString(QString text,int size){
-    text = text.replace("\n","<br>");
     QRegularExpressionMatchIterator it = EmoticonHelper::getInstance()->_tagRegular.globalMatch(text);
     int offset = 0;
     while (it.hasNext ()) {
@@ -133,6 +132,6 @@ QString EmoticonHelper::toEmoticonString(QString text,int size){
         text.replace(begin,length,replaceString);
         offset += replaceString.length() - length;
     }
-    return QString::fromStdString("<p style=\"vertical-align:bottom;\">%1</p>").arg(text);
+    return QString::fromStdString("<p style=\"vertical-align:bottom;white-space:pre-wrap;\">%1</p>").arg(text);
 }
 

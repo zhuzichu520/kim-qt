@@ -19,9 +19,6 @@ public:
     QTextDocument *textDocument() const;
     QTextCursor textCursor() const;
     Q_INVOKABLE void insertImage(const QString& url);
-    Q_INVOKABLE void copy();
-    Q_INVOKABLE void cut();
-    Q_INVOKABLE void paste();
     Q_INVOKABLE QString rawText();
     Q_SIGNAL void insertTextChanged(QString text);
     QString toRawText(int start,int end);
