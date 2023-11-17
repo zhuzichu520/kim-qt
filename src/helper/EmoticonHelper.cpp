@@ -132,6 +132,6 @@ QString EmoticonHelper::toEmoticonString(QString text,int size){
         text.replace(begin,length,replaceString);
         offset += replaceString.length() - length;
     }
-    return QString::fromStdString("<p style=\"vertical-align:middle;white-space:pre-wrap;\">%1</p>").arg(text);
+    return QString::fromStdString("<div style=\"vertical-align:top;white-space:pre-wrap;\">%1</div>").arg(text);
 }
 

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 
 project(kim VERSION 0.1 LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+
 set(FLUENTUI_BUILD_EXAMPLES OFF)
 set(protobuf_BUILD_TESTS OFF)
 set(protobuf_BUILD_PROTOC_BINARIES OFF)
@@ -20,7 +22,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick)
 add_subdirectory(src)
 add_subdirectory(FluentUI)
 
-add_subdirectory(protobuf/cmake)
+add_subdirectory(protobuf)
 set_target_properties(libprotobuf PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${KIM_OUTPUT_DIRECTORY}"
     LIBRARY_OUTPUT_DIRECTORY "${KIM_OUTPUT_DIRECTORY}"
