@@ -57,14 +57,14 @@ FluWindow {
         delegate: TabItem{}
     }
 
-    Rectangle{
+    FluDivider{
         width: 1
         anchors{
             top: listview_tab.top
             right: listview_tab.right
             bottom: parent.bottom
         }
-        color: Qt.rgba(214/255,214/255,214/255,1)
+        orientation: Qt.Vertical
     }
 
     Component{
@@ -110,8 +110,6 @@ FluWindow {
                             bottomMargin: 2
                         }
                     }
-
-
                 }
             }
 
@@ -120,7 +118,6 @@ FluWindow {
                 width: parent.width
                 sourceComponent: com_profile_panne
             }
-
 
             FluFilledButton{
                 text:"退出登录"

@@ -17,6 +17,7 @@ public:
     qint64 timestamp =0;
     int unreadCount = 0;
     int status = 0;
+    QString draft;
     bool stayTop = false;
 };
 

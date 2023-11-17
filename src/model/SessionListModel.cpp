@@ -2,6 +2,7 @@
 
 #include <manager/IMManager.h>
 #include <provider/UserProvider.h>
+#include <helper/EmoticonHelper.h>
 
 SessionListModel::SessionListModel(QObject *parent) : BaseListModel(parent) {
     connect(IMManager::getInstance(),&IMManager::sessionChanged,this,[this](QList<Session> data){
@@ -61,9 +62,14 @@ QSharedPointer<SessionModel> SessionListModel::handleSession(Session val){
     model->unreadCount(val.unreadCount);
     model->status(val.status);
     model->stayTop(val.stayTop);
-    model->text(handleContent(val.type,val.content));
+    model->draft(val.draft);
     model->user(UserProvider::getInstance()->of(val.id));
     model->time(formatSessionime(val.timestamp));
+    if(!val.draft.isEmpty()){
+        model->text(handleDraft(val.draft));
+    }else{
+        model->text(handleContent(val.type,val.content));
+    }
     return model;
 }
 
@@ -107,6 +113,10 @@ int SessionListModel::getIndexById(const QString& id){
     return index;
 }
 
+QString SessionListModel::handleDraft(const QString& draft){
+    return "<font color=\"#c42b1c\">[草稿]</font>"+draft;
+}
+
 QString SessionListModel::handleContent(int type,const QString& content){
     QJsonParseError error;
     auto jsonDocument = QJsonDocument::fromJson(content.toUtf8(),&error);
@@ -140,4 +150,34 @@ SessionModel* SessionListModel::getSessionByUid(const QString& uid){
         }
     }
     return nullptr;
+}
+
+SessionListSortProxyModel::SessionListSortProxyModel(QSortFilterProxyModel *parent)
+    : QSortFilterProxyModel {parent}
+{
+    _model = nullptr;
+    connect(this,&SessionListSortProxyModel::modelChanged,this,[=]{
+        setSourceModel(this->model());
+        sort(0, Qt::AscendingOrder);
+    });
+}
+
+bool SessionListSortProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const{
+    return true;
+}
+
+bool SessionListSortProxyModel::filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const{
+    return true;
+}
+
+bool SessionListSortProxyModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const{
+    QSharedPointer<SessionModel> left = _model->_datas.at(source_left.row());
+    QSharedPointer<SessionModel> right = _model->_datas.at(source_right.row());
+    if(left.get()->stayTop() && !right.get()->stayTop()){
+        return true;
+    }else if(!left.get()->stayTop() && right.get()->stayTop()){
+        return false;
+    }else{
+        return left.get()->timestamp()>right.get()->timestamp();
+    }
 }

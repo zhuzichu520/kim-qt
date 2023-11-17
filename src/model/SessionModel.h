@@ -22,6 +22,7 @@ class SessionModel : public QObject
     Q_PROPERTY_AUTO(QString,text)
     Q_PROPERTY_AUTO(UserModel*,user)
     Q_PROPERTY_AUTO(QString,time)
+    Q_PROPERTY_AUTO(QString,draft)
 
     void setModel(QSharedPointer<SessionModel> val);
 

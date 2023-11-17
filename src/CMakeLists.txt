@@ -30,7 +30,7 @@ set(PROJECT_SOURCES
     manager/IMManager.h manager/IMManager.cpp
     manager/DBManager.h manager/DBManager.cpp
     helper/SettingsHelper.h helper/SettingsHelper.cpp
-    helper/TextDocumentHelper.h helper/TextDocumentHelper.cpp
+    component/TextAreaDocument.h component/TextAreaDocument.cpp
     proto/Message.pb.h proto/Message.pb.cc
     proto/ReplyBody.pb.h proto/ReplyBody.pb.cc
     proto/SentBody.pb.h proto/SentBody.pb.cc
@@ -43,8 +43,6 @@ set(PROJECT_SOURCES
     model/EmoticonListModel.h model/EmoticonListModel.cpp
     model/MessageListModel.h model/MessageListModel.cpp
     model/SessionListModel.h model/SessionListModel.cpp
-    model/SessionListSortProxyModel.h model/SessionListSortProxyModel.cpp
-    model/MessageListSortProxyModel.h model/MessageListSortProxyModel.cpp
     model/ContactListModel.h model/ContactListModel.cpp
     provider/UserProvider.h provider/UserProvider.cpp
     component/CircularReveal.h component/CircularReveal.cpp

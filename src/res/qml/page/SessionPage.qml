@@ -14,7 +14,7 @@ FluPage{
     launchMode: FluPageType.SingleInstance
     property var currentSession : null
     property bool isCtrlEnterForNewline: true
-
+    signal saveMessageDraft
     Connections{
         target: MainGlobal
         function onSwitchSessionEvent(uid){
@@ -28,7 +28,6 @@ FluPage{
         padding: 0
         height: 36
     }
-
 
     FluMenu{
         id:menu_item_message_text
@@ -232,10 +231,9 @@ FluPage{
             color:FluTheme.fontTertiaryColor
         }
 
-
         Row{
             id:item_layout_text
-            spacing: 0
+            spacing: 5
             anchors{
                 bottom: item_avatar.bottom
                 left: item_avatar.right
@@ -245,12 +243,18 @@ FluPage{
             }
             clip: true
             height: 16
-            FluText{
+            TextArea{
                 id:item_session_text
                 color:FluTheme.fontTertiaryColor
                 width: Math.min(implicitWidth,control_session.width-100)
                 font.pixelSize: 12
                 wrapMode: Text.NoWrap
+                padding: 0
+                leftPadding: 0
+                rightPadding: 0
+                bottomPadding: 0
+                topPadding: 0
+                readOnly: true
                 textFormat: Text.RichText
                 verticalAlignment: Qt.AlignBottom
                 text:EmoticonHelper.toEmoticonString(display.text,14)
@@ -290,6 +294,10 @@ FluPage{
             onClicked:
                 (event)=>{
                     if(event.button === Qt.LeftButton){
+                        if(control.currentSession === display){
+                            return
+                        }
+                        control.saveMessageDraft()
                         control.currentSession = display
                     }else{
                         menu_item_session.showMenu(display)
@@ -306,6 +314,7 @@ FluPage{
             width: parent.width
             height: 60
             FluTextBox{
+                id:textbox_search
                 width: 200
                 iconSource: FluentIcons.Search
                 placeholderText: "搜索"
@@ -314,6 +323,31 @@ FluPage{
                     bottomMargin: 8
                     left: parent.left
                     leftMargin: 10
+                }
+                cleanEnabled: false
+                rightPadding: 60
+                FluIconButton{
+                    iconSource: FluentIcons.Cancel
+                    iconSize: 12
+                    anchors{
+                        right: parent.right
+                        rightMargin: 30
+                        verticalCenter: parent.verticalCenter
+                    }
+                    iconColor: FluTheme.dark ? Qt.rgba(222/255,222/255,222/255,1) : Qt.rgba(97/255,97/255,97/255,1)
+                    width: 30
+                    height: 20
+                    verticalPadding: 0
+                    horizontalPadding: 0
+                    visible: textbox_search.activeFocus
+                    onVisibleChanged: {
+                        if(!visible){
+                            textbox_search.clear()
+                        }
+                    }
+                    onClicked:{
+                        textbox_search.focus = false
+                    }
                 }
             }
             FluIconButton{
@@ -349,6 +383,20 @@ FluPage{
             delegate: SessionItem{
             }
         }
+        Component{
+            id:com_search_page
+            SearchPage{
+            }
+        }
+        FluLoader{
+            anchors{
+                top:layout_session_top_bar.bottom
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+            sourceComponent: textbox_search.activeFocus ? com_search_page : undefined
+        }
         FluDivider{
             anchors.top: layout_session_top_bar.bottom
         }
@@ -370,7 +418,7 @@ FluPage{
             border.color: FluTheme.dark ? Window.active ? Qt.rgba(55/255,55/255,55/255,1):Qt.rgba(45/255,45/255,45/255,1) : Qt.rgba(226/255,229/255,234/255,1)
             FluText{
                 id:item_message_content
-                text:EmoticonHelper.toEmoticonString(modelData.body.msg)
+                text: modelData.text
                 color: {
                     if(modelData.isSelf){
                         return FluColors.Black
@@ -391,6 +439,14 @@ FluPage{
         id:com_message_panne
         Item{
             id:layout_message_panne
+
+            Connections{
+                target: control
+                function onSaveMessageDraft(){
+                    var text =  text_area_doc.rawText()
+                    IMManager.saveMessageDraft(currentSession.id,text)
+                }
+            }
 
             MessageListModel{
                 id:message_model
@@ -587,8 +643,8 @@ FluPage{
                 }
             }
 
-            TextDocumentHelper{
-                id:text_doc_helper
+            TextAreaDocument{
+                id:text_area_doc
                 document: textbox_message_input.textDocument
                 cursorPosition: textbox_message_input.cursorPosition
                 selectionStart: textbox_message_input.selectionStart
@@ -630,6 +686,22 @@ FluPage{
                     }
                     Keys.onEnterPressed: (event)=> {event.accepted = false}
                     Keys.onReturnPressed:(event)=> {event.accepted = false}
+                    Component.onCompleted: {
+                        var draft = IMManager.getMessageDraft(currentSession.id)
+                        if(draft !== ""){
+                            textbox_message_input.text = EmoticonHelper.toEmoticonString(draft)
+                        }
+                        IMManager.saveMessageDraft(currentSession.id,"")
+                        timer_active_focus.restart()
+                    }
+                    Timer{
+                        id:timer_active_focus
+                        interval: 500
+                        onTriggered: {
+                            textbox_message_input.forceActiveFocus()
+                            textbox_message_input.cursorPosition = textbox_message_input.length
+                        }
+                    }
                 }
             }
 
@@ -668,13 +740,14 @@ FluPage{
                     bottomMargin: 5
                 }
                 onClicked:{
-                    var text =  text_doc_helper.rawText()
+                    var text =  text_area_doc.rawText()
                     if(text === ""){
                         showError("不能发送空白信息")
                         return
                     }
                     IMManager.sendTextMessage(currentSession.id,text,callback_message_send)
                     textbox_message_input.clear()
+                    IMManager.saveMessageDraft(currentSession.id,"")
                 }
             }
 

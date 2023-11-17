@@ -8,16 +8,14 @@
 #include <manager/IMManager.h>
 #include <manager/DBManager.h>
 #include <model/MessageListModel.h>
-#include <model/MessageListSortProxyModel.h>
 #include <model/SessionListModel.h>
-#include <model/SessionListSortProxyModel.h>
 #include <model/ContactListModel.h>
 #include <model/SessionModel.h>
 #include <provider/UserProvider.h>
 #include <model/UserModel.h>
 #include <model/ImageModel.h>
 #include <helper/SettingsHelper.h>
-#include <helper/TextDocumentHelper.h>
+#include <component/TextAreaDocument.h>
 #include <component/CircularReveal.h>
 #include <helper/EmoticonHelper.h>
 #include <model/EmoticonListModel.h>
@@ -56,7 +54,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<UserModel>("IM", 1, 0, "UserModel");
     qmlRegisterType<Emoticon>("IM", 1, 0, "Emoticon");
     qmlRegisterType<CircularReveal>("IM", 1, 0, "CircularReveal");
-    qmlRegisterType<TextDocumentHelper>("IM", 1, 0, "TextDocumentHelper");
+    qmlRegisterType<TextAreaDocument>("IM", 1, 0, "TextAreaDocument");
     const QUrl url(QStringLiteral("qrc:/res/qml/App.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app, [url](QObject *obj, const QUrl &objUrl) {

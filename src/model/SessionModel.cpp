@@ -26,4 +26,5 @@ void SessionModel::setModel(QSharedPointer<SessionModel> val){
     this->stayTop(session->stayTop());
     this->text(session->text());
     this->time(session->time());
+    this->draft(session->draft());
 }

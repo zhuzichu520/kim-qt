@@ -6,6 +6,7 @@
 #include <model/MessageModel.h>
 #include <model/SessionModel.h>
 #include <db/Message.h>
+#include <QSortFilterProxyModel>
 #include <stdafx.h>
 
 class MessageListModel : public BaseListModel<MessageModel>
@@ -27,5 +28,18 @@ private:
 private:
     QSharedPointer<MessageModel> _anchor;
 };
+
+class MessageListSortProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+    Q_PROPERTY_AUTO(MessageListModel*,model)
+public:
+    explicit MessageListSortProxyModel(QSortFilterProxyModel *parent = nullptr);
+
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+    bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const override;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
+};
+
 
 #endif // MESSAGELISTMODEL_H

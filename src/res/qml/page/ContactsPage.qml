@@ -147,6 +147,7 @@ FluPage{
                 width: parent.width
                 height: 60
                 FluTextBox{
+                    id:textbox_search
                     width: 200
                     iconSource: FluentIcons.Search
                     placeholderText: "搜索"
@@ -155,6 +156,31 @@ FluPage{
                         bottomMargin: 8
                         left: parent.left
                         leftMargin: 10
+                    }
+                    cleanEnabled: false
+                    rightPadding: 60
+                    FluIconButton{
+                        iconSource: FluentIcons.Cancel
+                        iconSize: 12
+                        anchors{
+                            right: parent.right
+                            rightMargin: 30
+                            verticalCenter: parent.verticalCenter
+                        }
+                        iconColor: FluTheme.dark ? Qt.rgba(222/255,222/255,222/255,1) : Qt.rgba(97/255,97/255,97/255,1)
+                        width: 30
+                        height: 20
+                        verticalPadding: 0
+                        horizontalPadding: 0
+                        visible: textbox_search.activeFocus
+                        onVisibleChanged: {
+                            if(!visible){
+                                textbox_search.clear()
+                            }
+                        }
+                        onClicked:{
+                            textbox_search.focus = false
+                        }
                     }
                 }
                 FluIconButton{
@@ -172,6 +198,7 @@ FluPage{
                     }
                     onClicked: {
                         textbox_find_contact.clear()
+                        textbox_find_contact.forceActiveFocus()
                         contact_find_page.visible = true
                     }
                 }
@@ -196,11 +223,28 @@ FluPage{
                             rightMargin: 10
                             verticalCenter: parent.verticalCenter
                         }
+                        onClicked: {
+                            showInfo("正在努力开发中...")
+                        }
                     }
                 }
                 boundsBehavior: ListView.StopAtBounds
                 model: contact_model
                 delegate: ContactItem{}
+            }
+            Component{
+                id:com_search_page
+                SearchPage{
+                }
+            }
+            FluLoader{
+                anchors{
+                    top:layout_contact_top_bar.bottom
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                }
+                sourceComponent: textbox_search.activeFocus ? com_search_page : undefined
             }
         }
         Page{

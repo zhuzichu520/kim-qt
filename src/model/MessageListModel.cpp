@@ -1,6 +1,7 @@
 #include "MessageListModel.h"
 
 #include <manager/IMManager.h>
+#include <helper/EmoticonHelper.h>
 #include <provider/UserProvider.h>
 
 MessageListModel::MessageListModel(QObject *parent)
@@ -68,6 +69,7 @@ QSharedPointer<MessageModel> MessageListModel::handleMessage(Message val){
     model->user(model->isSelf() ? UserProvider::getInstance()->of(loginAccid) : UserProvider::getInstance()->of(val.sessionId));
     model->body(QJsonDocument::fromJson(val.content.toUtf8()).object());
     model->time(formatMessageTime(val.timestamp));
+    model->text(EmoticonHelper::getInstance()->toEmoticonString(model->body().value("msg").toString()));
     return model;
 }
 
@@ -111,4 +113,28 @@ void MessageListModel::addOrUpdateData(QSharedPointer<MessageModel> message){
     _datas.insert(0,message);
     endInsertRows();
     Q_EMIT viewToBottom();
+}
+
+MessageListSortProxyModel::MessageListSortProxyModel(QSortFilterProxyModel *parent)
+    : QSortFilterProxyModel {parent}
+{
+    _model = nullptr;
+    connect(this,&MessageListSortProxyModel::modelChanged,this,[=]{
+        setSourceModel(this->model());
+        sort(0, Qt::AscendingOrder);
+    });
+}
+
+bool MessageListSortProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const{
+    return true;
+}
+
+bool MessageListSortProxyModel::filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const{
+    return true;
+}
+
+bool MessageListSortProxyModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const{
+    QSharedPointer<MessageModel> left = _model->_datas.at(source_left.row());
+    QSharedPointer<MessageModel> right = _model->_datas.at(source_right.row());
+    return left.get()->timestamp() > right.get()->timestamp();
 }

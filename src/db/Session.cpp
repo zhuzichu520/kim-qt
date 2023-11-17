@@ -14,6 +14,7 @@ void register_class(QxClass<Session> &t) {
     t.data(&Session::timestamp, "timestamp");
     t.data(&Session::unreadCount, "unread_count");
     t.data(&Session::status, "status");
+    t.data(&Session::draft, "draft");
     t.data(&Session::stayTop, "stay_top");
 }
 }

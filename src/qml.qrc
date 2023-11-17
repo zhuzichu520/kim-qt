@@ -81,5 +81,6 @@
         <file>res/image/emoji/emoji_66.png</file>
         <file>res/image/emoji/emoji_67.png</file>
         <file>res/image/emoji/emoji_68.png</file>
+        <file>res/qml/page/SearchPage.qml</file>
     </qresource>
 </RCC>

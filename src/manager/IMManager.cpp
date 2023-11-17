@@ -33,7 +33,7 @@ IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
     netStatus(0);
-    host("127.0.0.1");
+    host("192.168.0.141");
     port("8080");
     wsport("34567");
     _reconnectTimer.setSingleShot(true);
@@ -84,6 +84,7 @@ void IMManager::updateSessionByMessage(const Message &message) {
             session.unreadCount = it.unreadCount;
             session.extra = it.extra;
             session.stayTop = it.stayTop;
+            session.draft = it.draft;
         }
     }
     if (message.sender != loginAccid()) {
@@ -376,6 +377,28 @@ void IMManager::syncMessage(){
     }
     params.insert("timestamp",timestamp);
     post("/message/syncMessage",params,callback);
+}
+
+void IMManager::saveMessageDraft(const QString& sessionId,const QString& text){
+    QList<Session> data = DBManager::getInstance()->findSessionListById(sessionId);
+    if(!data.isEmpty()){
+        Session session =  data.at(0);
+        if(text.isEmpty() && session.draft.isEmpty()){
+            return;
+        }
+        session.draft = text;
+        DBManager::getInstance()->saveOrUpdateSession(session);
+        updateSession(session);
+    }
+}
+
+QString IMManager::getMessageDraft(const QString& sessionId){
+    auto data = DBManager::getInstance()->findSessionListById(sessionId);
+    if(!data.isEmpty()){
+        Session session =  data.at(0);
+        return session.draft;
+    }
+    return "";
 }
 
 void IMManager::sendMessage(Message message,IMCallback* callback){
