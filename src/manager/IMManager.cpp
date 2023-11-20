@@ -33,14 +33,14 @@ IMManager::IMManager(QObject *parent)
     : QObject{parent}
 {
     netStatus(0);
-    host("127.0.0.1");
+    syncDataStatus(0);
+    host("192.168.0.141");
     port("8080");
     wsport("34567");
     _reconnectTimer.setSingleShot(true);
     connect(&_reconnectTimer,&QTimer::timeout,this,[this](){
         wsConnect();
     });
-
 }
 
 Session IMManager::message2session(const Message &val){
@@ -105,6 +105,16 @@ void IMManager::sessionStayTop(const QString &sessionId,bool stayTop){
         session.stayTop = stayTop;
         DBManager::getInstance()->saveOrUpdateSession(session);
         updateSession(session);
+    }
+}
+
+void IMManager::removeSession(const QString &sessionId){
+    QList<Session> data = DBManager::getInstance()->findSessionListById(sessionId);
+    if(!data.isEmpty()){
+        Session session =  data.at(0);
+        qx::dao::delete_by_id(session);
+        QString query = QString::fromStdString("WHERE Message.session_id = '%1'").arg(sessionId);
+        qx::dao::delete_by_query<Message>(query);
     }
 }
 
@@ -326,6 +336,7 @@ void IMManager::messageRead(const QString& ids,IMCallback* callback){
 }
 
 void IMManager::syncMessage(){
+    syncDataStatus(1);
     IMCallback* callback = new IMCallback();
     connect(callback,&IMCallback::start,this,[](){
 
@@ -361,20 +372,18 @@ void IMManager::syncMessage(){
             Q_EMIT messageChanged(messageList);
             Q_EMIT sessionChanged(sessionList);
             Q_EMIT syncMessageCompleted();
+            SettingsHelper::getInstance()->saveLastSyncMessageTimestamp(result.value("timestamp"));
         }
+        syncDataStatus(0);
     });
     connect(callback,&IMCallback::error,this,[callback,this](int code,QString erroString) mutable{
-
+        syncDataStatus(0);
     });
     connect(callback,&IMCallback::finish,this,[callback](){
         callback->deleteLater();
     });
     QMap<QString, QVariant> params;
-    QList<Message> data = DBManager::getInstance()->findLastMessage();
-    qint64 timestamp = 0;
-    if(!data.isEmpty()){
-        timestamp = data.at(0).timestamp;
-    }
+    qint64 timestamp = SettingsHelper::getInstance()->getLastSyncMessageTimestamp().toULongLong();
     params.insert("timestamp",timestamp);
     post("/message/syncMessage",params,callback);
 }

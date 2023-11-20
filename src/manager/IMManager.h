@@ -28,6 +28,7 @@ class IMManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY_AUTO(int,netStatus)
+    Q_PROPERTY_AUTO(int,syncDataStatus)
     Q_PROPERTY_AUTO(QString,host)
     Q_PROPERTY_AUTO(QString,port)
     Q_PROPERTY_AUTO(QString,wsport)
@@ -63,6 +64,7 @@ public:
     Q_INVOKABLE void sessionStayTop(const QString &sessionId,bool stayTop);
     Q_INVOKABLE void saveMessageDraft(const QString& sessionId,const QString& text);
     Q_INVOKABLE QString getMessageDraft(const QString& sessionId);
+    Q_INVOKABLE void removeSession(const QString& sessionId);
     Q_SIGNAL void syncMessageCompleted();
     Q_SIGNAL void messageChanged(QList<Message> data);
     Q_SIGNAL void sessionChanged(QList<Session> data);

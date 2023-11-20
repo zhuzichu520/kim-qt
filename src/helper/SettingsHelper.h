@@ -25,6 +25,9 @@ public:
     void saveAccount(const QVariant& account){save("account",account);}
     Q_INVOKABLE QVariant getAccount(){return get("account");}
 
+    void saveLastSyncMessageTimestamp(const QVariant& timestamp){save("last_sync_message_timestamp",timestamp);}
+    Q_INVOKABLE QVariant getLastSyncMessageTimestamp(){return get("last_sync_message_timestamp");}
+
     Q_INVOKABLE void login(const QString& account,const QString& token){
         saveAccount(account);
         saveToken(token);
@@ -36,6 +39,7 @@ public:
     Q_INVOKABLE bool isLogin(){
         return !getAccount().toString().isEmpty();
     }
+
 
 private:
     void save(const QString& key,QVariant val);

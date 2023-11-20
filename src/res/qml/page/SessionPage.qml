@@ -77,7 +77,9 @@ FluPage{
             text: "删除聊天"
             onClicked: {
                 dialog_delete_session.showDialog(function(){
-                    session_model.deleteItem(menu_item_session.display.id)
+                    var sessionId = menu_item_session.display.id
+                    IMManager.removeSession(sessionId)
+                    session_model.deleteItem(sessionId)
                 })
                 menu_item_session.close()
             }
@@ -368,6 +370,7 @@ FluPage{
                 }
             }
         }
+
         ListView{
             id:list_session
             anchors{
@@ -379,6 +382,24 @@ FluPage{
             boundsBehavior: ListView.StopAtBounds
             model: session_sort_model
             clip: true
+            header:Item{
+                height: visible ? 30 : 0
+                width: list_session.width
+                visible: IMManager.syncDataStatus === 1
+                RowLayout{
+                    anchors.centerIn: parent
+                    FluProgressRing{
+                        Layout.preferredWidth: 20
+                        Layout.preferredHeight: 20
+                        Layout.alignment: Qt.AlignVCenter
+                        strokeWidth:4
+                    }
+                    FluText{
+                        text: "收取中..."
+                        Layout.alignment: Qt.AlignVCenter
+                    }
+                }
+            }
             ScrollBar.vertical: FluScrollBar{}
             delegate: SessionItem{
             }
@@ -477,7 +498,8 @@ FluPage{
                 FluText{
                     text: currentSession.user.name
                     anchors{
-                        verticalCenter: parent.verticalCenter
+                        top: parent.top
+                        topMargin: 24
                         left: parent.left
                         leftMargin: 20
                     }

@@ -72,6 +72,30 @@ else()
 endif()
 endif()
 
+#获取文件路径分隔符（解决执行命令的时候有些平台会报错）
+file(TO_CMAKE_PATH "/" PATH_SEPARATOR)
+
+if(WIN32)
+    #复制动态库到可执行文件同级目录下
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(3RDPARTY_ARCH_DIR ${CMAKE_SOURCE_DIR}/3rdparty/Win_x86)
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(3RDPARTY_ARCH_DIR ${CMAKE_SOURCE_DIR}/3rdparty/Win_x64)
+    endif()
+    if(MSVC)
+        set(DLLPATH ${3RDPARTY_ARCH_DIR}/msvc/*.dll)
+    elseif(MINGW)
+        set(DLLPATH ${3RDPARTY_ARCH_DIR}/mingw/*.dll)
+    endif()
+    string(REPLACE "/" ${PATH_SEPARATOR} DLLPATH "${DLLPATH}")
+    file(GLOB DLL_FILES ${DLLPATH})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${DLL_FILES}
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    )
+endif()
+
 target_link_libraries(kim PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Quick
