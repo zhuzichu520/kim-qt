@@ -47,6 +47,7 @@ set(PROJECT_SOURCES
     provider/UserProvider.h provider/UserProvider.cpp
     component/CircularReveal.h component/CircularReveal.cpp
     helper/EmoticonHelper.h helper/EmoticonHelper.cpp
+    event/MainEvent.h event/MainEvent.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

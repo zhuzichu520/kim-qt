@@ -8,8 +8,6 @@
         <file>res/qml/window/MainWindow.qml</file>
         <file>res/qml/window/RegisterWindow.qml</file>
         <file>res/qml/window/SettingWindow.qml</file>
-        <file>res/qml/global/MainGlobal.qml</file>
-        <file>res/qml/global/qmldir</file>
         <file>res/image/avatar_default.png</file>
         <file>res/qml/component/EmojiPanel.qml</file>
         <file>res/image/emoji/emoji_00.png</file>
@@ -82,5 +80,6 @@
         <file>res/image/emoji/emoji_67.png</file>
         <file>res/image/emoji/emoji_68.png</file>
         <file>res/qml/page/SearchPage.qml</file>
+        <file>res/qml/window/FileSendWindow.qml</file>
     </qresource>
 </RCC>

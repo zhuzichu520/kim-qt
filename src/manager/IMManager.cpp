@@ -16,6 +16,7 @@
 #include <proto/SentBody.pb.h>
 #include <proto/Message.pb.h>
 #include <proto/ReplyBody.pb.h>
+#include <QGuiApplication>
 
 const int DATA_HEADER_LENGTH = 1;
 const int MESSAGE = 2;
@@ -34,7 +35,7 @@ IMManager::IMManager(QObject *parent)
 {
     netStatus(0);
     syncDataStatus(0);
-    host("192.168.0.141");
+    host("192.168.0.155");
     port("8080");
     wsport("34567");
     _reconnectTimer.setSingleShot(true);
@@ -335,6 +336,15 @@ void IMManager::messageRead(const QString& ids,IMCallback* callback){
     post("/message/messageRead",params,callback);
 }
 
+void IMManager::syncData(){
+
+
+}
+
+void IMManager::syncContacts(){
+
+}
+
 void IMManager::syncMessage(){
     syncDataStatus(1);
     IMCallback* callback = new IMCallback();
@@ -499,31 +509,40 @@ void IMManager::sendRequest(google::protobuf::Message* message){
     _socket->sendBinaryMessage(protobuf);
 }
 
-void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallback* callback){
-    if(callback){
-        Q_EMIT callback->start();
-    }
-    QNetworkRequest req(apiUri()+path);
-    if(!token().isEmpty()){
-        req.setRawHeader("access-token",token().toUtf8());
-    }
-    QHttpMultiPart* multiPart= new QHttpMultiPart(QHttpMultiPart::FormDataType);
-    for (const auto& each : params.toStdMap())
-    {
-        const QString& key = each.first;
-        const QString& value = each.second.toString();
-        QString dispositionHeader = QString("form-data; name=\"%1\"").arg(key);
-        QHttpPart part;
-        part.setHeader(QNetworkRequest::ContentDispositionHeader, dispositionHeader);
-        part.setBody(value.toUtf8());
-        multiPart->append(part);
-    }
-
-    QNetworkAccessManager* netManager = new QNetworkAccessManager();
-    netManager->setTransferTimeout(5000);
-    auto reply =  netManager->post(req,multiPart);
-    multiPart->setParent(reply);
-    connect(reply,&QNetworkReply::finished,this,[reply,callback,netManager](){
+void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallback* c){
+    QPointer<IMCallback> callback(c);
+    QThreadPool::globalInstance()->start([=](){
+        if(!callback.isNull()){
+            Q_EMIT callback->start();
+        }
+        QNetworkRequest req(apiUri()+path);
+        if(!token().isEmpty()){
+            req.setRawHeader("access-token",token().toUtf8());
+        }
+        QHttpMultiPart* multiPart= new QHttpMultiPart(QHttpMultiPart::FormDataType);
+        for (const auto& each : params.toStdMap())
+        {
+            const QString& key = each.first;
+            const QString& value = each.second.toString();
+            QString dispositionHeader = QString("form-data; name=\"%1\"").arg(key);
+            QHttpPart part;
+            part.setHeader(QNetworkRequest::ContentDispositionHeader, dispositionHeader);
+            part.setBody(value.toUtf8());
+            multiPart->append(part);
+        }
+        QNetworkAccessManager manager;
+        manager.setTransferTimeout(5000);
+        QEventLoop loop;
+        connect(&manager,&QNetworkAccessManager::finished,&manager,[&loop](QNetworkReply *reply){loop.quit();});
+        connect(qApp,&QGuiApplication::aboutToQuit,&manager,[&loop](){loop.quit();});
+        auto reply = manager.post(req,multiPart);
+        if(!QPointer(qApp)){
+            reply->deleteLater();
+            reply = nullptr;
+            return;
+        }
+        multiPart->setParent(reply);
+        loop.exec();
         QString response = QString::fromUtf8(reply->readAll());
         QJsonObject result;
         int code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -551,17 +570,16 @@ void IMManager::post(const QString& path, QMap<QString, QVariant> params,IMCallb
             isSuccess = false;
         }
         if(isSuccess){
-            if(callback){
+            if(!callback.isNull()){
                 Q_EMIT callback->success(result);
             }
         }else{
-            if(callback){
+            if(!callback.isNull()){
                 Q_EMIT callback->error(code,message);
             }
         }
         reply->deleteLater();
-        netManager->deleteLater();
-        if(callback){
+        if(!callback.isNull()){
             Q_EMIT callback->finish();
         }
     });

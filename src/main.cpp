@@ -6,6 +6,7 @@
 #include <QNetworkProxy>
 #include <QProcess>
 #include <manager/IMManager.h>
+#include <event/MainEvent.h>
 #include <manager/DBManager.h>
 #include <model/MessageListModel.h>
 #include <model/SessionListModel.h>
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("UserProvider",UserProvider::getInstance());
     engine.rootContext()->setContextProperty("SettingsHelper",SettingsHelper::getInstance());
     engine.rootContext()->setContextProperty("EmoticonHelper",EmoticonHelper::getInstance());
+    engine.rootContext()->setContextProperty("MainEvent",MainEvent::getInstance());
     qmlRegisterType<IMCallback>("IM", 1, 0, "IMCallback");
     qmlRegisterType<MessageListModel>("IM", 1, 0, "MessageListModel");
     qmlRegisterType<EmoticonListModel>("IM", 1, 0, "EmoticonListModel");

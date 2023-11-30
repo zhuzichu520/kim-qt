@@ -5,8 +5,8 @@ import QtQuick.Window 2.15
 import QtQuick.Shapes 1.15
 import FluentUI 1.0
 import IM 1.0
+import Qt.labs.platform
 import "../component"
-import "../global"
 
 FluPage{
 
@@ -16,7 +16,7 @@ FluPage{
     property bool isCtrlEnterForNewline: true
     signal saveMessageDraft
     Connections{
-        target: MainGlobal
+        target: MainEvent
         function onSwitchSessionEvent(uid){
             switchSession(uid)
         }
@@ -750,6 +750,27 @@ FluPage{
                         emoji_panel.show()
                     }
                 }
+                FluIconButton{
+                    id:btn_file
+                    verticalPadding: 0
+                    horizontalPadding: 0
+                    iconSize: 18
+                    Layout.preferredWidth: 26
+                    Layout.preferredHeight: 26
+                    iconSource: FluentIcons.Folder
+                    onClicked: {
+                        file_dialog.open()
+                    }
+                }
+            }
+
+            FileDialog {
+                id: file_dialog
+                fileMode: FileDialog.OpenFiles
+                onAccepted: {
+                    console.debug(FluTools.toLocalPath(file_dialog.currentFile))
+                    FluApp.navigate("/fileSend",{},window)
+                }
             }
 
             FluFilledButton{
@@ -793,7 +814,6 @@ FluPage{
             }
         }
     }
-
 
     FluLoader{
         id:loader_session

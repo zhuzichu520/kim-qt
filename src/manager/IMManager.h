@@ -87,6 +87,8 @@ private:
     void sendMessageToLocal(Message& message);
     void updateSessionByMessage(const Message& message);
     void syncMessage();
+    void syncContacts();
+    void syncData();
     void updateMessage(Message message);
     void updateSession(Session session);
     void handleFailedMessage();

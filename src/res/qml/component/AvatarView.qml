@@ -19,7 +19,7 @@ FluClip {
 
     Image{
         anchors.fill: parent
-        visible: image_source.progress !==1
+        visible: Number(image_source.progress) !== 1
         source: "qrc:/res/image/avatar_default.png"
     }
 

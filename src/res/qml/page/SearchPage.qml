@@ -5,8 +5,6 @@ import QtQuick.Window 2.15
 import FluentUI 1.0
 import IM 1.0
 import "../component"
-import "../global"
-
 
 Page {
     background: Rectangle{

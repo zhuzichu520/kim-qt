@@ -6,11 +6,13 @@ Item {
 
     Component.onCompleted: {
         FluApp.init(app)
+        FluApp.useSystemAppBar = true
         FluApp.vsync = true
         FluApp.routes = {
             "/login":"qrc:/res/qml/window/LoginWindow.qml",
             "/register":"qrc:/res/qml/window/RegisterWindow.qml",
             "/setting":"qrc:/res/qml/window/SettingWindow.qml",
+            "/fileSend":"qrc:/res/qml/window/FileSendWindow.qml",
             "/":"qrc:/res/qml/window/MainWindow.qml",
         }
         if(SettingsHelper.isLogin()){

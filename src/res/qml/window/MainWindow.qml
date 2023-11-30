@@ -5,7 +5,6 @@ import QtQuick.Window 2.15
 import FluentUI 1.0
 import IM 1.0
 import "../component"
-import "../global"
 
 FluWindow {
     id:window
@@ -15,8 +14,17 @@ FluWindow {
     title: "KIM"
     minimumWidth: 702
     minimumHeight: 500
-    appBar:undefined
     property var loginUser : UserProvider.loginUser()
+    fitsAppBarWindows: true
+    appBar: FluAppBar {
+        width: window.width
+        height: 30
+        darkText: "夜间模式"
+        showDark: true
+        darkClickListener:(button)=>handleDarkChanged(button)
+        closeClickListener: ()=>{window.close()}
+        z:7
+    }
 
     Component.onCompleted: {
         IMManager.wsConnect()
@@ -30,7 +38,7 @@ FluWindow {
     }
 
     Connections{
-        target: MainGlobal
+        target: MainEvent
         function onSwitchSessionEvent(uid){
             nav_view.startPageByItem(pane_item_session)
         }
@@ -100,19 +108,6 @@ FluWindow {
             top: parent.top
             topMargin: 36
         }
-    }
-
-    FluAppBar {
-        id:app_bar_front
-        anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
-        }
-        darkText: "夜间模式"
-        showDark: true
-        z:7
-        darkClickListener:(button)=>handleDarkChanged(button)
     }
 
     Component{
