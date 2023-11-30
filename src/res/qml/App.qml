@@ -6,7 +6,6 @@ Item {
 
     Component.onCompleted: {
         FluApp.init(app)
-        FluApp.useSystemAppBar = true
         FluApp.vsync = true
         FluApp.routes = {
             "/login":"qrc:/res/qml/window/LoginWindow.qml",
